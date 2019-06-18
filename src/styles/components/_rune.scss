@@ -1,0 +1,28 @@
+.rune {
+    padding: $hu;
+    // border-radius: $hu;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    background: white;
+    // border: 1px solid red;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    svg {
+        overflow: visible;
+        position: absolute;
+        background: none;
+    }
+    .rune-size {
+        color: $cream-dark;
+    }
+    .rune-label {
+        left: 0;
+        position: absolute;
+        bottom: 100%;
+        margin: 0 0 $hu 0;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: $cream-dark;
+    }
+}

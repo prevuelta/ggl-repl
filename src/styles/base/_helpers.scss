@@ -1,0 +1,17 @@
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+
+.shadow {
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.float-right {
+    float: right;
+}

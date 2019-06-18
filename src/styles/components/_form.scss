@@ -1,0 +1,46 @@
+button {
+    padding: $hu $u;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    &:hover {
+        background: white;
+        color: black;
+    }
+}
+
+label {
+    display: block;
+    color: $sky;
+    font-size: $pu;
+    font-weight: bold;
+    padding: 0 $hu;
+}
+
+input,
+textarea {
+    // box-sizing: border-box;
+    // box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+    padding: $hu;
+    border: none;
+    font-family: $primary-font;
+    display: inline-block;
+    font-size: $qqqpu;
+    display: block;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+input[type='number'] {
+    max-width: $u6;
+}
+
+input {
+    // border-radius: 2px;
+}
+
+textarea {
+    resize: none;
+}

@@ -1,0 +1,70 @@
+.switch,
+.button {
+    width: $uh;
+    height: $uh;
+    cursor: pointer;
+    border-radius: 2px;
+    text-align: center;
+    color: white;
+    font-size: $u;
+    line-height: $uh;
+    box-sizing: border-box;
+    font-family: 'Courier New';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        width: $u;
+        height: $u;
+        fill: white;
+    }
+
+    &:hover {
+        background: $cream;
+        svg {
+            fill: $dark;
+        }
+    }
+
+    &.on {
+        svg {
+            fill: $sky;
+        }
+    }
+}
+
+.button-group {
+    display: flex;
+    margin-top: $qu;
+
+    .button,
+    .switch {
+        margin: 0;
+    }
+}
+
+.path {
+    .sheet {
+        border-left: $u solid $field;
+    }
+
+    .path {
+        .sheet {
+            border-left: $u solid $rust;
+        }
+    }
+}
+
+.header {
+    border-bottom: 1px solid white;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: $hu;
+    margin-bottom: $u;
+
+    * {
+        margin: 0;
+    }
+}

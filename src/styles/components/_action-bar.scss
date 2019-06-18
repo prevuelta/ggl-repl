@@ -1,0 +1,40 @@
+#rune-actionbar {
+	display: inline-block;
+    // position: fixed;
+    // top: $u;
+    // left: $u4;
+    // z-index: 999;
+	ul {
+		padding: 0;
+		margin: 0;
+		display: flex;
+		li {
+			// padding-right: $u;
+			margin-right: $hu;
+			&:last-child {
+				margin: 0;
+			}
+			a {
+				cursor: pointer;
+			}
+			a,
+			span {
+				display: block;
+				font-size: 13px;
+				padding: $hu $u;
+				background: black;
+				color: white;
+				text-decoration: none;
+				background: $sky-dark;
+			}
+			a:hover {
+				background: $sky;
+				color: black;
+			}
+			span {
+				background: $cream;
+				color: $cream-dark;
+			}
+		}
+	}
+}
