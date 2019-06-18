@@ -24,19 +24,15 @@ export default {
         globals: {
             react: 'React',
             'react-dom': 'ReactDOM',
-            'react-redux': 'ReactRedux',
         },
     },
     plugins: [
         resolve({
-            jsnext: true,
-            main: true,
-            browser: true,
-            module: true,
+            mainFields: ['main', 'browser', 'module'],
         }),
         // globals(),
-        json(),
-        builtins(),
+        // json(),
+        // builtins(),
         commonjs({
             include: './node_modules/**',
             namedExports: {

@@ -6,7 +6,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import eslint from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
 import globals from 'rollup-plugin-node-globals';
-import string from 'rollup-plugin-string';
+import { string } from 'rollup-plugin-string';
 import builtins from 'rollup-plugin-node-builtins';
 import json from 'rollup-plugin-json';
 
@@ -15,7 +15,7 @@ var includePathOptions = {
 };
 
 export default {
-    external: ['react', 'react-dom', 'react-redux'],
+    external: ['react', 'react-dom'],
     input: 'src/scripts/app.js',
     output: {
         format: 'iife',
@@ -24,14 +24,14 @@ export default {
         globals: {
             react: 'RuneModules.React',
             'react-dom': 'RuneModules.ReactDOM',
-            'react-redux': 'RuneModules.ReactRedux',
         },
     },
     plugins: [
         resolve({
-            jsnext: true,
-            main: true,
-            browser: true,
+            mainFields: ['jsnext:main', 'browser'],
+            // jsnext: true,
+            // main: true,
+            // browser: true,
         }),
         json(),
         // globals(),

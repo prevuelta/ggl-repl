@@ -66,6 +66,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-draggable": "^3.0.4",
+    "rollup": "^1.15.6",
     "svgo": "^1.2.2"
   }
 }
