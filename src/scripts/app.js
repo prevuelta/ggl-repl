@@ -9,7 +9,10 @@ import Store from './data/store';
 import './util/keys';
 
 const render = () => {
-  ReactDOM.render(<Workspace />, document.getElementById('app'));
+    ReactDOM.render(
+        <Workspace state={Store.getState()} />,
+        document.getElementById('app')
+    );
 };
 
 render();

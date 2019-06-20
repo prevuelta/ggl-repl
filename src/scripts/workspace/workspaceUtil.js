@@ -1,18 +1,16 @@
-'use strict';
-
 import { Store } from '../data';
-import { MODE } from '../util/constants';
+import { modes } from '../util/constants';
 
 export default {
     get isDrawingMode() {
-        return Store.getState().app.mode === MODE.DRAW;
+        return Store.getState().app.mode === modes.DRAW;
     },
     get isArcMode() {
-        return Store.getState().app.node === MODE.ARC;
+        return Store.getState().app.node === modes.ARC;
     },
 
     get isDocumentMode() {
-        return Store.getState().app.node === MODE.DOCUMENT;
+        return Store.getState().app.node === modes.DOCUMENT;
     },
 };
 

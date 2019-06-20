@@ -1,95 +1,77 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
-// import {GridLines, GridNodes} from '../layers/grid';
+import { GridLines } from './layers/grid';
 // import {Group, Point} from '.';
-import {COLORS, POINT_TYPES} from '../../util/constants';
+import { COLORS, POINT_TYPES } from '../../util/constants';
 // import { Overlay } from './layers';
-import {Data} from '../../data';
+import { Data } from '../../data';
 
 const SLUG = 20;
 
 const POINT_TYPE_STRING = {
-  [POINT_TYPES.STRAIGHT]: (mX, mY) => `L ${mX} ${mY}`,
-  [POINT_TYPES.ARC]: (mX, mY) => `A 50 50 0 0 1 ${mX} ${mY}`,
+    [POINT_TYPES.STRAIGHT]: (mX, mY) => `L ${mX} ${mY}`,
+    [POINT_TYPES.ARC]: (mX, mY) => `A 50 50 0 0 1 ${mX} ${mY}`,
 };
 
-function BackgroundLayer(props) {
-  const {height, width} = props;
-  return (
-    <svg id="background" height={height} width={width}>
-      <GridLines {...props} />
-    </svg>
-  );
+function GridLayer(props) {
+    const { height, width } = props;
+    return (
+        <svg className="background-svg" height={height} width={width}>
+            <GridLines {...props} />
+        </svg>
+    );
 }
 
 function RenderLayer(props) {
-  const {height, width, paths, pathPoints} = props;
+    const { height, width, elements } = props;
 
-  let stroke;
+    let stroke;
 
-  function _mouseEnter() {
-    console.log('Path hover');
-    stroke = 3;
-  }
+    function _mouseEnter() {
+        console.log('Path hover');
+        stroke = 3;
+    }
 
-  return (
-    <svg id="renderLayer" height={height} width={width}>
-      {paths.map((path, i) => {
-        const str = path.points.map(
-          (p, i) =>
-            `${i ? 'L' : 'M'} ${p.x * width} ${p.y * height}${
-              path.isClosed ? ' Z' : ''
-            }`,
-        );
-        return (
-          <path
-            key={i}
-            d={str}
-            stroke={stroke || path.stroke}
-            strokeWidth={stroke || 1}
-            fill={path.fill}
-            onMouseEnter={_mouseEnter}
-          />
-        );
-      })}
-    </svg>
-  );
+    return (
+        <svg className="renderer-svg" height={height} width={width}>
+            {elements.map(Element => <Element />)}
+        </svg>
+    );
 }
 
-function Rendering(props) {
-  let {
-    points,
-    rune,
-    pathPoints,
-    paths,
-    selectedPoints,
-    proofView,
-    currentPath,
-    mode,
-  } = props;
-  let height = rune.y * rune.gridUnit;
-  let width = rune.x * rune.gridUnit;
-  let size = {width, height};
+function Renderer(props) {
+    const { rune } = props;
+    const height = rune.y * rune.gridUnit;
+    const width = rune.x * rune.gridUnit;
+    const verticalPadding = height / rune.y / 2;
+    const horizontalPadding = width / rune.x / 2;
 
-  return (
-    <div
-      className="rendering"
-      style={{
-        width,
-        height,
-        padding: `${height / rune.y / 2}px ${width / rune.x / 2}px`,
-      }}>
-      <p className="rendering-label">
-        {rune.name}{' '}
-        <span className="rendering-size">
-          ({rune.x}x{rune.y})
-        </span>
-      </p>
-    </div>
-  );
+    return (
+        <div className="renderer">
+            <div
+                className="canvas"
+                style={{
+                    width,
+                    height,
+                    padding: `${verticalPadding}px ${horizontalPadding}px`,
+                }}>
+                <p className="canvas-label">
+                    {rune.name}{' '}
+                    <span className="canvas-size">
+                        ({rune.x}x{rune.y})
+                    </span>
+                </p>
+                <GridLayer width={width} height={height} rune={rune} />
+                <RenderLayer
+                    width={width}
+                    height={height}
+                    elements={props.elements}
+                />
+            </div>
+        </div>
+    );
 }
 
-// {!proofView && <BGLayer {...size} rune={rune} />}
 // <RenderLayer {...size} paths={paths} />
 // {!proofView && (
 //   <OverlayLayer {...size} rune={rune} currentPath={currentPath} />

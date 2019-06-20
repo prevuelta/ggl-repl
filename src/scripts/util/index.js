@@ -1,3 +1,7 @@
+export * from './nameGenerator';
+export { default as lexer } from './lexer';
+export { default as parser } from './parser';
+
 export default {
     getIndices(points, gridPoints) {
         return points.map(function(point) {
