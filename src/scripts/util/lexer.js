@@ -12,48 +12,38 @@ const clamp = function(val, min, max) {
 };
 
 const mappings = {
-    '\\d+u$': str => {
+    '\\d+?u$': str => {
         const arr = str.split('u');
         return +arr[0] * unit;
     },
-    '\\d+w$': str => {
+    '\\d+?w$': str => {
         const arr = str.split('w');
-        return clamp(+arr[0], 0, 1) * width;
+        return clamp(+arr[0], -1, 1) * width;
     },
-    '\\d+h$': str => {
+    '\\d+?h$': str => {
         const arr = str.split('h');
-        return clamp(+arr[0], 0, 1) * height;
+        console.log(arr);
+        return clamp(+arr[0], -1, 1) * height;
     },
-    w: str => {
-        return width;
+    '-w|w': str => {
+        return str.includes('-') ? -width : width;
     },
-    h: str => {
-        return height;
+    '-h|h': str => {
+        return str.includes('-') ? -height : height;
     },
 };
 
-// draw: [
-//   {
-//     command: 'move',
-//     arg:
-//   },
-//   {
-//     command: 'point',
-//     arg:
-//   },
-//   {
-//     command: 'vector',
-//     arg
-//   },
-//   {
-//     command: 'arc'
-//   }
-// ];
+const drawCommandsMapping = {
+    m: 'move',
+    p: 'point',
+    v: 'vector',
+    a: 'arc',
+    t: 'tangent',
+};
 
 export default function(string) {
     const lines = string.trim().split('\n');
-    const command = 'move';
-    const tokens = lines
+    const lexemes = lines
         .filter(
             line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
         )
@@ -62,45 +52,51 @@ export default function(string) {
             if (/^\d/.test(line)) {
                 line = `p ${line}`;
             }
-            const pairs = /(.+? .+?)/g.exec(line);
-            console.log(pairs);
-            let args = line.split(' ');
-            const ref = args.shift();
-            args = args.map(arg => {
-                let newArg = arg;
-                for (const regStr in mappings) {
-                    const reg = new RegExp(regStr);
-                    if (reg.test(arg)) {
-                        const raw = reg.exec(arg)[0];
-                        const fn = mappings[regStr];
-                        newArg = fn(arg);
-                        // console.log(regStr, arg, newArg);
-                        break;
-                    }
+
+            const commands = line.split(/(?=[ |^][a-z]\d)/);
+
+            let draw = [];
+
+            commands.forEach(command => {
+                let [_, ref, argStr] = command.trim().split(/^(.)/);
+                const commandRef = drawCommandsMapping[ref];
+                let args = [],
+                    matches,
+                    pairRegEx = /(.+?\s.+?(\s|$))/g;
+
+                while ((matches = pairRegEx.exec(argStr))) {
+                    args.push(matches[1]);
                 }
-                return newArg;
+                args = args.map(arg => {
+                    return arg
+                        .trim()
+                        .split(' ')
+                        .map(a => {
+                            let newArg = a;
+                            for (const regStr in mappings) {
+                                const reg = new RegExp(regStr);
+                                if (reg.test(a)) {
+                                    const raw = reg.exec(a)[0];
+                                    const fn = mappings[regStr];
+                                    newArg = fn(a);
+                                    break;
+                                }
+                            }
+
+                            return +newArg;
+                        });
+                });
+                draw = [
+                    ...draw,
+                    ...args.map(arg => ({
+                        commandRef,
+                        arg,
+                    })),
+                ];
             });
-            return {
-                ref,
-                draw: args.join(' '),
-                // args: args.map(arg => +arg),
-            };
+
+            return draw;
         });
 
-    // lexemes
-    // { ref: 'l', args: ['', '', 0] }
-    // { name: 'line', args: [0, 0, 100, 100 ] }
-    // { name: 'path', nested: true, args: }
-    // tokens.forEach(
-    // string.forEach(l => {
-    // console.log(l);
-    // });
-
-    // Expected
-    // {
-    // name: '',
-    // value: '',
-    // }
-
-    return tokens;
+    return lexemes;
 }

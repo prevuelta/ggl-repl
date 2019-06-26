@@ -19,7 +19,7 @@
         "build:css": "echo 'compiling stylesheets...' && sass ./src/styles/main.scss:./dist/styles/main.css",
         "lib": "rollup -c rollup.config.lib.js",
         "copy-statics": "echo 'Copying statics...' && cp -R ./src/assets/ ./dist/assets/",
-        "test": "nodemon -r esm ./test/test.js"
+        "test": "nodemon -r esm -e example,js ./test/test.js"
     },
     "repository": {
         "type": "git",
