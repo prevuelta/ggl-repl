@@ -1,60 +1,92 @@
-const grammar = {
-    line: {
-        name: 'line',
-        ref: 'l',
-        map([x1, x2, y1, y2]) {
-            return {
-                x1,
-                x2,
-                y1,
-                y2,
-            };
-        },
-    },
+const unit = 10;
+const height = 40;
+const width = 100;
+
+const regEx = {
+    comment: /^\/\//,
+    emptyLine: /^\r$/,
 };
 
-const unit = 10;
+const clamp = function(val, min, max) {
+    return Math.min(Math.max(val, min), max);
+};
 
 const mappings = {
     '\\d+u$': str => {
         const arr = str.split('u');
         return +arr[0] * unit;
     },
+    '\\d+w$': str => {
+        const arr = str.split('w');
+        return clamp(+arr[0], 0, 1) * width;
+    },
+    '\\d+h$': str => {
+        const arr = str.split('h');
+        return clamp(+arr[0], 0, 1) * height;
+    },
+    w: str => {
+        return width;
+    },
+    h: str => {
+        return height;
+    },
 };
 
-export default function(string) {
-    const lines = string.split('\n');
-    const tokens = lines.map(line => {
-        let args, ref;
-        if (/^\d/.test(string)) {
-            ref = 'p';
-            args = line.split(' ');
-        } else {
-            const arr = line.split(' ');
-            ref = arr.shift();
-            args = arr;
-        }
-        args = args.map(arg => {
-            let newArg = arg;
-            Object.keys(mappings).forEach(regStr => {
-                const reg = new RegExp(regStr);
-                if (reg.test(arg)) {
-                    const raw = reg.exec(arg)[0];
-                    console.log(raw);
-                    const fn = mappings[regStr];
-                    newArg = fn(arg);
-                }
-            });
-            return newArg;
-        });
-        return {
-            ref,
-            args: args.join(' '),
-            // args: args.map(arg => +arg),
-        };
-    });
+// draw: [
+//   {
+//     command: 'move',
+//     arg:
+//   },
+//   {
+//     command: 'point',
+//     arg:
+//   },
+//   {
+//     command: 'vector',
+//     arg
+//   },
+//   {
+//     command: 'arc'
+//   }
+// ];
 
-    console.log('Tokens', tokens);
+export default function(string) {
+    const lines = string.trim().split('\n');
+    const command = 'move';
+    const tokens = lines
+        .filter(
+            line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
+        )
+        .map(line => {
+            line = line.replace(/\r|\n/, '');
+            if (/^\d/.test(line)) {
+                line = `p ${line}`;
+            }
+            const pairs = /(.+? .+?)/g.exec(line);
+            console.log(pairs);
+            let args = line.split(' ');
+            const ref = args.shift();
+            args = args.map(arg => {
+                let newArg = arg;
+                for (const regStr in mappings) {
+                    const reg = new RegExp(regStr);
+                    if (reg.test(arg)) {
+                        const raw = reg.exec(arg)[0];
+                        const fn = mappings[regStr];
+                        newArg = fn(arg);
+                        // console.log(regStr, arg, newArg);
+                        break;
+                    }
+                }
+                return newArg;
+            });
+            return {
+                ref,
+                draw: args.join(' '),
+                // args: args.map(arg => +arg),
+            };
+        });
+
     // lexemes
     // { ref: 'l', args: ['', '', 0] }
     // { name: 'line', args: [0, 0, 100, 100 ] }

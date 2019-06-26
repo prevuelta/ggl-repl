@@ -1,0 +1,12 @@
+// Basic Path Rectangle
+0 0 10 0 10 10 0 10
+// Units
+0 0 5u 0 2u 3u 0 1u
+// Width & height
+0 0 w 0 w 0.5h 0 0.5h
+// p x in [0,10,10,0] { y in [0, 0, 10, 10] { x y }}
+//p x isjkj [1,2,3] { x 0 x 10 x 20 }
+
+
+
+
