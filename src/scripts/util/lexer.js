@@ -1,7 +1,3 @@
-const unit = 10;
-const height = 40;
-const width = 100;
-
 const regEx = {
     comment: /^\/\//,
     emptyLine: /^\r$/,
@@ -11,24 +7,28 @@ const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
 };
 
+const typeDefinitions = {
+    v: 'path',
+    p: 'path',
+};
+
 const mappings = {
-    '\\d+?u$': str => {
+    '\\d+?u$': (str, { unit }) => {
         const arr = str.split('u');
         return +arr[0] * unit;
     },
-    '\\d+?w$': str => {
+    '\\d+?w$': (str, { width }) => {
         const arr = str.split('w');
         return clamp(+arr[0], -1, 1) * width;
     },
-    '\\d+?h$': str => {
+    '\\d+?h$': (str, { height }) => {
         const arr = str.split('h');
-        console.log(arr);
         return clamp(+arr[0], -1, 1) * height;
     },
-    '-w|w': str => {
+    '-w|w': (str, { width }) => {
         return str.includes('-') ? -width : width;
     },
-    '-h|h': str => {
+    '-h|h': (str, { height }) => {
         return str.includes('-') ? -height : height;
     },
 };
@@ -39,13 +39,16 @@ const tokenTypeMappings = {
     v: 'vector',
     a: 'arc',
     t: 'tangent',
-    '[': 'nest',
+    '': 'nest',
     '(': 'loop',
 };
 
-export default function(string) {
+export default function(
+    string,
+    globals = { unit: 10, width: 100, height: 100 }
+) {
     const lines = string.trim().split('\n');
-    const lexemes = lines
+    const tokenGroups = lines
         .filter(
             line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
         )
@@ -55,16 +58,20 @@ export default function(string) {
                 line = `p ${line}`;
             }
 
-            const commands = line.split(/(?=[ |^][a-z]\d)/);
+            const typeRef = /^(.)/.exec(line)[1];
+            const type = typeDefinitions[typeRef];
 
-            let draw = [];
+            const commands = line.split(/(?=[ |^][a-z].)/);
+
+            let tokens = [];
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
-                const commandRef = tokenTypeMappings[ref];
+                const type = tokenTypeMappings[ref];
+                console.log(type, ref, argStr);
                 let args = [],
                     matches,
-                    pairRegEx = /(.+?\s.+?(\s|$))/g;
+                    pairRegEx = /(.+?),/g;
 
                 while ((matches = pairRegEx.exec(argStr))) {
                     args.push(matches[1]);
@@ -80,7 +87,7 @@ export default function(string) {
                                 if (reg.test(a)) {
                                     const raw = reg.exec(a)[0];
                                     const fn = mappings[regStr];
-                                    newArg = fn(a);
+                                    newArg = fn(a, globals);
                                     break;
                                 }
                             }
@@ -88,17 +95,20 @@ export default function(string) {
                             return +newArg;
                         });
                 });
-                draw = [
-                    ...draw,
+                tokens = [
+                    ...tokens,
                     ...args.map(arg => ({
-                        commandRef,
+                        type,
                         arg,
                     })),
                 ];
             });
 
-            return draw;
+            return {
+                type,
+                tokens,
+            };
         });
 
-    return lexemes;
+    return tokenGroups;
 }

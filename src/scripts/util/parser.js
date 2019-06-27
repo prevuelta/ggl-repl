@@ -1,15 +1,33 @@
 import React from 'react';
 
 const elements = {
-    path: args => props => <path fill="red" d={args} />,
+    path: args => props => '<path fill="red" d={args} />',
 };
 
-export default function(tokens) {
-    // return tokens.map(token => elements[token.ref](token.args));
-    return tokens.map(token =>
-        // elements['path']('M 10 10 H 90 V 90 H 10 L 10 10')
-        elements['path'](token.args)
-    );
+export default function(tokenGroups) {
+    return tokenGroups.map(tokenGroup => {
+        const pathString = [];
+        tokenGroup.tokens.forEach((token, idx) => {
+            let command;
+            const [i, j] = token.arg;
+            if (token.type === 'point') {
+                if (!idx) {
+                    command = 'M';
+                } else {
+                    command = 'L';
+                }
+            } else if (token.type === 'vector') {
+                if (!idx) {
+                    command = 'm';
+                } else {
+                    command = 'l';
+                }
+            }
+
+            pathString.push(`${command} ${i} ${j}`);
+        });
+        return elements[tokenGroup.type](pathString.join(' '));
+    });
 }
 
 // go from :

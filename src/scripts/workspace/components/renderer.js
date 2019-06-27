@@ -34,7 +34,9 @@ function RenderLayer(props) {
 
     return (
         <svg className="renderer-svg" height={height} width={width}>
-            {elements.map(Element => <Element />)}
+            {elements.map((Element, i) => (
+                <Element key={i} />
+            ))}
         </svg>
     );
 }

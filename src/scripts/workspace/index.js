@@ -18,7 +18,12 @@ class Workspace extends Component {
     }
 
     parseInput = string => {
-        const tokens = lexer(string);
+        const rune = this.props.state.current;
+        const tokens = lexer(string, {
+            unit: rune.gridUnit,
+            height: rune.y * rune.gridUnit,
+            width: rune.x * rune.gridUnit,
+        });
         console.log('Lexed', tokens);
         const parsed = parser(tokens);
         console.log('Parsed', parsed);
