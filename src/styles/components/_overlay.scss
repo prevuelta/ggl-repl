@@ -9,3 +9,9 @@
     justify-content: center;
     background: rgba(0, 0, 0, 0.2);
 }
+
+.node {
+    &:hover {
+        fill-opacity: 0.4;
+    }
+}

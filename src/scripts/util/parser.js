@@ -1,7 +1,7 @@
 import React from 'react';
 
 const elements = {
-    path: args => props => '<path fill="red" d={args} />',
+    path: args => props => <path stroke="red" fill="none" d={args} />,
 };
 
 export default function(tokenGroups) {

@@ -13,29 +13,35 @@ class Workspace extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            parsedElements: [],
+            parsed: [],
+            lexed: [],
         };
+    }
+
+    componentDidMount() {
+        this.parseInput('p0 0,50 0,50 50,0 50,0 0');
     }
 
     parseInput = string => {
         const rune = this.props.state.current;
-        const tokens = lexer(string, {
+        const lexed = lexer(string, {
             unit: rune.gridUnit,
             height: rune.y * rune.gridUnit,
             width: rune.x * rune.gridUnit,
         });
-        console.log('Lexed', tokens);
-        const parsed = parser(tokens);
+        console.log('Lexed', lexed[0].tokens);
+        const parsed = parser(lexed);
         console.log('Parsed', parsed);
         this.setState({
-            parsedElements: parsed,
+            parsed,
+            lexed,
         });
         // Store.updateRune('source', parsedInput);
     };
 
     render() {
         const { props } = this;
-        const { parsedElements } = this.state;
+        const { parsed, lexed } = this.state;
 
         return (
             <div className="workspace">
@@ -43,7 +49,8 @@ class Workspace extends Component {
                 <Source parseInput={this.parseInput} />
                 <Renderer
                     rune={props.state.current}
-                    elements={parsedElements}
+                    elements={parsed}
+                    lexed={lexed}
                 />
             </div>
         );

@@ -58,10 +58,14 @@ export default function(
                 line = `p ${line}`;
             }
 
+            console.log(line);
+
             const typeRef = /^(.)/.exec(line)[1];
             const type = typeDefinitions[typeRef];
 
             const commands = line.split(/(?=[ |^][a-z].)/);
+
+            console.log('Commands', commands);
 
             let tokens = [];
 
