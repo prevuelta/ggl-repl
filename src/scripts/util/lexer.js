@@ -33,12 +33,14 @@ const mappings = {
     },
 };
 
-const drawCommandsMapping = {
+const tokenTypeMappings = {
     m: 'move',
     p: 'point',
     v: 'vector',
     a: 'arc',
     t: 'tangent',
+    '[': 'nest',
+    '(': 'loop',
 };
 
 export default function(string) {
@@ -59,7 +61,7 @@ export default function(string) {
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
-                const commandRef = drawCommandsMapping[ref];
+                const commandRef = tokenTypeMappings[ref];
                 let args = [],
                     matches,
                     pairRegEx = /(.+?\s.+?(\s|$))/g;
