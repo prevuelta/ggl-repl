@@ -58,12 +58,10 @@ export default function(
                 line = `p ${line}`;
             }
 
-            console.log(line);
-
             const typeRef = /^(.)/.exec(line)[1];
             const type = typeDefinitions[typeRef];
 
-            const commands = line.split(/(?=[ |^][a-z].)/);
+            const commands = line.split(/[,| |^](?=[v|p])/);
 
             console.log('Commands', commands);
 
@@ -75,11 +73,12 @@ export default function(
                 console.log(type, ref, argStr);
                 let args = [],
                     matches,
-                    pairRegEx = /(.+?),/g;
+                    pairRegEx = /(.+?)(,|$)/g;
 
                 while ((matches = pairRegEx.exec(argStr))) {
                     args.push(matches[1]);
                 }
+                console.log('Args', argStr, args);
                 args = args.map(arg => {
                     return arg
                         .trim()

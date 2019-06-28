@@ -4,7 +4,7 @@ import { COLORS } from '../../util/constants';
 export const Node = props => {
     const { location, size = 5 } = props;
     return (
-        <path
+        <rect
             className="node"
             x={location[0] - size / 2}
             y={location[1] - size / 2}

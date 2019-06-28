@@ -8,18 +8,13 @@ import { Node } from '../overlayHelperShapes';
 // };
 
 const OverlayLayer = props => {
-    let { height, width, lexed } = props;
-    console.log(lexed);
+    let { height, width, points } = props;
 
     return (
         <svg id="overlay" height={height} width={width}>
-            {lexed.map(tokenGroup =>
-                tokenGroup.tokens.map((token, i) => {
-                    if (token.type === 'point') {
-                        return <Node key={i} location={token.arg} />;
-                    }
-                })
-            )}
+            {points.map((point, i) => (
+                <Node key={i} location={point} />
+            ))}
         </svg>
     );
 };

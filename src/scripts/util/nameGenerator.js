@@ -1,5 +1,6 @@
 export function generateName(length = 3) {
     let words = [
+        'Alpha',
         'Aching',
         'Amber',
         'Angry',
@@ -43,6 +44,7 @@ export function generateName(length = 3) {
         'Dagger',
         'Dark',
         'Dash',
+        'Delta',
         'Desert',
         'Diamond',
         'Distressed',
@@ -120,6 +122,8 @@ export function generateName(length = 3) {
         'Neon',
         'Night',
         'Note',
+        'Ocean',
+        'Omega',
         'Paradigm',
         'Peace',
         'Perfect',
@@ -178,6 +182,7 @@ export function generateName(length = 3) {
         'Truth',
         'Tundra',
         'Turbo',
+        'Ultra',
         'Unique',
         'Warm',
         'Water',
@@ -189,6 +194,7 @@ export function generateName(length = 3) {
         'Wolf',
         'Woman',
         'Worship',
+        'Zero',
     ];
     let name = [];
     for (let i = 0; i < length; i++) {
