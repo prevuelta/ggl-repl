@@ -26,8 +26,13 @@
         "url": "https://github.com/prevuelta/rune.git"
     },
     "babel": {
-        "presets": ["@babel/preset-env", "@babel/preset-react"],
-        "plugins": ["@babel/plugin-proposal-class-properties"]
+        "presets": [
+            "@babel/preset-env",
+            "@babel/preset-react"
+        ],
+        "plugins": [
+            "@babel/plugin-proposal-class-properties"
+        ]
     },
     "author": "",
     "license": "ISC",
