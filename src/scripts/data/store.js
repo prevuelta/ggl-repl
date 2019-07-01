@@ -6,6 +6,7 @@ function Rune() {
         x: 8,
         y: 10,
         gridUnit: 30,
+        divisions: 5,
         name: generateName(),
     };
 }

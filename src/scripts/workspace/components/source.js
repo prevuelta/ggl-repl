@@ -6,17 +6,19 @@ export default props => {
         <div className="source-inspector">
             <ul className="test-examples">
                 <li>
+                    <button onClick={e => props.setExample('')}>Clear</button>
+                    <button onClick={e => props.setExample('G100 100 10 5')}>
+                        Grid
+                    </button>
                     <button
-                        data-string="p0 0,10 0,10 10,0 10,0 0"
                         onClick={e =>
-                            props.setExample(e.target.dataset.string)
+                            props.setExample('p0 0,10 0,10 10,0 10,0 0')
                         }>
                         Basic Rect
                     </button>
                     <button
-                        data-string="p0 0,vw 0,0 h,-w 0,0 -h"
                         onClick={e =>
-                            props.setExample(e.target.dataset.string)
+                            props.setExample('p0 0,vw 0,0 h,-w 0,0 -h')
                         }>
                         Substitution
                     </button>

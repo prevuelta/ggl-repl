@@ -22,19 +22,20 @@ function Renderer(props) {
 
     let currentValue = [0, 0];
     const points = lexed.reduce((array1, newGroup) => {
-        const reduced = newGroup.tokens.reduce((array2, token) => {
-            if (token.type === 'point') {
-                currentValue = token.args;
-            } else if (token.type === 'vector') {
-                currentValue = currentValue.map((v, i) => v + token.args[i]);
-            }
-            return [...array2, currentValue];
-        }, []);
-        console.log(array1, reduced);
+        const reduced = newGroup.tokens
+            .filter(t => ['vector', 'point'].includes(t.type))
+            .reduce((array2, token) => {
+                if (token.type === 'point') {
+                    currentValue = token.args;
+                } else if (token.type === 'vector') {
+                    currentValue = currentValue.map(
+                        (v, i) => v + token.args[i]
+                    );
+                }
+                return [...array2, currentValue];
+            }, []);
         return [...array1, ...reduced];
     }, []);
-
-    console.log('Points', points);
 
     return (
         <div className="renderer">
@@ -51,7 +52,14 @@ function Renderer(props) {
                         ({rune.x}x{rune.y})
                     </span>
                 </p>
-                <GridLayer width={width} height={height} rune={rune} />
+                <GridLayer
+                    width={width}
+                    height={height}
+                    gridUnit={rune.gridUnit}
+                    xUnits={rune.x}
+                    yUnits={rune.y}
+                    divisions={rune.divisions}
+                />
                 <RenderLayer
                     width={width}
                     height={height}

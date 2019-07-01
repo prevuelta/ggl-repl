@@ -5,36 +5,32 @@ import { COLORS, POINT_TYPES } from '../../../util/constants';
 import WorkspaceUtil from '../../workspaceUtil';
 
 export function GridLines(props) {
-    const {
-        rune: { gridUnit, x: tX, y: tY },
-        height,
-        width,
-    } = props;
+    const { gridUnit, xUnits, yUnits, height, width, divisions } = props;
     const lines = [];
-    for (let i = 0; i <= Math.max(tX, tY); i++) {
-        for (let j = 0; j < 5; j++) {
-            if (i < tX)
+    for (let i = 0; i <= Math.max(xUnits, yUnits); i++) {
+        for (let j = 0; j < divisions; j++) {
+            if (i < xUnits)
                 lines.push(
                     <Vline
                         key={lines.length}
-                        x={i * gridUnit + (j * gridUnit) / 5}
+                        x={i * gridUnit + (j * gridUnit) / divisions}
                         opacity={0.2}
                         color={COLORS.BLUE}
                         length={height}
                     />
                 );
-            if (i < tY)
+            if (i < yUnits)
                 lines.push(
                     <Hline
                         key={lines.length}
-                        y={i * gridUnit + (j * gridUnit) / 5}
+                        y={i * gridUnit + (j * gridUnit) / divisions}
                         opacity={0.2}
                         color={COLORS.BLUE}
                         length={width}
                     />
                 );
         }
-        if (i <= tY)
+        if (i <= yUnits)
             lines.push(
                 <Hline
                     key={lines.length}
@@ -43,7 +39,7 @@ export function GridLines(props) {
                     length={width}
                 />
             );
-        if (i <= tX)
+        if (i <= xUnits)
             lines.push(
                 <Vline
                     key={lines.length}

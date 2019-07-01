@@ -1,15 +1,30 @@
 import React from 'react';
+import GridLayer from '../workspace/components/layers/grid';
+
+// import Grid from '../
+function Grid(props) {
+    console.log('Gridprops', props);
+    const [xUnits, yUnits, gridUnit, divisions] = props.args;
+    const width = xUnits * gridUnit;
+    const height = yUnits * gridUnit;
+    return (
+        <GridLayer
+            width={width}
+            height={height}
+            gridUnit={gridUnit}
+            xUnits={xUnits}
+            yUnits={yUnits}
+            divisions={divisions}
+        />
+    );
+}
 
 const elements = {
-    path: args => props => <path stroke="red" fill="none" d={args} />,
-};
-
-export default function(tokenGroups) {
-    return tokenGroups.map(tokenGroup => {
+    path: args => {
         const pathString = [];
         tokenGroup.tokens.forEach((token, idx) => {
             let command;
-            const [i, j] = token.arg;
+            const [i, j] = token.args;
             if (token.type === 'point') {
                 if (!idx) {
                     command = 'M';
@@ -26,8 +41,24 @@ export default function(tokenGroups) {
 
             pathString.push(`${command} ${i} ${j}`);
         });
-        return elements[tokenGroup.type](pathString.join(' '));
-    });
+        return props => (
+            <path stroke="black" fill="none" d={pathString.join(' ')} />
+        );
+    },
+    grid: args => props => <Grid args={args} />,
+};
+
+export default function(tokenGroups) {
+    return tokenGroups
+        .map(tokenGroup => {
+            if (elements.hasOwnProperty(tokenGroup.type)) {
+                return elements[tokenGroup.type](tokenGroup.args);
+            } else {
+                console.warn(`Token ref ${tokenGroup.type} has no element`);
+                return null;
+            }
+        })
+        .filter(el => el !== null);
 }
 
 // go from :

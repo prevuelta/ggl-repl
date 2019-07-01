@@ -1,6 +1,6 @@
 const regEx = {
     comment: /^\/\//,
-    emptyLine: /^\r$/,
+    emptyLine: /^(\r|)$/,
 };
 
 const clamp = function(val, min, max) {
@@ -10,6 +10,7 @@ const clamp = function(val, min, max) {
 const typeDefinitions = {
     v: 'path',
     p: 'path',
+    G: 'grid',
 };
 
 const mappings = {
@@ -34,6 +35,7 @@ const mappings = {
 };
 
 const tokenTypeMappings = {
+    G: 'grid',
     m: 'move',
     p: 'point',
     v: 'vector',
@@ -48,6 +50,7 @@ export default function(
     globals = { unit: 10, width: 100, height: 100 }
 ) {
     const lines = string.trim().split('\n');
+    console.log('Lines', lines);
     const tokenGroups = lines
         .filter(
             line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
@@ -61,7 +64,11 @@ export default function(
             const typeRef = /^(.)/.exec(line)[1];
             const type = typeDefinitions[typeRef];
 
-            const commands = line.split(/[,| |^](?=[v|p])/);
+            const commands = line.split(
+                new RegExp(
+                    `/[,| |^](?=[${Object.keys(tokenTypeMappings).join('|')}])/`
+                )
+            );
 
             console.log('Commands', commands);
 
@@ -70,16 +77,14 @@ export default function(
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
                 const type = tokenTypeMappings[ref];
-                console.log(type, ref, argStr);
-                let args = [],
+                let tokenArgs = [],
                     matches,
                     pairRegEx = /(.+?)(,|$)/g;
 
                 while ((matches = pairRegEx.exec(argStr))) {
-                    args.push(matches[1]);
+                    tokenArgs.push(matches[1]);
                 }
-                console.log('Args', argStr, args);
-                args = args.map(arg => {
+                tokenArgs = tokenArgs.map(arg => {
                     return arg
                         .trim()
                         .split(' ')
@@ -100,9 +105,9 @@ export default function(
                 });
                 tokens = [
                     ...tokens,
-                    ...args.map(arg => ({
+                    ...tokenArgs.map(args => ({
                         type,
-                        arg,
+                        args,
                     })),
                 ];
             });

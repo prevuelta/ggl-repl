@@ -19,7 +19,7 @@ class Workspace extends Component {
     }
 
     componentDidMount() {
-        this.parseInput('p0 0,50 0,50 50,0 50,0 0');
+        this.parseInput('G24 30 10 5\np0 0,50 0,50 50,0 50,0 0');
     }
 
     parseInput = source => {
@@ -29,7 +29,7 @@ class Workspace extends Component {
             height: rune.y * rune.gridUnit,
             width: rune.x * rune.gridUnit,
         });
-        console.log('Lexed', lexed[0].tokens);
+        console.log('Lexed', lexed);
         const parsed = parser(lexed);
         console.log('Parsed', parsed);
         this.setState({
