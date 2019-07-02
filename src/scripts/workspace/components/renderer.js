@@ -18,24 +18,24 @@ function Renderer(props) {
     const verticalPadding = height / rune.y / 2;
     const horizontalPadding = width / rune.x / 2;
 
-    console.log(lexed);
-
     let currentValue = [0, 0];
-    const points = lexed.reduce((array1, newGroup) => {
-        const reduced = newGroup.tokens
-            .filter(t => ['vector', 'point'].includes(t.type))
-            .reduce((array2, token) => {
-                if (token.type === 'point') {
-                    currentValue = token.args;
-                } else if (token.type === 'vector') {
-                    currentValue = currentValue.map(
-                        (v, i) => v + token.args[i]
-                    );
-                }
-                return [...array2, currentValue];
-            }, []);
-        return [...array1, ...reduced];
-    }, []);
+    const points = lexed
+        .filter(g => g.type === 'path')
+        .reduce((array1, newGroup) => {
+            const reduced = newGroup.tokens
+                .filter(t => ['vector', 'point'].includes(t.type))
+                .reduce((array2, token) => {
+                    if (token.type === 'point') {
+                        currentValue = token.args;
+                    } else if (token.type === 'vector') {
+                        currentValue = currentValue.map(
+                            (v, i) => v + token.args[i]
+                        );
+                    }
+                    return [...array2, currentValue];
+                }, []);
+            return [...array1, ...reduced];
+        }, []);
 
     return (
         <div className="renderer">

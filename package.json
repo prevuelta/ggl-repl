@@ -6,10 +6,10 @@
     "scripts": {
         "flow": "flow",
         "start": "run-s lib build run:client",
-        "run:server": "echo 'Running server'; nodemon --watch './dist' --exec 'node -r esm ./server/server.js'",
-        "run:client": "echo 'Serving on 7200'; browser-sync start --port 7200 --serveStatic './dist' --files './dist/*'",
+        "run:server": "nodemon -r esm ./server/server.js",
+        "run:client": "browser-sync start --proxy 'http://localhost:7300' --watch './dist' --port  7200",
         "prewatch": "rm -r dist/*; npm run copy-statics; npm run lib",
-        "watch": "run-p copy-statics watch:js watch:css build:html watch run:server",
+        "watch": "run-p copy-statics watch:js watch:css build:html run:server run:client",
         "watch:js": "nodemon --watch ./src/scripts -x 'npm run build:js'",
         "watch:css": "sass --watch ./src/styles/main.scss:./dist/styles/main.css",
         "watch:html": "watch 'npm run build:html'",
@@ -26,13 +26,8 @@
         "url": "https://github.com/prevuelta/rune.git"
     },
     "babel": {
-        "presets": [
-            "@babel/preset-env",
-            "@babel/preset-react"
-        ],
-        "plugins": [
-            "@babel/plugin-proposal-class-properties"
-        ]
+        "presets": ["@babel/preset-env", "@babel/preset-react"],
+        "plugins": ["@babel/plugin-proposal-class-properties"]
     },
     "author": "",
     "license": "ISC",

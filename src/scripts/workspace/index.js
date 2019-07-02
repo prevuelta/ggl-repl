@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { MODE_TAGS } from '../util/constants';
-import { Source, Renderer } from './components';
+import { Source, Renderer, Browser } from './components';
 import { lexer, parser } from '../util';
 
 const StatusBar = props => (
@@ -15,11 +15,19 @@ class Workspace extends Component {
         this.state = {
             parsed: [],
             lexed: [],
+            runes: [],
         };
     }
 
     componentDidMount() {
-        this.parseInput('G24 30 10 5\np0 0,50 0,50 50,0 50,0 0');
+        fetch('/runes')
+            .then(res => res.json())
+            .then(json => {
+                this.setState({ runes: json });
+            });
+        this.parseInput(
+            'G24 30 10 5\np0 0,50 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0'
+        );
     }
 
     parseInput = source => {
@@ -46,11 +54,12 @@ class Workspace extends Component {
 
     render() {
         const { props } = this;
-        const { parsed, lexed, source } = this.state;
+        const { parsed, lexed, source, runes } = this.state;
 
         return (
             <div className="workspace">
                 <StatusBar mode={props.state.app.mode} />
+                <Browser runes={runes} />
                 <Source
                     value={source}
                     parseInput={this.parseInput}

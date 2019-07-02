@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-// import AceEditor from 'react-ace';
+import AceEditor from 'react-ace';
+
+import 'brace/theme/github';
 
 export default props => {
     return (
@@ -7,7 +9,7 @@ export default props => {
             <ul className="test-examples">
                 <li>
                     <button onClick={e => props.setExample('')}>Clear</button>
-                    <button onClick={e => props.setExample('G100 100 10 5')}>
+                    <button onClick={e => props.setExample('G10 10 40 5')}>
                         Grid
                     </button>
                     <button
@@ -24,11 +26,14 @@ export default props => {
                     </button>
                 </li>
             </ul>
-            <textarea
+            <AceEditor
                 value={props.value}
-                onChange={e => props.parseInput(e.target.value)}
+                onChange={value => props.parseInput(value)}
             />
         </div>
     );
 };
-// <AceEditor onChange={value => props.parseInput(value)} />
+// <textarea
+//     value={props.value}
+//     onChange={e => props.parseInput(e.target.value)}
+// />

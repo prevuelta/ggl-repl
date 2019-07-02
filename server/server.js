@@ -2,6 +2,7 @@ import express from 'express';
 import config from './config';
 import path from 'path';
 import glob from 'glob';
+import fs from 'fs';
 
 const app = express();
 const { port } = config;
@@ -22,7 +23,14 @@ app.post('/save', (req, res) => {
     res.send(req.body);
 });
 
-app.get('/runes', (req, res) => {});
+app.get('/runes', (req, res) => {
+    const runes = glob.sync(`${__dirname}/stored/*`).map(f => {
+        return JSON.parse(fs.readFileSync(f, 'utf-8'));
+    });
+    console.log('runes', runes);
+    // if (runes) {
+    res.send(runes);
+});
 
 app.listen(port, () => {
     console.log(`Server listening on ${port}`);

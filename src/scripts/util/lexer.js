@@ -14,9 +14,9 @@ const typeDefinitions = {
 };
 
 const mappings = {
-    '\\d+?u$': (str, { unit }) => {
+    '\\d+?u$': (str, { gridUnit }) => {
         const arr = str.split('u');
-        return +arr[0] * unit;
+        return +arr[0] * gridUnit;
     },
     '\\d+?w$': (str, { width }) => {
         const arr = str.split('w');
@@ -45,12 +45,13 @@ const tokenTypeMappings = {
     '(': 'loop',
 };
 
-export default function(
-    string,
-    globals = { unit: 10, width: 100, height: 100 }
-) {
+export default function(string) {
+    let globals = {
+        gridUnit: 10,
+        x: 10,
+        y: 10,
+    };
     const lines = string.trim().split('\n');
-    console.log('Lines', lines);
     const tokenGroups = lines
         .filter(
             line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
@@ -66,12 +67,11 @@ export default function(
 
             const commands = line.split(
                 new RegExp(
-                    `/[,| |^](?=[${Object.keys(tokenTypeMappings).join('|')}])/`
+                    `[,| |^](?=[${Object.keys(tokenTypeMappings).join('|')}])`
                 )
             );
 
             console.log('Commands', commands);
-
             let tokens = [];
 
             commands.forEach(command => {
@@ -103,6 +103,18 @@ export default function(
                             return +newArg;
                         });
                 });
+                if (type === 'grid') {
+                    console.log(tokenArgs);
+                    const [xUnits, yUnits, gridUnit] = tokenArgs[0];
+                    globals = {
+                        width: xUnits * gridUnit,
+                        height: yUnits * gridUnit,
+                        xUnits,
+                        yUnits,
+                        gridUnit,
+                    };
+                    console.log(globals);
+                }
                 tokens = [
                     ...tokens,
                     ...tokenArgs.map(args => ({
@@ -112,10 +124,12 @@ export default function(
                 ];
             });
 
-            return {
-                type,
-                tokens,
-            };
+            return type === 'grid'
+                ? { type, args: tokens[0].args }
+                : {
+                      type,
+                      tokens,
+                  };
         });
 
     return tokenGroups;

@@ -20,7 +20,7 @@ function Grid(props) {
 }
 
 const elements = {
-    path: args => {
+    path: tokenGroup => {
         const pathString = [];
         tokenGroup.tokens.forEach((token, idx) => {
             let command;
@@ -45,14 +45,14 @@ const elements = {
             <path stroke="black" fill="none" d={pathString.join(' ')} />
         );
     },
-    grid: args => props => <Grid args={args} />,
+    grid: tokenGroup => props => <Grid args={tokenGroup.args} />,
 };
 
 export default function(tokenGroups) {
     return tokenGroups
         .map(tokenGroup => {
             if (elements.hasOwnProperty(tokenGroup.type)) {
-                return elements[tokenGroup.type](tokenGroup.args);
+                return elements[tokenGroup.type](tokenGroup);
             } else {
                 console.warn(`Token ref ${tokenGroup.type} has no element`);
                 return null;

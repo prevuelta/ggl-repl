@@ -1,5 +1,7 @@
 $panel-width: 20%;
 $statusbar-height: 18px;
+$browser-height: $u3;
+$header-height: $statusbar-height + $browser-height;
 
 * {
     box-sizing: border-box;
@@ -51,7 +53,7 @@ body {
 .source-inspector,
 .renderer {
     position: absolute;
-    top: $statusbar-height;
+    top: $header-height;
     bottom: 0;
 }
 
@@ -74,6 +76,28 @@ body {
 .renderer {
     width: 60%;
     right: 0;
+}
+
+.browser {
+    position: fixed;
+    top: $statusbar-height;
+    left: 0;
+    right: 0;
+    height: $browser-height;
+    background: $dark;
+}
+
+.browser ul {
+    display: flex;
+    align-items: center;
+    padding: $hu;
+}
+
+.browser ul li {
+    width: $u2;
+    height: $u2;
+    background: red;
+    margin: 0 $u 0 0;
 }
 
 // #rune-tools {
