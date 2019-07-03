@@ -31,6 +31,7 @@ class Workspace extends Component {
     }
 
     parseInput = source => {
+        console.log("Source", source);
         const rune = this.props.state.current;
         const lexed = lexer(source, {
             unit: rune.gridUnit,

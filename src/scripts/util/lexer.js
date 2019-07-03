@@ -54,13 +54,18 @@ export default function(string) {
     const lines = string.trim().split('\n');
     const tokenGroups = lines
         .filter(
-            line => !(regEx.comment.test(line) || regEx.emptyLine.test(line))
+            line => !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
         )
         .map(line => {
-            line = line.replace(/\r|\n/, '');
+            const nesting = (line.match(/ {2}/g) || []).length
+            line = line.trim().replace(/\r|\n/, '');
+
+            console.log(line);
+
             if (/^\d/.test(line)) {
                 line = `p ${line}`;
             }
+
 
             const typeRef = /^(.)/.exec(line)[1];
             const type = typeDefinitions[typeRef];
@@ -125,10 +130,11 @@ export default function(string) {
             });
 
             return type === 'grid'
-                ? { type, args: tokens[0].args }
+                ? { type, args: tokens[0].args, nesting}
                 : {
                       type,
                       tokens,
+                      nesting
                   };
         });
 
