@@ -20,7 +20,7 @@ export default {
     output: {
         format: 'iife',
         name: 'rune',
-        file: './dist/app.min.js',
+        file: './dist/app.js',
         globals: {
             react: 'RuneModules.React',
             'react-dom': 'RuneModules.ReactDOM',

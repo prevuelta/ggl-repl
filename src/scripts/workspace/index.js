@@ -26,11 +26,14 @@ class Workspace extends Component {
                 this.setState({ runes: json });
             });
         this.parseInput(
-            'G24 30 10 5\np0 0,50 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0'
+            `G24 30 10 5\np0 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0,a0 hw 2u PI 2PI`
         );
     }
 
-    parseInput = source => {
+    parseInput = (source, event) => {
+        if (event) {
+          console.log("Editor", event.end.row);
+        }
         console.log("Source", source);
         const rune = this.props.state.current;
         const lexed = lexer(source, {
@@ -49,6 +52,10 @@ class Workspace extends Component {
         // Store.updateRune('source', parsedInput);
     };
 
+    cursorChange = (selection) => {
+      console.log("Cursor change", selection.lead.row, selection);
+    };
+
     setExample = source => {
         this.parseInput(source);
     };
@@ -65,6 +72,7 @@ class Workspace extends Component {
                     value={source}
                     parseInput={this.parseInput}
                     setExample={this.setExample}
+                    handleCursorChange={this.cursorChange}
                 />
                 <Renderer
                     rune={props.state.current}

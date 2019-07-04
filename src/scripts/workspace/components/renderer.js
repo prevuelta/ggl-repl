@@ -4,38 +4,28 @@ import { COLORS, POINT_TYPES } from '../../util/constants';
 import { OverlayLayer, GridLayer, RenderLayer } from './layers';
 import { Data } from '../../data';
 
-const SLUG = 20;
+// const SLUG = 20;
 
-const POINT_TYPE_STRING = {
-    [POINT_TYPES.STRAIGHT]: (mX, mY) => `L ${mX} ${mY}`,
-    [POINT_TYPES.ARC]: (mX, mY) => `A 50 50 0 0 1 ${mX} ${mY}`,
-};
+// const POINT_TYPE_STRING = {
+//     [POINT_TYPES.STRAIGHT]: (mX, mY) => `L ${mX} ${mY}`,
+//     [POINT_TYPES.ARC]: (mX, mY) => `A 50 50 0 0 1 ${mX} ${mY}`,
+// };
 
 function Renderer(props) {
     const { rune, lexed } = props;
-    const height = rune.y * rune.gridUnit;
-    const width = rune.x * rune.gridUnit;
+    const defaultHeight = rune.y * rune.gridUnit;
+    const defaultWidth = rune.x * rune.gridUnit;
+    const { width, height } = lexed.filter(t => t.type === 'grid').reduce((a, b) => {
+      a.width = Math.max(b.args[0] * b.args[2], a.width);
+      a.height = Math.max(b.args[1] * b.args[2], a.height);
+      return a;
+
+    }, { width: defaultWidth, height: defaultHeight });
     const verticalPadding = height / rune.y / 2;
     const horizontalPadding = width / rune.x / 2;
 
-    let currentValue = [0, 0];
-    const points = lexed
-        .filter(g => g.type === 'path')
-        .reduce((array1, newGroup) => {
-            const reduced = newGroup.tokens
-                .filter(t => ['vector', 'point'].includes(t.type))
-                .reduce((array2, token) => {
-                    if (token.type === 'point') {
-                        currentValue = token.args;
-                    } else if (token.type === 'vector') {
-                        currentValue = currentValue.map(
-                            (v, i) => v + token.args[i]
-                        );
-                    }
-                    return [...array2, currentValue];
-                }, []);
-            return [...array1, ...reduced];
-        }, []);
+
+    const arcs = [];
 
     return (
         <div className="renderer">
@@ -52,23 +42,23 @@ function Renderer(props) {
                         ({rune.x}x{rune.y})
                     </span>
                 </p>
-                <GridLayer
-                    width={width}
-                    height={height}
-                    gridUnit={rune.gridUnit}
-                    xUnits={rune.x}
-                    yUnits={rune.y}
-                    divisions={rune.divisions}
-                />
                 <RenderLayer
                     width={width}
                     height={height}
                     elements={props.elements}
                 />
-                <OverlayLayer width={width} height={height} points={points} />
+                <OverlayLayer width={width} height={height} lexed={lexed}/>
             </div>
         </div>
     );
 }
 
 export default Renderer;
+                // <GridLayer
+                //     width={width}
+                //     height={height}
+                //     gridUnit={rune.gridUnit}
+                //     xUnits={rune.x}
+                //     yUnits={rune.y}
+                //     divisions={rune.divisions}
+                // />

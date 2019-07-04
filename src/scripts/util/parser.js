@@ -3,7 +3,6 @@ import GridLayer from '../workspace/components/layers/grid';
 
 // import Grid from '../
 function Grid(props) {
-    console.log('Gridprops', props);
     const [xUnits, yUnits, gridUnit, divisions] = props.args;
     const width = xUnits * gridUnit;
     const height = yUnits * gridUnit;
@@ -19,27 +18,68 @@ function Grid(props) {
     );
 }
 
+
+function polarToCartesian(centerX, centerY, radius, angleInRadians) {
+    // var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+    return {
+          x: centerX + (radius * Math.cos(angleInRadians)),
+          y: centerY + (radius * Math.sin(angleInRadians))
+        };
+}
+
+function describeArc(startX, startY, centerX, centerY, angle, direction){
+  
+      // var start = polarToCartesian(x, y, radius, endAngle % (Math.PI * 2));
+
+      // var largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+      const a = startX + centerX;
+      const b = startY + centerY;
+      const radius = Math.sqrt(a*a + b*b);
+
+      var end = polarToCartesian(centerX, centerY, radius, angle);
+
+      var d = [
+                "L", start.x, start.y, 
+                "A", radius, radius, 0, direction, 0, end.x, end.y
+            ].join(" ");
+
+      return d;       
+}
+
+const commandArgMapping = {
+};
+
+
 const elements = {
     path: tokenGroup => {
         const pathString = [];
         tokenGroup.tokens.forEach((token, idx) => {
-            let command;
-            const [i, j] = token.args;
-            if (token.type === 'point') {
-                if (!idx) {
-                    command = 'M';
-                } else {
-                    command = 'L';
-                }
-            } else if (token.type === 'vector') {
-                if (!idx) {
-                    command = 'm';
-                } else {
-                    command = 'l';
-                }
+            const { type } = token;
+            let command, string;
+            if (['point', 'vector'].includes(token.type)) {
+              const [i, j] = token.args;
+              string = `${i} ${j}`;
+              if (token.type === 'point') {
+                  if (!idx) {
+                      command = 'M';
+                  } else {
+                      command = 'L';
+                  }
+              } else if (token.type === 'vector') {
+                  if (!idx) {
+                      command = 'm';
+                  } else {
+                      command = 'l';
+                  }
+              }
+            } else if (token.type === 'arc') {
+               command = '';
+               const [startX, startY, centerX, centerY, angle, direction] = token.args;
+               string = describeArc(startX, startY, centerX, centerY, angle, direction);
             }
 
-            pathString.push(`${command} ${i} ${j}`);
+            pathString.push(`${command} ${string}`);
         });
         return props => (
             <path stroke="black" fill="none" d={pathString.join(' ')} />
@@ -60,22 +100,3 @@ export default function(tokenGroups) {
         })
         .filter(el => el !== null);
 }
-
-// go from :
-// [
-//     { command: 'point', args: [0, 0] },
-//     { command: 'point', args: [10, 0] },
-//     { command: 'vector', args: [0, 10] },
-//     { command: 'point', args: [0, 10] },
-//     { command: 'point', args: [0, 0] },
-//     { command: 'fill', args: 'red' },
-// ];
-
-// to: [
-//     {
-//         component: props => {
-//             return <path d="M0 0 L10 0 l0 10 L0 10 0 0" />;
-//         },
-//         children: [],
-//     },
-// ];

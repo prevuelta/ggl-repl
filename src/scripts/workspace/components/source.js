@@ -4,6 +4,8 @@ import AceEditor from 'react-ace';
 import 'brace/theme/github';
 
 export default props => {
+  console.log("Props", props);
+
     return (
         <div className="source-inspector">
             <ul className="test-examples">
@@ -28,7 +30,8 @@ export default props => {
             </ul>
             <AceEditor
                 value={props.value}
-                onChange={value => props.parseInput(value)}
+                onChange={(value, editor) => props.parseInput(value, editor)}
+                onCursorChange={(v, h) => props.handleCursorChange(v, h)}
             />
         </div>
     );

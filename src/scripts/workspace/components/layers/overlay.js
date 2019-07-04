@@ -8,7 +8,27 @@ import { Node } from '../overlayHelperShapes';
 // };
 
 const OverlayLayer = props => {
-    let { height, width, points } = props;
+    let { height, width, lexed} = props;
+    let currentValue = [0, 0];
+    const points = lexed
+        .filter(g => g.type === 'path')
+        .reduce((array1, newGroup) => {
+            const reduced = newGroup.tokens
+                .filter(t => ['vector', 'point'].includes(t.type))
+                .reduce((array2, token) => {
+                    if (token.type === 'point') {
+                        currentValue = token.args;
+                    } else if (token.type === 'vector') {
+                        currentValue = currentValue.map(
+                            (v, i) => v + token.args[i]
+                        );
+                    } else if (token.tupe === 'arc'){
+                      currentValue = [token.args[0], token.args[1]];
+                    }
+                    return [...array2, currentValue];
+                }, []);
+            return [...array1, ...reduced];
+        }, []);
 
     return (
         <svg id="overlay" height={height} width={width}>

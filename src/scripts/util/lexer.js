@@ -13,7 +13,7 @@ const typeDefinitions = {
     G: 'grid',
 };
 
-const mappings = {
+const tokenReplacements = {
     '\\d+?u$': (str, { gridUnit }) => {
         const arr = str.split('u');
         return +arr[0] * gridUnit;
@@ -32,6 +32,11 @@ const mappings = {
     '-h|h': (str, { height }) => {
         return str.includes('-') ? -height : height;
     },
+    '^\\d*PI$' : str => {
+      const mult = str.split('PI')[0];
+      console.log(str, mult);
+      return (+mult || 1) * Math.PI;
+    }
 };
 
 const tokenTypeMappings = {
@@ -60,12 +65,9 @@ export default function(string) {
             const nesting = (line.match(/ {2}/g) || []).length
             line = line.trim().replace(/\r|\n/, '');
 
-            console.log(line);
-
             if (/^\d/.test(line)) {
                 line = `p ${line}`;
             }
-
 
             const typeRef = /^(.)/.exec(line)[1];
             const type = typeDefinitions[typeRef];
@@ -77,6 +79,7 @@ export default function(string) {
             );
 
             console.log('Commands', commands);
+
             let tokens = [];
 
             commands.forEach(command => {
@@ -95,11 +98,11 @@ export default function(string) {
                         .split(' ')
                         .map(a => {
                             let newArg = a;
-                            for (const regStr in mappings) {
+                            for (const regStr in tokenReplacements) {
                                 const reg = new RegExp(regStr);
                                 if (reg.test(a)) {
                                     const raw = reg.exec(a)[0];
-                                    const fn = mappings[regStr];
+                                    const fn = tokenReplacements[regStr];
                                     newArg = fn(a, globals);
                                     break;
                                 }
@@ -109,7 +112,6 @@ export default function(string) {
                         });
                 });
                 if (type === 'grid') {
-                    console.log(tokenArgs);
                     const [xUnits, yUnits, gridUnit] = tokenArgs[0];
                     globals = {
                         width: xUnits * gridUnit,
@@ -118,7 +120,7 @@ export default function(string) {
                         yUnits,
                         gridUnit,
                     };
-                    console.log(globals);
+                    // console.log(globals);
                 }
                 tokens = [
                     ...tokens,
