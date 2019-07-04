@@ -7,3 +7,5 @@ renders
 *.swo
 dist
 .env
+.cache
+
