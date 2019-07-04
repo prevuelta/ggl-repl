@@ -1,5 +1,6 @@
 import React from 'react';
 import GridLayer from '../workspace/components/layers/grid';
+import { getDistance, getAngle, polarToCartesian} from '../util/trig';
 
 // import Grid from '../
 function Grid(props) {
@@ -19,32 +20,29 @@ function Grid(props) {
 }
 
 
-function polarToCartesian(centerX, centerY, radius, angleInRadians) {
-    // var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
 
-    return {
-          x: centerX + (radius * Math.cos(angleInRadians)),
-          y: centerY + (radius * Math.sin(angleInRadians))
-        };
-}
-
-function describeArc(startX, startY, centerX, centerY, angle, direction){
+function describeArc(start, center, angle, direction){
   
-      // var start = polarToCartesian(x, y, radius, endAngle % (Math.PI * 2));
+  const angleOffset = getAngle(start, center);
+  console.log("Angle offset", angleOffset);
+  // var start = polarToCartesian(x, y, radius, endAngle % (Math.PI * 2));
 
-      // var largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
-      const a = startX + centerX;
-      const b = startY + centerY;
-      const radius = Math.sqrt(a*a + b*b);
+  // var largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+  // const a = start.x + center.x;
+  // const b = start.y + center.y;
+  // const radius = Math.sqrt(a*a + b*b);
+  const radius = getDistance(start, center);
 
-      var end = polarToCartesian(centerX, centerY, radius, angle);
+  var end = polarToCartesian(center, radius, angle + angleOffset);
 
-      var d = [
-                "L", start.x, start.y, 
-                "A", radius, radius, 0, direction, 0, end.x, end.y
-            ].join(" ");
+  console.log("Start", start, "Center", center, "Radius", radius, "Angle", angle, "End", end);
 
-      return d;       
+  var d = [
+    "L", start.x, start.y, 
+    "A", radius, radius, 0, 0, direction, end.x, end.y
+  ].join(" ");
+
+  return d;       
 }
 
 const commandArgMapping = {
@@ -76,7 +74,7 @@ const elements = {
             } else if (token.type === 'arc') {
                command = '';
                const [startX, startY, centerX, centerY, angle, direction] = token.args;
-               string = describeArc(startX, startY, centerX, centerY, angle, direction);
+               string = describeArc({ x: startX, y: startY }, {x : centerX, y: centerY }, angle, direction);
             }
 
             pathString.push(`${command} ${string}`);

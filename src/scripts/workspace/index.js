@@ -26,7 +26,8 @@ class Workspace extends Component {
                 this.setState({ runes: json });
             });
         this.parseInput(
-            `G24 30 10 5\np0 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0,a0 hw 2u PI 2PI`
+            `G24 30 10 5\np0 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0,a0.5w 0 0.5w 0.5h PI 0`
+
         );
     }
 

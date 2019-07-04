@@ -13,31 +13,48 @@ const typeDefinitions = {
     G: 'grid',
 };
 
-const tokenReplacements = {
-    '\\d+?u$': (str, { gridUnit }) => {
+const tokenReplacements = [
+  {
+    regex: /\d+?u$/,
+    fn (str, { gridUnit }) {
         const arr = str.split('u');
         return +arr[0] * gridUnit;
-    },
-    '\\d+?w$': (str, { width }) => {
+    }
+  },{
+    regex: /\d+?w$/,
+    fn (str, { width })  {
         const arr = str.split('w');
         return clamp(+arr[0], -1, 1) * width;
     },
-    '\\d+?h$': (str, { height }) => {
-        const arr = str.split('h');
-        return clamp(+arr[0], -1, 1) * height;
+  },
+  {
+    regex: /\d+?h$/,
+    fn (str, { height }) {
+      const arr = str.split('h');
+      return clamp(+arr[0], -1, 1) * height;
     },
-    '-w|w': (str, { width }) => {
-        return str.includes('-') ? -width : width;
+  },
+  {
+    regex: /-w|w/,
+    fn (str, { width })  {
+      return str.includes('-') ? -width : width;
     },
-    '-h|h': (str, { height }) => {
-        return str.includes('-') ? -height : height;
+  },
+  {
+    regex: /-h|h/,
+    fn(str, { height })  {
+      return str.includes('-') ? -height : height;
     },
-    '^\\d*PI$' : str => {
+  },
+  {
+    regex:  /^\d*PI$/,
+    fn (str) {
       const mult = str.split('PI')[0];
       console.log(str, mult);
       return (+mult || 1) * Math.PI;
     }
-};
+  }
+];
 
 const tokenTypeMappings = {
     G: 'grid',
@@ -50,12 +67,16 @@ const tokenTypeMappings = {
     '(': 'loop',
 };
 
+function getCommand () {
+}
+
 export default function(string) {
-    let globals = {
+    let gridContext = {
         gridUnit: 10,
         x: 10,
         y: 10,
     };
+
     const lines = string.trim().split('\n');
     const tokenGroups = lines
         .filter(
@@ -78,8 +99,6 @@ export default function(string) {
                 )
             );
 
-            console.log('Commands', commands);
-
             let tokens = [];
 
             commands.forEach(command => {
@@ -98,14 +117,12 @@ export default function(string) {
                         .split(' ')
                         .map(a => {
                             let newArg = a;
-                            for (const regStr in tokenReplacements) {
-                                const reg = new RegExp(regStr);
-                                if (reg.test(a)) {
-                                    const raw = reg.exec(a)[0];
-                                    const fn = tokenReplacements[regStr];
-                                    newArg = fn(a, globals);
-                                    break;
-                                }
+                            for (let tr of tokenReplacements) {
+                              if (tr.regex.test(a)) {
+                                const raw = tr.regex.exec(a)[0];
+                                newArg = tr.fn(a, gridContext);
+                                break;
+                              }
                             }
 
                             return +newArg;
@@ -113,14 +130,13 @@ export default function(string) {
                 });
                 if (type === 'grid') {
                     const [xUnits, yUnits, gridUnit] = tokenArgs[0];
-                    globals = {
+                    gridContext = {
                         width: xUnits * gridUnit,
                         height: yUnits * gridUnit,
                         xUnits,
                         yUnits,
                         gridUnit,
                     };
-                    // console.log(globals);
                 }
                 tokens = [
                     ...tokens,
