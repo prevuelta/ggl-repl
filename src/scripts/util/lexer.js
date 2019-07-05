@@ -54,7 +54,7 @@ const tokenReplacements = [
         fn(str) {
             const mult = +str.split('PI')[0];
             console.log('Mult', mult, str);
-            return (mult || 1) * Math.PI;
+            return (mult || 1) * (negative(str) ? -Math.PI : Math.PI);
         },
     },
     {

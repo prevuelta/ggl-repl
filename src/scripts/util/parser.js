@@ -26,10 +26,10 @@ function Grid(props) {
 }
 
 function describeArc(start, center, angle, direction, sweep) {
-    if (angle < 0) {
-        direction = direction ? 0 : 1;
-    }
-    angle += getAngle(start, center) - HALF_PI;
+    // if (angle < 0) {
+    // direction = direction ? 0 : 1;
+    // }
+    angle += getAngle(start, center);
     // angle = TWO_PI - angle;
     // var start = polarToCartesian(x, y, radius, endAngle % (Math.PI * 2));
 
