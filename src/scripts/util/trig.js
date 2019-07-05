@@ -3,9 +3,9 @@ function getMid (p1, p2) {
   return [(p1.x + p2.x) / 2, (p1.y + p2.y) / 2];
 }
 function getDistance (p1, p2) {
-  return getSize(p1.y - p2.y, p1.x - p2.x);
+  return getSide(p1.y - p2.y, p1.x - p2.x);
 }
-function getSize (adj, opp, hyp) {
+function getSide (adj, opp, hyp) {
   if(!isNaN(adj) & !isNaN(hyp)) {
     return Math.sqrt(hyp*hyp - adj*adj);
   } else if(!isNaN(adj) & !isNaN(opp)) {
@@ -13,7 +13,7 @@ function getSize (adj, opp, hyp) {
   } else if(!isNaN(opp) & !isNaN(hyp)) {
     return Math.sqrt(hyp*hyp - opp*opp);
   }
-  console.warn("Invalid values passed to getSize");
+  console.warn("Invalid values passed to getSide");
 }
 function getAngle (p1, p2) {
   var adj = getDistance(p1, {x: p2.x, y: p1.y});
@@ -35,12 +35,19 @@ function polarToCartesian(center, radius, angle) {
     };
 }
 
+const { PI } = Math;
+const HALF_PI = PI / 2;
+const TWO_PI = PI * 2;
+
 export {
   getMid,
   getDistance,
-  getSize,
+  getSide,
   getAngle,
   radToDeg,
   degToRad,
-  polarToCartesian
+  polarToCartesian,
+  HALF_PI,
+  PI,
+  TWO_PI
 }

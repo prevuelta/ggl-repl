@@ -13,47 +13,56 @@ const typeDefinitions = {
     G: 'grid',
 };
 
+const negative = str => str[0] === '-';
+
 const tokenReplacements = [
-  {
-    regex: /\d+?u$/,
-    fn (str, { gridUnit }) {
-        const arr = str.split('u');
-        return +arr[0] * gridUnit;
-    }
-  },{
-    regex: /\d+?w$/,
-    fn (str, { width })  {
-        const arr = str.split('w');
-        return clamp(+arr[0], -1, 1) * width;
+    {
+        regex: /\d+?u$/,
+        fn(str, { gridUnit }) {
+            const arr = str.split('u');
+            return +arr[0] * gridUnit;
+        },
     },
-  },
-  {
-    regex: /\d+?h$/,
-    fn (str, { height }) {
-      const arr = str.split('h');
-      return clamp(+arr[0], -1, 1) * height;
+    {
+        regex: /\d+?w$/,
+        fn(str, { width }) {
+            const arr = str.split('w');
+            return clamp(+arr[0], -1, 1) * width;
+        },
     },
-  },
-  {
-    regex: /-w|w/,
-    fn (str, { width })  {
-      return str.includes('-') ? -width : width;
+    {
+        regex: /\d+?h$/,
+        fn(str, { height }) {
+            const arr = str.split('h');
+            return clamp(+arr[0], -1, 1) * height;
+        },
     },
-  },
-  {
-    regex: /-h|h/,
-    fn(str, { height })  {
-      return str.includes('-') ? -height : height;
+    {
+        regex: /-?w/,
+        fn(str, { width }) {
+            return negative(str) ? -width : width;
+        },
     },
-  },
-  {
-    regex:  /^\d*PI$/,
-    fn (str) {
-      const mult = str.split('PI')[0];
-      console.log(str, mult);
-      return (+mult || 1) * Math.PI;
-    }
-  }
+    {
+        regex: /-?h/,
+        fn(str, { height }) {
+            return negative(str) ? -height : height;
+        },
+    },
+    {
+        regex: /^-?[\d|\.]*PI$/,
+        fn(str) {
+            const mult = +str.split('PI')[0];
+            console.log('Mult', mult, str);
+            return (mult || 1) * Math.PI;
+        },
+    },
+    {
+        regex: /-?HPI/,
+        fn(str) {
+            return (negative(str) ? -Math.PI : Math.PI) / 2;
+        },
+    },
 ];
 
 const tokenTypeMappings = {
@@ -67,8 +76,7 @@ const tokenTypeMappings = {
     '(': 'loop',
 };
 
-function getCommand () {
-}
+function getCommand() {}
 
 export default function(string) {
     let gridContext = {
@@ -80,10 +88,11 @@ export default function(string) {
     const lines = string.trim().split('\n');
     const tokenGroups = lines
         .filter(
-            line => !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
+            line =>
+                !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
         )
         .map(line => {
-            const nesting = (line.match(/ {2}/g) || []).length
+            const nesting = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^\d/.test(line)) {
@@ -118,11 +127,11 @@ export default function(string) {
                         .map(a => {
                             let newArg = a;
                             for (let tr of tokenReplacements) {
-                              if (tr.regex.test(a)) {
-                                const raw = tr.regex.exec(a)[0];
-                                newArg = tr.fn(a, gridContext);
-                                break;
-                              }
+                                if (tr.regex.test(a)) {
+                                    const raw = tr.regex.exec(a)[0];
+                                    newArg = tr.fn(a, gridContext);
+                                    break;
+                                }
                             }
 
                             return +newArg;
@@ -148,11 +157,11 @@ export default function(string) {
             });
 
             return type === 'grid'
-                ? { type, args: tokens[0].args, nesting}
+                ? { type, args: tokens[0].args, nesting }
                 : {
                       type,
                       tokens,
-                      nesting
+                      nesting,
                   };
         });
 

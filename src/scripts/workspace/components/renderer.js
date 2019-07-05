@@ -13,8 +13,8 @@ import { Data } from '../../data';
 
 function Renderer(props) {
     const { rune, lexed } = props;
-    const defaultHeight = rune.y * rune.gridUnit;
-    const defaultWidth = rune.x * rune.gridUnit;
+    const defaultHeight = 50;//rune.y * rune.gridUnit;
+    const defaultWidth = 50;//rune.x * rune.gridUnit;
     const { width, height } = lexed.filter(t => t.type === 'grid').reduce((a, b) => {
       a.width = Math.max(b.args[0] * b.args[2], a.width);
       a.height = Math.max(b.args[1] * b.args[2], a.height);
