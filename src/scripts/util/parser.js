@@ -52,21 +52,24 @@ function describeArc(start, center, angle, direction, sweep) {
         end
     );
 
-    var d = [
-        'L',
-        start.x,
-        start.y,
-        'A',
-        radius,
-        radius,
-        0,
-        sweep,
-        direction,
-        end.x,
-        end.y,
-    ].join(' ');
+    function d(swp, dir) {
+        var d = [
+            'L',
+            start.x,
+            start.y,
+            'A',
+            radius,
+            radius,
+            0,
+            sweep,
+            dir,
+            end.x,
+            end.y,
+        ].join(' ');
+        return d;
+    }
 
-    return d;
+    return `${d()} ${d()} ${d()} ${d()}`;
 }
 
 const commandArgMapping = {};
