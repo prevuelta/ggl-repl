@@ -1,6 +1,6 @@
 const regEx = {
     comment: /^\/\//,
-    emptyLine: /^(\r|)$/,
+    emptyLine: /^(\r| |\t)+$/,
 };
 
 const clamp = function(val, min, max) {
@@ -15,6 +15,8 @@ const typeDefinitions = {
 };
 
 const { PI } = Math;
+const HALF_PI = PI / 2;
+const TWO_PI = PI * 2;
 
 const negative = str => str[0] === '-';
 
@@ -41,13 +43,13 @@ const tokenReplacements = [
         },
     },
     {
-        regex: /-?W/,
+        regex: /-?W$/,
         fn(str, { width }) {
             return negative(str) ? -width : width;
         },
     },
     {
-        regex: /-?H/,
+        regex: /-?H$/,
         fn(str, { height }) {
             return negative(str) ? -height : height;
         },
@@ -56,20 +58,19 @@ const tokenReplacements = [
         regex: /^-?[\d|\.]*PI$/,
         fn(str) {
             const mult = +str.split('PI')[0];
-            console.log('Mult', mult, str);
             return (mult || 1) * (negative(str) ? -PI : PI);
         },
     },
     {
         regex: /-?HPI/,
         fn(str) {
-            return +str.replace(HPI, HALF_PI);
+            return +str.replace('HPI', HALF_PI);
         },
     },
     {
         regex: /^C$/,
         fn(str, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
 ];
@@ -94,7 +95,10 @@ export default function(string) {
         y: 10,
     };
 
-    const lines = string.trim().split('\n');
+    const lines = string
+        .replace(/-\n\s+?/g, ',')
+        .trim()
+        .split('\n');
     const tokenGroups = lines
         .filter(
             line =>
@@ -108,7 +112,10 @@ export default function(string) {
                 line = `p${line}`;
             }
 
-            const typeRef = /^(.)/.exec(line)[1];
+            const [_, typeRef] = /^(.)/.exec(line);
+
+            if (!typeRef) return;
+
             const type = typeDefinitions[typeRef];
 
             const commands = line.split(

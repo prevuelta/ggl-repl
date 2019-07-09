@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 // import { POINT_TYPES } from '../../../util/constants';
 import { getDistance } from '../../../util/trig';
 import { Node } from '../overlayHelperShapes';
+import { getArcEndpoint } from '../../../util/parser';
 const { Fragment } = React;
 
 // const pointStrings = {
@@ -18,7 +19,6 @@ const OverlayLayer = props => {
             .filter(t => ['vector', 'point', 'arc'].includes(t.type))
             .reduce((array2, token) => {
                 let point = {};
-                console.log('Token', token);
                 if (token.type === 'point') {
                     currentValue = token.args;
                     point.x = currentValue[0];
@@ -53,8 +53,6 @@ const OverlayLayer = props => {
             }, []);
         return [...array1, ...reduced];
     }, []);
-
-    console.log('POints', points);
 
     const elements = [
         ...points.map((point, i) => (

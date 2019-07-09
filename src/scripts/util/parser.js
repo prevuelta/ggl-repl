@@ -26,13 +26,31 @@ function Grid(props) {
     );
 }
 
+export function tokenToSVGArc(token, isFirst) {
+    const [
+        startX,
+        startY,
+        centerX,
+        centerY,
+        angle,
+        largeArcFlag,
+        sweep,
+    ] = token.args;
+    return describeArc(
+        { x: startX, y: startY },
+        { x: centerX, y: centerY },
+        angle,
+        largeArcFlag,
+        sweep
+    );
+}
+
 function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const originalAngle = angle;
     const startAngle = getAngle(start, center);
+    console.log('Start', start, 'Center', center, 'Start angle', startAngle);
     angle += startAngle;
     angle = angle % TWO_PI;
-
-    console.log('Original', originalAngle, angle);
 
     if (originalAngle > PI || originalAngle < -PI) {
         // sweep = 1;
@@ -45,7 +63,9 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${
+        start.y
+    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 const commandArgMapping = {};
@@ -74,22 +94,7 @@ const elements = {
                 }
             } else if (token.type === 'arc') {
                 command = '';
-                const [
-                    startX,
-                    startY,
-                    centerX,
-                    centerY,
-                    angle,
-                    largeArcFlag,
-                    sweep,
-                ] = token.args;
-                string = describeArc(
-                    { x: startX, y: startY },
-                    { x: centerX, y: centerY },
-                    angle,
-                    largeArcFlag,
-                    sweep
-                );
+                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
             }
 
             pathString.push(`${command} ${string}`);
