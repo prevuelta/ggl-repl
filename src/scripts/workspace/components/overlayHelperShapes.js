@@ -2,15 +2,15 @@ import React from 'react';
 import { COLORS } from '../../util/constants';
 
 export const Node = props => {
-    const { location, size = 5 } = props;
+    const { location, size = 5, color = COLORS.BLUE } = props;
     return (
         <rect
             className="node"
-            x={location[0] - size / 2}
-            y={location[1] - size / 2}
+            x={location.x - size / 2}
+            y={location.y - size / 2}
             width={size}
             height={size}
-            fill={COLORS.BLUE}
+            fill={color}
         />
     );
 };

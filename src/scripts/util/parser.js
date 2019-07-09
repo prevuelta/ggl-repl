@@ -4,6 +4,7 @@ import {
     getDistance,
     getAngle,
     polarToCartesian,
+    PI,
     HALF_PI,
     TWO_PI,
 } from '../util/trig';
@@ -25,51 +26,26 @@ function Grid(props) {
     );
 }
 
-function describeArc(start, center, angle, direction, sweep) {
-    // if (angle < 0) {
-    // direction = direction ? 0 : 1;
-    // }
-    angle += getAngle(start, center);
-    // angle = TWO_PI - angle;
-    // var start = polarToCartesian(x, y, radius, endAngle % (Math.PI * 2));
+function describeArc(start, center, angle, largeArcFlag = 0) {
+    let sweep = 0;
 
-    // const a = start.x + center.x;
-    // const b = start.y + center.y;
-    // const radius = Math.sqrt(a*a + b*b);
+    const originalAngle = angle;
+    const startAngle = getAngle(start, center);
+    angle += startAngle;
+    angle = angle % TWO_PI;
+
+    if (originalAngle > PI || originalAngle < -PI) {
+        sweep = 1;
+    }
+
+    if (angle >= PI) {
+        largeArcFlag = 1;
+    }
+
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    console.log(
-        'Start',
-        start,
-        'Center',
-        center,
-        'Radius',
-        radius,
-        'Angle',
-        angle,
-        'End',
-        end
-    );
-
-    function d(swp, dir) {
-        var d = [
-            'L',
-            start.x,
-            start.y,
-            'A',
-            radius,
-            radius,
-            0,
-            sweep,
-            dir,
-            end.x,
-            end.y,
-        ].join(' ');
-        return d;
-    }
-
-    return `${d()} ${d()} ${d()} ${d()}`;
+    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 const commandArgMapping = {};

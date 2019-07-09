@@ -2,7 +2,6 @@
 	<body>
 		<svg width="500" height="500" fill="none" id="test">
 		</svg>
-		<input id="angle" value="Math.PI" type="text" />
 		<button onclick="generateArcs()">Generate</button>
 		<script type="text/javascript">
 
@@ -68,34 +67,37 @@
 			generateArcs({ x: 100, y: 145});
 
 
-			function point(loc, color='blue', radius = 2) {
+			function point(loc, color='blue', radius = 2, stroke = false) {
 				var point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 				point.setAttribute('cx', loc.x);
 				point.setAttribute('cy', loc.y);
-				point.setAttribute('fill', color);
+				point.setAttribute('fill', stroke ? 'none' : color);
+        if (stroke) {
+          point.setAttribute('stroke', color);
+        }
 				point.setAttribute('r', radius);
 				svg.appendChild(point);
 
 			}
 
 			function generateArcs (center) {
-				console.log("---------- Generate")
-				console.log("Center", center);
 
 				var start = { x: 100, y: 100};
 				// var center = { x: 145, y: 100};
 
 				point(start, 'red');
 				point(center);
+        point(center, 'brown', getDistance(start, center), true);
 
 				var sweeps = [0, 0, 1, 0];
 				var laf = [0, 1, 1, 1];
 
-				var angle = eval(document.getElementById('angle').value);
+        var mul = 1.3;
 
-				for (let i = 0; i < 4; i++) {
+				for (let i = 0; i < 2; i++) {
+          var angle = i  ? Math.PI * mul : -Math.PI * mul;
 					var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-					const str = describeArc(start, center, i < 4 ? -angle : angle, sweeps[i], laf[i]);
+					const str = describeArc(start, center, angle, sweeps[i], laf[i]);
 					path.setAttribute('d', str);
 					path.setAttribute('stroke', colors[i]);
 					test.appendChild(path);
@@ -105,25 +107,23 @@
 
 			function describeArc(start, center, angle, sweep, largArcFlag) {
 
-				const startAngle = getAngle(start, center);
-				console.log("Angle", radToDeg(angle), "Start angle", radToDeg(startAngle));
-			    // angle += HALF_PI;
+          const originalAngle = angle;
+          const startAngle = getAngle(start, center);
 			    angle += startAngle;
 			    angle = angle % (Math.PI * 2);
 			    console.log("Post angle", radToDeg(angle));
 
+          if (originalAngle > PI || originalAngle < -PI) {
+            sweep = 1;
+          }
 
 
 			    if (angle >= Math.PI) {
-			    	// sweep = 1;
 			    	largArcFlag = 1;
-			    	// angle = Math.PI*2-angle;
 			    }
 
 			    const radius = getDistance(start, center);
 			    var end = polarToCartesian(center, radius, angle);
-			    console.log("End", end);
-
 			    point(end, 'black')
 
 				return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largArcFlag} ${end.x} ${end.y}`;

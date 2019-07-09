@@ -38,7 +38,7 @@ export default {
         builtins(),
         string({
             // Required to be specified
-            include: ['**/*.svg'],
+            include: ['**/*.svg', '**/*.rs'],
         }),
         commonjs({
             include: './node_modules/**',

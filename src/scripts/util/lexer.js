@@ -10,41 +10,44 @@ const clamp = function(val, min, max) {
 const typeDefinitions = {
     v: 'path',
     p: 'path',
-    G: 'grid',
+    a: 'path',
+    g: 'grid',
 };
+
+const { PI } = Math;
 
 const negative = str => str[0] === '-';
 
 const tokenReplacements = [
     {
-        regex: /\d+?u$/,
+        regex: /\d+?U$/,
         fn(str, { gridUnit }) {
-            const arr = str.split('u');
+            const arr = str.split('U');
             return +arr[0] * gridUnit;
         },
     },
     {
-        regex: /\d+?w$/,
+        regex: /\d+?W$/,
         fn(str, { width }) {
-            const arr = str.split('w');
+            const arr = str.split('W');
             return clamp(+arr[0], -1, 1) * width;
         },
     },
     {
-        regex: /\d+?h$/,
+        regex: /\d+?H$/,
         fn(str, { height }) {
-            const arr = str.split('h');
+            const arr = str.split('H');
             return clamp(+arr[0], -1, 1) * height;
         },
     },
     {
-        regex: /-?w/,
+        regex: /-?W/,
         fn(str, { width }) {
             return negative(str) ? -width : width;
         },
     },
     {
-        regex: /-?h/,
+        regex: /-?H/,
         fn(str, { height }) {
             return negative(str) ? -height : height;
         },
@@ -54,19 +57,19 @@ const tokenReplacements = [
         fn(str) {
             const mult = +str.split('PI')[0];
             console.log('Mult', mult, str);
-            return (mult || 1) * (negative(str) ? -Math.PI : Math.PI);
+            return (mult || 1) * (negative(str) ? -PI : PI);
         },
     },
     {
-        regex: /-?HPI/,
+        regex: /-?H_PI/,
         fn(str) {
-            return (negative(str) ? -Math.PI : Math.PI) / 2;
+            return (negative(str) ? -PI : PI) / 2;
         },
     },
 ];
 
 const tokenTypeMappings = {
-    G: 'grid',
+    g: 'grid',
     m: 'move',
     p: 'point',
     v: 'vector',
@@ -96,7 +99,7 @@ export default function(string) {
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^\d/.test(line)) {
-                line = `p ${line}`;
+                line = `p${line}`;
             }
 
             const typeRef = /^(.)/.exec(line)[1];

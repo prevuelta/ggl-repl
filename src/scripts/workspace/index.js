@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { MODE_TAGS } from '../util/constants';
 import { Source, Renderer, Browser } from './components';
 import { lexer, parser } from '../util';
+import example from '../example.rs';
 
 const StatusBar = props => (
     <div className="statusbar">
@@ -25,17 +26,14 @@ class Workspace extends Component {
             .then(json => {
                 this.setState({ runes: json });
             });
-        this.parseInput(
-            `G24 24 10 5\np0 0,50 50,0 50,0 0\np0 0,3u 0,3u 3u,0 3u,0 0,a0.5w 0 0.5w 0.5h PI 0 0`
-
-        );
+        this.parseInput(example);
     }
 
     parseInput = (source, event) => {
         if (event) {
-          console.log("Editor", event.end.row);
+            console.log('Editor', event.end.row);
         }
-        console.log("Source", source);
+        console.log('Source', source);
         const rune = this.props.state.current;
         const lexed = lexer(source, {
             unit: rune.gridUnit,
@@ -53,8 +51,8 @@ class Workspace extends Component {
         // Store.updateRune('source', parsedInput);
     };
 
-    cursorChange = (selection) => {
-      console.log("Cursor change", selection.lead.row, selection);
+    cursorChange = selection => {
+        console.log('Cursor change', selection.lead.row, selection);
     };
 
     setExample = source => {
