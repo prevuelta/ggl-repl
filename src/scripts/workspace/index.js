@@ -30,10 +30,10 @@ class Workspace extends Component {
     }
 
     parseInput = (source, event) => {
-        if (event) {
-            console.log('Editor', event.end.row);
-        }
-        console.log('Source', source);
+        // if (event) {
+        //     console.log('Editor', event.end.row);
+        // }
+        // console.log('Source', source);
         const rune = this.props.state.current;
         const lexed = lexer(source, {
             unit: rune.gridUnit,

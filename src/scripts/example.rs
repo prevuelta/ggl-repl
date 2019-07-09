@@ -1,7 +1,3 @@
-g24 24 10 5
-  p0 0,50 50,0 50,0 0
-  p0 0,3U 0,3U 3U,0 3U,0 0,a0.5W 0 0.5W 0.5H -HPI 1
-  a0 0 0.5W 0.5H -HPI 0
-  a0 0.5H 0.5W 0.5H HPI 0
-  a0 0.5H 0.5W 0.5H HPI 0
+g6 6 40 5
+    p0 1U,a0 1U 1U 1U HPI 1,p1U 0,p5U 0,a5U 0 5U 1U HPI 1,pW H
 

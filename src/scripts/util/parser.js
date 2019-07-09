@@ -26,20 +26,20 @@ function Grid(props) {
     );
 }
 
-function describeArc(start, center, angle, largeArcFlag = 0) {
-    let sweep = 0;
-
+function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const originalAngle = angle;
     const startAngle = getAngle(start, center);
     angle += startAngle;
     angle = angle % TWO_PI;
 
+    console.log('Original', originalAngle, angle);
+
     if (originalAngle > PI || originalAngle < -PI) {
-        sweep = 1;
+        // sweep = 1;
     }
 
     if (angle >= PI) {
-        largeArcFlag = 1;
+        // largeArcFlag = largeArcFlag ? 0 : 1;
     }
 
     const radius = getDistance(start, center);
@@ -80,14 +80,14 @@ const elements = {
                     centerX,
                     centerY,
                     angle,
-                    direction,
+                    largeArcFlag,
                     sweep,
                 ] = token.args;
                 string = describeArc(
                     { x: startX, y: startY },
                     { x: centerX, y: centerY },
                     angle,
-                    direction,
+                    largeArcFlag,
                     sweep
                 );
             }

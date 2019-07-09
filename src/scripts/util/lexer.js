@@ -61,9 +61,15 @@ const tokenReplacements = [
         },
     },
     {
-        regex: /-?H_PI/,
+        regex: /-?HPI/,
         fn(str) {
-            return (negative(str) ? -PI : PI) / 2;
+            return +str.replace(HPI, HALF_PI);
+        },
+    },
+    {
+        regex: /^C$/,
+        fn(str, { gridUnit, yUnits, xUnits }) {
+            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
     },
 ];

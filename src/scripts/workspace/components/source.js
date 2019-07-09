@@ -4,8 +4,6 @@ import AceEditor from 'react-ace';
 import 'brace/theme/github';
 
 export default props => {
-  console.log("Props", props);
-
     return (
         <div className="source-inspector">
             <ul className="test-examples">
