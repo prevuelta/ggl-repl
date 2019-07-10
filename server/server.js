@@ -3,13 +3,13 @@ import config from './config';
 import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
+import { guid } from './util';
 
 const app = express();
 const { port } = config;
 
 const appDir = path.join(__dirname, '../dist');
-
-console.log(appDir);
+const storage = `${__dirname}/stored`;
 
 app.use(express.static(appDir));
 app.use(express.json());
@@ -17,14 +17,25 @@ app.use(express.json());
 // app.get('/', function(req, res) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
-app.post('/save', (req, res) => {
-    const { svg, runeScript } = req.body;
-    console.log(req.body, svg, runeScript);
-    res.send(req.body);
+app.route('/rune').post((req, res) => {
+    const rune = req.body;
+    if (!rune.id) {
+        rune.id = guid();
+    }
+    const filePath = `${storage}/${rune.id}.json`;
+    // const file = fs.statSync(filePath);
+    fs.writeFile(filePath, JSON.stringify(rune), err => {
+        if (err) {
+            console.log('Error saving', err);
+            res.sendStatus(500);
+        }
+        console.log('Rune saved');
+        res.sendStatus(200);
+    });
 });
 
 app.get('/runes', (req, res) => {
-    const runes = glob.sync(`${__dirname}/stored/*`).map(f => {
+    const runes = glob.sync(`${storage}/*`).map(f => {
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
     console.log('runes', runes);

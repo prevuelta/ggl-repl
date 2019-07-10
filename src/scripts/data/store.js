@@ -1,5 +1,4 @@
 import { views, modes } from '../util/constants';
-import { generateName } from '../util';
 
 function Rune() {
     return {
@@ -7,14 +6,12 @@ function Rune() {
         y: 10,
         gridUnit: 30,
         divisions: 5,
-        name: generateName(),
     };
 }
 
 export default {
     _state: {
         runes: [],
-        current: Rune(),
         app: {
             view: views.DRAFT,
             mode: modes.DOCUMENT,

@@ -1,6 +1,6 @@
 $panel-width: 20%;
 $statusbar-height: 18px;
-$browser-height: $u3;
+$browser-height: $u2 + $hu;
 $header-height: $statusbar-height + $browser-height;
 
 * {
@@ -35,12 +35,12 @@ body {
     display: flex;
     left: 0;
     height: $statusbar-height;
-    .tag {
-        // border-radius: 2px;
-        padding: 3px 6px;
-        color: $dark;
-        background: $sky;
-    }
+}
+
+.tag {
+    padding: 3px 6px;
+    color: $dark;
+    background: $sky;
 }
 
 .workspace {
@@ -94,10 +94,21 @@ body {
 }
 
 .browser ul li {
-    width: $u2;
-    height: $u2;
-    background: red;
+    // width: $u2;
+    // height: $u2;
     margin: 0 $u 0 0;
+    @extend .tag;
+    background: red;
+    cursor: pointer;
+
+    &:hover {
+        background: white;
+    }
+
+    &.active {
+        background: white;
+        pointer-events: none;
+    }
 }
 
 // #rune-tools {

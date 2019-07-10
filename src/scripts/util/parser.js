@@ -107,6 +107,7 @@ const elements = {
 };
 
 export default function(tokenGroups) {
+    console.log(tokenGroups);
     return tokenGroups
         .map(tokenGroup => {
             if (elements.hasOwnProperty(tokenGroup.type)) {

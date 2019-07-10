@@ -1,6 +1,6 @@
 const regEx = {
     comment: /^\/\//,
-    emptyLine: /^(\r| |\t)+$/,
+    emptyLine: /^(\t| |\r)*$/,
 };
 
 const clamp = function(val, min, max) {
@@ -95,16 +95,20 @@ export default function(string) {
         y: 10,
     };
 
+    console.log(string);
+
     const lines = string
         .replace(/-\n\s+?/g, ',')
         .trim()
         .split('\n');
+    console.log(lines);
     const tokenGroups = lines
         .filter(
             line =>
                 !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
         )
         .map(line => {
+            console.log('Line', line);
             const nesting = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
 
@@ -112,7 +116,7 @@ export default function(string) {
                 line = `p${line}`;
             }
 
-            const [_, typeRef] = /^(.)/.exec(line);
+            const typeRef = line.substr(0, 1);
 
             if (!typeRef) return;
 
