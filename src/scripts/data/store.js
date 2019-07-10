@@ -13,9 +13,12 @@ export default {
     _state: {
         runes: [],
         app: {
-            view: views.DRAFT,
             mode: modes.DOCUMENT,
         },
+    },
+    setMode(mode) {
+        this._state.app.mode = mode;
+        this._update();
     },
     _update() {
         // noop

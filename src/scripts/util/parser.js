@@ -8,6 +8,10 @@ import {
     HALF_PI,
     TWO_PI,
 } from '../util/trig';
+import { modes } from '../util/constants';
+import { Store } from '../data';
+
+let state = Store.getState();
 
 // import Grid from '../
 function Grid(props) {
@@ -63,9 +67,7 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${
-        start.y
-    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 const commandArgMapping = {};
@@ -107,10 +109,17 @@ const elements = {
 };
 
 export default function(tokenGroups) {
-    console.log(tokenGroups);
+    let state = Store.getState();
     return tokenGroups
         .map(tokenGroup => {
             if (elements.hasOwnProperty(tokenGroup.type)) {
+                if (
+                    tokenGroup.type === 'grid' &&
+                    state.app.mode === modes.PREVIEW
+                ) {
+                    return null;
+                }
+
                 return elements[tokenGroup.type](tokenGroup);
             } else {
                 console.warn(`Token ref ${tokenGroup.type} has no element`);

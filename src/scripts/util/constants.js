@@ -12,23 +12,16 @@ export const COLORS = {
     CREAM: '#ece5d4',
 };
 
-export const views = {
-    DRAFT: 'draft',
-    PROOF: 'proof',
-};
-
 export const modes = {
+    BROWSE: 'browse',
     DOCUMENT: 'document',
-    PATH: 'path',
-    DRAW: 'draw',
-    ARC: 'arc',
+    EDIT: 'edit',
+    PREVIEW: 'preview',
 };
 
 export const MODE_TAGS = {
     [modes.DOCUMENT]: 'Document',
-    [modes.PATH]: 'Path',
-    [modes.DRAW]: 'Draw',
-    [modes.ARC]: 'Arc',
+    [modes.PREVIEW]: 'Preview',
 };
 
 export const POINT_TYPES = {

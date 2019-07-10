@@ -27,6 +27,7 @@ export default props => {
                 </li>
             </ul>
             <AceEditor
+                className="editable"
                 value={props.value}
                 onChange={(value, editor) => props.parseInput(value, editor)}
                 onCursorChange={(v, h) => props.handleCursorChange(v, h)}

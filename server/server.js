@@ -4,12 +4,15 @@ import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
 import { guid } from './util';
+import sharp from 'sharp';
 
 const app = express();
 const { port } = config;
 
 const appDir = path.join(__dirname, '../dist');
 const storage = `${__dirname}/stored`;
+
+// Test
 
 app.use(express.static(appDir));
 app.use(express.json());
@@ -24,6 +27,7 @@ app.route('/rune').post((req, res) => {
     }
     const filePath = `${storage}/${rune.id}.json`;
     // const file = fs.statSync(filePath);
+
     fs.writeFile(filePath, JSON.stringify(rune), err => {
         if (err) {
             console.log('Error saving', err);

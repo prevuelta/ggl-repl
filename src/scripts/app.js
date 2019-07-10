@@ -4,7 +4,7 @@ import Workspace from './workspace';
 
 import Store from './data/store';
 
-// import './util/keys';
+import './util/keys';
 
 const render = () => {
     ReactDOM.render(

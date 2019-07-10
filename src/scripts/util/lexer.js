@@ -8,10 +8,11 @@ const clamp = function(val, min, max) {
 };
 
 const typeDefinitions = {
-    v: 'path',
+    '+': 'path',
     p: 'path',
     a: 'path',
     g: 'grid',
+    f: 'fill',
 };
 
 const { PI } = Math;
@@ -24,7 +25,6 @@ const tokenReplacements = [
     {
         regex: /(\d|\.+)U((\d+)D)*/,
         fn(str, matches, { gridUnit }) {
-            console.log('Matches', matches);
             const mul = matches[1];
             return +mul * gridUnit;
         },
@@ -78,20 +78,17 @@ const tokenReplacements = [
     {
         regex: /^C$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
+            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
     },
 ];
 
 const tokenTypeMappings = {
     g: 'grid',
-    m: 'move',
     p: 'point',
-    v: 'vector',
+    '+': 'vector',
     a: 'arc',
-    t: 'tangent',
-    '': 'nest',
-    '(': 'loop',
+    f: 'fill',
 };
 
 function getCommand() {}
@@ -103,20 +100,16 @@ export default function(string) {
         y: 10,
     };
 
-    console.log(string);
-
     const lines = string
         .replace(/-\n\s+?/g, ',')
         .trim()
         .split('\n');
-    console.log(lines);
     const tokenGroups = lines
         .filter(
             line =>
                 !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
         )
         .map(line => {
-            console.log('Line', line);
             const nesting = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
 
@@ -157,7 +150,9 @@ export default function(string) {
                             for (let tr of tokenReplacements) {
                                 if (tr.regex.test(str)) {
                                     const matches = tr.regex.exec(str);
-                                    newArg = tr.fn(str, matches, gridContext);
+                                    newArg = tr.fn(str, matches, {
+                                        ...gridContext,
+                                    });
                                     break;
                                 }
                             }
