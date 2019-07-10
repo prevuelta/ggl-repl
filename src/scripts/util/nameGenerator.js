@@ -201,5 +201,5 @@ export function generateName(length = 3) {
         let randomI = Math.floor(Math.random() * words.length - 1);
         name.push(words[randomI]);
     }
-    return name.join(' ').replace(/ (.)/, l => l.toLowerCase());
+    return name.join(' '); //.replace(/ (.)/, l => l.toLowerCase());
 }

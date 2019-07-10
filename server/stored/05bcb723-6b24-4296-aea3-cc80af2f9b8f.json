@@ -1,1 +1,1 @@
-{"script":"g10 10 20 5\n    p0 0,W 0,W H,0 H,0 0","svg":"svgstring","name":"Love turbo Imperfect","id":"05bcb723-6b24-4296-aea3-cc80af2f9b8f"}
+{"script":"g6 6 40 5\n    a0 1U 1U 1U HPI 1,a5U 0 5U 1U HPI 1-\n    aW 5U 5U 5U HPI 1,a1U H 1U 5U HPI 1-\n    p0 1U\n    a1U 2U 1U 1U -HPI,a4U 1U 5U 1U -HPI-\n    a5U 4U 5U 5U -HPI,a2U 5U 1U 5U -HPI-\n    p1U 2U","svg":"svgstring","name":"Love turbo Imperfect","id":"05bcb723-6b24-4296-aea3-cc80af2f9b8f"}

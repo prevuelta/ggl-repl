@@ -22,54 +22,62 @@ const negative = str => str[0] === '-';
 
 const tokenReplacements = [
     {
+        regex: /(\d|\.+)U((\d+)D)*/,
+        fn(str, matches, { gridUnit }) {
+            console.log('Matches', matches);
+            const mul = matches[1];
+            return +mul * gridUnit;
+        },
+    },
+    {
         regex: /\d+?U$/,
-        fn(str, { gridUnit }) {
+        fn(str, matches, { gridUnit }) {
             const arr = str.split('U');
             return +arr[0] * gridUnit;
         },
     },
     {
         regex: /\d+?W$/,
-        fn(str, { width }) {
+        fn(str, matches, { width }) {
             const arr = str.split('W');
             return clamp(+arr[0], -1, 1) * width;
         },
     },
     {
         regex: /\d+?H$/,
-        fn(str, { height }) {
+        fn(str, matches, { height }) {
             const arr = str.split('H');
             return clamp(+arr[0], -1, 1) * height;
         },
     },
     {
         regex: /-?W$/,
-        fn(str, { width }) {
+        fn(str, matches, { width }) {
             return negative(str) ? -width : width;
         },
     },
     {
         regex: /-?H$/,
-        fn(str, { height }) {
+        fn(str, matches, { height }) {
             return negative(str) ? -height : height;
         },
     },
     {
         regex: /^-?[\d|\.]*PI$/,
-        fn(str) {
+        fn(str, matches) {
             const mult = +str.split('PI')[0];
             return (mult || 1) * (negative(str) ? -PI : PI);
         },
     },
     {
         regex: /-?HPI/,
-        fn(str) {
+        fn(str, matches) {
             return +str.replace('HPI', HALF_PI);
         },
     },
     {
         regex: /^C$/,
-        fn(str, { gridUnit, yUnits, xUnits }) {
+        fn(str, matches, { gridUnit, yUnits, xUnits }) {
             return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
@@ -144,12 +152,12 @@ export default function(string) {
                     return arg
                         .trim()
                         .split(' ')
-                        .map(a => {
-                            let newArg = a;
+                        .map(str => {
+                            let newArg = str;
                             for (let tr of tokenReplacements) {
-                                if (tr.regex.test(a)) {
-                                    const raw = tr.regex.exec(a)[0];
-                                    newArg = tr.fn(a, gridContext);
+                                if (tr.regex.test(str)) {
+                                    const matches = tr.regex.exec(str);
+                                    newArg = tr.fn(str, matches, gridContext);
                                     break;
                                 }
                             }

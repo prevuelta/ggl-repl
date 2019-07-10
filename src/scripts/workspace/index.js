@@ -22,14 +22,15 @@ class Workspace extends Component {
     }
 
     componentDidMount() {
-        this.getRunes();
+        this.getRunes().then(runes => this.setRune(runes[0]));
     }
 
     getRunes = () => {
-        fetch('/runes')
+        return fetch('/runes')
             .then(res => res.json())
             .then(json => {
                 this.setState({ runes: json });
+                return json;
             });
     };
 
