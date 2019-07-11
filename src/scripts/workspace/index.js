@@ -22,7 +22,16 @@ class Workspace extends Component {
     }
 
     componentDidMount() {
-        this.getRunes().then(runes => this.setRune(runes[0]));
+        window.addEventListener('hashchange', e => {
+            this.setRune(window.location.hash.substr(1));
+        });
+        this.getRunes().then(runes => {
+            if (window.location.hash) {
+                this.setRune(window.location.hash.substr(1));
+            } else {
+                window.location.hash = runes[0].id;
+            }
+        });
     }
 
     getRunes = () => {
@@ -92,22 +101,22 @@ class Workspace extends Component {
         this.setState({ runes: [...this.state.runes, newRune], rune: newRune });
     };
 
-    setRune = rune => {
-        console.log('Setting rune', rune);
+    setRune = runeId => {
+        const rune = this.state.runes.find(r => r.id === runeId);
         this.setState({ rune });
         this.parseInput(rune.script);
     };
 
     render() {
         const { props } = this;
+        const { state } = props;
         const { parsed, lexed, source, runes, rune } = this.state;
 
         return (
             <div className="workspace">
-                <StatusBar mode={props.state.app.mode} save={this.saveRune} />
+                <StatusBar mode={state.app.mode} save={this.saveRune} />
                 <Browser
                     runes={runes}
-                    setRune={this.setRune}
                     newRune={this.newRune}
                     active={rune && rune.id}
                 />
@@ -119,6 +128,7 @@ class Workspace extends Component {
                 />
                 {rune && (
                     <Renderer
+                        mode={state.app.mode}
                         rune={rune}
                         elements={parsed}
                         lexed={lexed}

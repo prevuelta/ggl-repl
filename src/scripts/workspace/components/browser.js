@@ -8,7 +8,7 @@ export default props => {
                 {props.runes.map(r => (
                     <li
                         key={r.id}
-                        onClick={() => props.setRune(r)}
+                        onClick={() => (window.location.hash = r.id)}
                         className={r.id === props.active ? 'active' : ''}>
                         {r.name}
                     </li>

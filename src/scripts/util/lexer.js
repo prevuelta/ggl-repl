@@ -9,10 +9,10 @@ const clamp = function(val, min, max) {
 
 const typeDefinitions = {
     '+': 'path',
-    p: 'path',
-    a: 'path',
-    g: 'grid',
-    f: 'fill',
+    P: 'path',
+    A: 'path',
+    G: 'grid',
+    F: 'fill',
 };
 
 const { PI } = Math;
@@ -23,60 +23,60 @@ const negative = str => str[0] === '-';
 
 const tokenReplacements = [
     {
-        regex: /(\d|\.+)U((\d+)D)*/,
+        regex: /(\d|\.+)u((\d+)y)*/,
         fn(str, matches, { gridUnit }) {
             const mul = matches[1];
             return +mul * gridUnit;
         },
     },
     {
-        regex: /\d+?U$/,
+        regex: /\d+?u$/,
         fn(str, matches, { gridUnit }) {
-            const arr = str.split('U');
+            const arr = str.split('u');
             return +arr[0] * gridUnit;
         },
     },
     {
-        regex: /\d+?W$/,
+        regex: /\d+?w$/,
         fn(str, matches, { width }) {
-            const arr = str.split('W');
+            const arr = str.split('w');
             return clamp(+arr[0], -1, 1) * width;
         },
     },
     {
-        regex: /\d+?H$/,
+        regex: /\d+?h$/,
         fn(str, matches, { height }) {
-            const arr = str.split('H');
+            const arr = str.split('h');
             return clamp(+arr[0], -1, 1) * height;
         },
     },
     {
-        regex: /-?W$/,
+        regex: /-?w$/,
         fn(str, matches, { width }) {
             return negative(str) ? -width : width;
         },
     },
     {
-        regex: /-?H$/,
+        regex: /-?h$/,
         fn(str, matches, { height }) {
             return negative(str) ? -height : height;
         },
     },
     {
-        regex: /^-?[\d|\.]*PI$/,
+        regex: /^-?[\d|\.]*pi$/,
         fn(str, matches) {
-            const mult = +str.split('PI')[0];
+            const mult = +str.split('pi')[0];
             return (mult || 1) * (negative(str) ? -PI : PI);
         },
     },
     {
-        regex: /-?HPI/,
+        regex: /-?hpi/,
         fn(str, matches) {
-            return +str.replace('HPI', HALF_PI);
+            return +str.replace('hpi', HALF_PI);
         },
     },
     {
-        regex: /^C$/,
+        regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
             return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
@@ -84,11 +84,11 @@ const tokenReplacements = [
 ];
 
 const tokenTypeMappings = {
-    g: 'grid',
-    p: 'point',
+    G: 'grid',
+    P: 'point',
     '+': 'vector',
-    a: 'arc',
-    f: 'fill',
+    A: 'arc',
+    F: 'fill',
 };
 
 function getCommand() {}
@@ -114,7 +114,7 @@ export default function(string) {
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^\d/.test(line)) {
-                line = `p${line}`;
+                line = `P${line}`;
             }
 
             const typeRef = line.substr(0, 1);

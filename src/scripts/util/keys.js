@@ -1,5 +1,5 @@
 import Store from '../data/store';
-import { MODES } from '../util/constants';
+import { modes } from '../util/constants';
 
 const MODIFIERS = ['shiftKey', 'ctrlKey', 'metaKey'];
 
@@ -98,11 +98,11 @@ const globalActions = {
 document.addEventListener('keydown', function(e) {
     if (e.target.classList.contains('editable')) return;
 
-    console.log('Key code', e.keyCode);
+    // console.log('Key code', e.keyCode, e.metaKey, e.target, e.currentTarget);
 
     let mode = Store.getState().app.mode;
     if (!e.metaKey) {
-        e.preventDefault();
+        // e.preventDefault();
     }
     let hasModifier = MODIFIERS.filter(m => e[m]).join('+');
     let ref = `${hasModifier && hasModifier + '+'}${keyCodes[e.keyCode] ||
@@ -110,6 +110,7 @@ document.addEventListener('keydown', function(e) {
     if (!protectedElements.includes(e.target.tagName)) {
         if (globalActions[ref]) {
             globalActions[ref]();
+            e.preventDefault();
         }
         //         } else if (modeActions[mode][ref]) {
         //             action = modeActions[mode][ref]();
