@@ -138,9 +138,9 @@ export default function(string) {
                     matches,
                     pairRegEx = /(.+?)(,|$)/g;
 
-                while ((matches = pairRegEx.exec(argStr))) {
-                    tokenArgs.push(matches[1]);
-                }
+                tokenArgs = [...argStr.matchAll(pairRegEx)].map(
+                    match => match[1]
+                );
                 tokenArgs = tokenArgs.map(arg => {
                     return arg
                         .trim()

@@ -62,7 +62,10 @@ export const keyCodes = {
 
 const globalActions = {
     'ctrlKey+p': () => {
-        Store.setMode(modes.PREVIEW);
+        const { app } = Store.getState();
+        Store.setMode(
+            app.mode === modes.DOCUMENT ? modes.PREVIEW : modes.DOCUMENT
+        );
     },
     // h: actions.toggleHelp,
     // esc: actions.setDocumentMode,

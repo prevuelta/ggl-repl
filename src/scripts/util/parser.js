@@ -101,9 +101,7 @@ const elements = {
 
             pathString.push(`${command} ${string}`);
         });
-        return props => (
-            <path stroke="black" fill="none" d={pathString.join(' ')} />
-        );
+        return props => <path d={pathString.join(' ')} />;
     },
     grid: tokenGroup => props => <Grid args={tokenGroup.args} />,
 };
