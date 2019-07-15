@@ -1,1 +1,1 @@
-{"script":"G10 10 20 5\n    P0 0,w h,w 0","svg":"svgstring","name":"Still dagger Laser","id":"cfdc0653-3635-4f2e-b12d-2a9a01f82ee2"}
+{"script":"G10 10 20 5\n    P0 0,w h,w 0,+-0.5w 0","svg":"svgstring","name":"Still dagger Laser","id":"cfdc0653-3635-4f2e-b12d-2a9a01f82ee2"}

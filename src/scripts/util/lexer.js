@@ -23,47 +23,23 @@ const negative = str => str[0] === '-';
 
 const tokenReplacements = [
     {
-        regex: /(\d|\.+)u((\d+)y)*/,
+        regex: /^(-?\d*)u((\d+)y)*/,
         fn(str, matches, { gridUnit }) {
-            const mul = matches[1];
-            return +mul * gridUnit;
+            console.log('Matches', matches);
+            return +matches[1] * gridUnit;
         },
     },
     {
-        regex: /\d+?u$/,
-        fn(str, matches, { gridUnit }) {
-            const arr = str.split('u');
-            return +arr[0] * gridUnit;
+        regex: /(-?[\d|\.]*)([w|h])$/,
+        fn(str, matches, { width, height }) {
+            return (
+                clamp(+matches[1] || 1, -1, 1) *
+                { w: width, h: height }[matches[2]]
+            );
         },
     },
     {
-        regex: /\d+?w$/,
-        fn(str, matches, { width }) {
-            const arr = str.split('w');
-            return clamp(+arr[0], -1, 1) * width;
-        },
-    },
-    {
-        regex: /\d+?h$/,
-        fn(str, matches, { height }) {
-            const arr = str.split('h');
-            return clamp(+arr[0], -1, 1) * height;
-        },
-    },
-    {
-        regex: /-?w$/,
-        fn(str, matches, { width }) {
-            return negative(str) ? -width : width;
-        },
-    },
-    {
-        regex: /-?h$/,
-        fn(str, matches, { height }) {
-            return negative(str) ? -height : height;
-        },
-    },
-    {
-        regex: /^-?[\d|\.]*pi$/,
+        regex: /^(-?[\d|\.]*)pi$/,
         fn(str, matches) {
             const mult = +str.split('pi')[0];
             return (mult || 1) * (negative(str) ? -PI : PI);

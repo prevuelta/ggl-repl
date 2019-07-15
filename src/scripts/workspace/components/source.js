@@ -27,6 +27,7 @@ export default props => {
                 </li>
             </ul>
             <AceEditor
+                tabSize={2}
                 className="editable"
                 value={props.value}
                 onChange={(value, editor) => props.parseInput(value, editor)}
