@@ -20,6 +20,7 @@ app.use(express.json());
 // app.get('/', function(req, res) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
+
 app.route('/rune').post((req, res) => {
     const rune = req.body;
     if (!rune.id) {

@@ -101,8 +101,10 @@ class Workspace extends Component {
         this.setState({ runes: [...this.state.runes, newRune], rune: newRune });
     };
 
-    setRune = runeId => {
-        const rune = this.state.runes.find(r => r.id === runeId);
+    setRune = rune => {
+        if (typeof rune === 'string') {
+            rune = this.state.runes.find(r => r.id === rune);
+        }
         this.setState({ rune });
         this.parseInput(rune.script);
     };

@@ -25,7 +25,6 @@ const tokenReplacements = [
     {
         regex: /^(-?\d*)u((\d+)y)*/,
         fn(str, matches, { gridUnit }) {
-            console.log('Matches', matches);
             return +matches[1] * gridUnit;
         },
     },
@@ -77,7 +76,7 @@ export default function(string) {
     };
 
     const lines = string
-        .replace(/-\n\s+?/g, ',')
+        .replace(/-\s*\n\s+?/g, ',')
         .trim()
         .split('\n');
     const tokenGroups = lines
