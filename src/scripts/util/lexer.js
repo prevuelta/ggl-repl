@@ -22,18 +22,19 @@ const TWO_PI = PI * 2;
 const negative = str => str[0] === '-';
 
 const tokenReplacements = [
+    // {
+    //     regex: /(\d|\.+)u((\d+)y)*/,
+    //     fn(str, matches, { gridUnit }) {
+    //         const mul = matches[1];
+    //         return +mul * gridUnit;
+    //     },
+    // },
     {
-        regex: /(\d|\.+)u((\d+)y)*/,
+        regex: /([\d|-]*)u$/,
         fn(str, matches, { gridUnit }) {
-            const mul = matches[1];
-            return +mul * gridUnit;
-        },
-    },
-    {
-        regex: /\d+?u$/,
-        fn(str, matches, { gridUnit }) {
-            const arr = str.split('u');
-            return +arr[0] * gridUnit;
+            // const arr = str.split('u');
+            return +matches[1] * gridUnit;
+            // return +arr[0] * gridUnit;
         },
     },
     {
@@ -78,7 +79,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
 ];
@@ -101,7 +102,7 @@ export default function(string) {
     };
 
     const lines = string
-        .replace(/-\n\s+?/g, ',')
+        .replace(/-\s*\n\s+?/g, ',')
         .trim()
         .split('\n');
     const tokenGroups = lines
