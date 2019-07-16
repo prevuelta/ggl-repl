@@ -1,11 +1,9 @@
-'use strict';
-
 import babel from 'rollup-plugin-babel';
 import resolve from 'rollup-plugin-node-resolve';
 // import includePaths from 'rollup-plugin-includepaths';
-import eslint from 'rollup-plugin-eslint';
+// import eslint from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
-import globals from 'rollup-plugin-node-globals';
+// import globals from 'rollup-plugin-node-globals';
 import { string } from 'rollup-plugin-string';
 import builtins from 'rollup-plugin-node-builtins';
 import json from 'rollup-plugin-json';
@@ -15,8 +13,9 @@ var includePathOptions = {
 };
 
 export default {
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', 'react-dom/server', 'react-ace'],
     input: 'src/scripts/app.js',
+    cache: true,
     output: {
         format: 'iife',
         name: 'rune',
@@ -24,6 +23,8 @@ export default {
         globals: {
             react: 'RuneModules.React',
             'react-dom': 'RuneModules.ReactDOM',
+            'react-dom/server': 'RuneModules.ReactDOMServer',
+            'react-ace': 'RuneModules.AceEditor',
         },
     },
     plugins: [
@@ -41,10 +42,14 @@ export default {
             include: ['**/*.svg', '**/*.rs'],
         }),
         commonjs({
+            sourceMap: false,
             include: './node_modules/**',
             namedExports: {
-                'node_modules/react-dom/index.js': ['findDOMNode'],
-                'node_modules/react/index.js': ['Component'],
+                // 'node_modules/react-dom/index.js': ['findDOMNode'],
+                // 'node_modules/react-dom/server.browser.js': [
+                // 'renderToStaticMarkup',
+                // ],
+                // 'node_modules/react/index.js': ['Component'],
             },
         }),
         babel({

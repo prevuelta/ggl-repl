@@ -108,21 +108,20 @@ const elements = {
 
 export default function(tokenGroups) {
     let state = Store.getState();
-    return tokenGroups
-        .map(tokenGroup => {
+    return tokenGroups.reduce(
+        (obj, tokenGroup) => {
             if (elements.hasOwnProperty(tokenGroup.type)) {
-                if (
-                    tokenGroup.type === 'grid' &&
-                    state.app.mode === modes.PREVIEW
-                ) {
-                    return null;
+                const element = elements[tokenGroup.type](tokenGroup);
+                if (tokenGroup.type === 'grid') {
+                    obj.grids.push(element);
+                } else {
+                    obj.paths.push(element);
                 }
-
-                return elements[tokenGroup.type](tokenGroup);
             } else {
                 console.warn(`Token ref ${tokenGroup.type} has no element`);
-                return null;
             }
-        })
-        .filter(el => el !== null);
+            return obj;
+        },
+        { grids: [], paths: [] }
+    );
 }

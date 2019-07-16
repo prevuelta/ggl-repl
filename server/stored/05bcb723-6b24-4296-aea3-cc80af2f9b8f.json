@@ -1,6 +1,1 @@
-{
-    "script": "G6 6 40 5\n    A0 1u 1u 1u hpi 1 A5u 0 5u 1u hpi 1-\n    Aw 5u 5u 5u hpi 1 A1u h 1u 5u hpi 1-\n    P0 1u\n        A1u 2u 1u 1u -hpi A4u 1u 5u 1u -hpi-\n        A5u 4u 5u 5u -hpi A2u 5u 1u 5u -hpi-\n        P1u 2u+2u 0",
-    "svg": "svgstring",
-    "name": "Love turbo Imperfect",
-    "id": "05bcb723-6b24-4296-aea3-cc80af2f9b8f"
-}
+{"script":"G6 6 40 5\n    A0 1u 1u 1u hpi 1 A5u 0 5u 1u hpi 1-\n    Aw 5u 5u 5u hpi 1 A1u h 1u 5u hpi 1-\n    P0 1u\n        A1u 2u 1u 1u -hpi A4u 1u 5u 1u -hpi-\n        A5u 4u 5u 5u -hpi A2u 5u 1u 5u -hpi-\n        P1u 2u+2u 0","svg":"<svg class=\"renderer-svg\" height=\"240\" width=\"240\"><g fill=\"none\" stroke=\"black\"><path d=\" M 0 40 A 40 40 0 0 1 39.99999999999999 0  L 200 0 A 40 40 0 0 1 240 40  L 240 200 A 40 40 0 0 1 200 240  L 40 240 A 40 40 0 0 1 0 200 L 0 40\"></path><path d=\" M 40 80 A 40 40 0 0 0 80 40  L 160 40 A 40 40 0 0 0 200 80  L 200 160 A 40 40 0 0 0 160 200  L 80 200 A 40 40 0 0 0 40 160 L 40 80\"></path></g></svg>","name":"Love turbo Imperfect","id":"05bcb723-6b24-4296-aea3-cc80af2f9b8f"}

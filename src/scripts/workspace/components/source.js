@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AceEditor from 'react-ace';
 
-import 'brace/theme/github';
+// import 'brace/theme/github';
 
 export default props => {
     return (

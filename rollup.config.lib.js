@@ -1,14 +1,12 @@
-'use strict';
-
 import babel from 'rollup-plugin-babel';
 import resolve from 'rollup-plugin-node-resolve';
 // import includePaths from 'rollup-plugin-includepaths';
-import eslint from 'rollup-plugin-eslint';
+// import eslint from 'rollup-plugin-eslint';
 import commonjs from 'rollup-plugin-commonjs';
 // import string from 'rollup-plugin-string';
-import globals from 'rollup-plugin-node-globals';
+// import globals from 'rollup-plugin-node-globals';
 import json from 'rollup-plugin-json';
-import builtins from 'rollup-plugin-node-builtins';
+// import builtins from 'rollup-plugin-node-builtins';
 import { uglify } from 'rollup-plugin-uglify';
 
 var includePathOptions = {
@@ -17,6 +15,7 @@ var includePathOptions = {
 
 export default {
     input: './src/scripts/lib.js',
+    cache: false,
     output: {
         format: 'iife',
         name: 'RuneModules',
@@ -24,6 +23,8 @@ export default {
         globals: {
             react: 'React',
             'react-dom': 'ReactDOM',
+            'react-dom/server': 'ReactDOMServer',
+            'react-ace': 'AceEditor',
         },
     },
     plugins: [
@@ -34,12 +35,17 @@ export default {
         // json(),
         // builtins(),
         commonjs({
+            sourceMap: false,
             include: './node_modules/**',
             namedExports: {
                 'node_modules/react/index.js': [
                     'createElement',
                     'Component',
                     'PureComponent',
+                    'useState',
+                ],
+                'node_modules/react-dom/server.browser.js': [
+                    'renderToStaticMarkup',
                 ],
                 'node_modules/react-dom/index.js': ['findDOMNode'],
                 'node_modules/react-is/index.js': ['isValidElementType'],

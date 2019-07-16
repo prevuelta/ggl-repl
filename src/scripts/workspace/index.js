@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { MODE_TAGS } from '../util/constants';
 import { Source, Renderer, Browser } from './components';
 import example from '../example.rs';
 import { generateName, guid, lexer, parser } from '../util';
+import { RenderLayer } from './components/layers';
+
+const defaultHeight = 50;
+const defaultWidth = 50;
 
 const StatusBar = props => (
     <div className="statusbar">
@@ -15,9 +20,10 @@ class Workspace extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            parsed: [],
+            parsed: { grids: [], paths: [] },
             lexed: [],
             runes: [],
+            rune: null,
         };
     }
 
@@ -50,10 +56,31 @@ class Workspace extends Component {
             console.log('Lexed', lexed);
             const parsed = parser(lexed);
             console.log('Parsed', parsed);
+            const { width, height } = lexed
+                .filter(t => t.type === 'grid')
+                .reduce(
+                    (a, b) => {
+                        a.width = Math.max(b.args[0] * b.args[2], a.width);
+                        a.height = Math.max(b.args[1] * b.args[2], a.height);
+                        return a;
+                    },
+                    { width: defaultWidth, height: defaultHeight }
+                );
+            const svgString = renderToStaticMarkup(
+                <RenderLayer
+                    width={width}
+                    height={height}
+                    paths={parsed.paths}
+                />
+            );
+            rune.svg = svgString;
             this.setState({
                 source,
                 parsed,
                 lexed,
+                width,
+                height,
+                rune,
             });
         }
         // Store.updateRune('source', parsedInput);
@@ -67,15 +94,11 @@ class Workspace extends Component {
         this.parseInput(source);
     };
 
-    onRender = svg => {
-        console.log(svg);
-    };
-
     saveRune = () => {
         const { rune, source } = this.state;
         const payload = {
             script: source,
-            svg: 'svgstring',
+            svg: rune.svg,
             name: rune.name,
             id: rune.id,
         };
@@ -112,7 +135,15 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune } = this.state;
+        const {
+            parsed,
+            lexed,
+            source,
+            runes,
+            rune,
+            width,
+            height,
+        } = this.state;
 
         return (
             <div className="workspace">
@@ -131,17 +162,16 @@ class Workspace extends Component {
                 {rune && (
                     <Renderer
                         mode={state.app.mode}
+                        width={width}
+                        height={height}
                         rune={rune}
                         elements={parsed}
                         lexed={lexed}
-                        onRender={this.onRender}
                     />
                 )}
             </div>
         );
     }
 }
-
-// <Renderer />;
 
 export default Workspace;

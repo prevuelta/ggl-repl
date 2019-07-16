@@ -4,7 +4,8 @@ import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
 import { guid } from './util';
-import sharp from 'sharp';
+import gm from 'gm';
+const im = gm.subClass({ imageMagick: true });
 
 const app = express();
 const { port } = config;
@@ -28,6 +29,11 @@ app.route('/rune').post((req, res) => {
     }
     const filePath = `${storage}/${rune.id}.json`;
     // const file = fs.statSync(filePath);
+    im(rune.svg)
+        .resize(100, 100)
+        .write(`${storage}/thumbs/test.png`, err => {
+            console.log('Error', err);
+        });
 
     fs.writeFile(filePath, JSON.stringify(rune), err => {
         if (err) {
