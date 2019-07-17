@@ -13,8 +13,6 @@ const { port } = config;
 const appDir = path.join(__dirname, '../dist');
 const storage = `${__dirname}/stored`;
 
-// Test
-
 app.use(express.static(appDir));
 app.use(express.json());
 
@@ -46,10 +44,12 @@ app.route('/rune').post((req, res) => {
 });
 
 app.get('/runes', (req, res) => {
-    const runes = glob.sync(`${storage}/*`).map(f => {
+    console.log('Storage', storage);
+    const runes = glob.sync(`${storage}/*.json`).map(f => {
+        console.log(f);
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
-    console.log('runes', runes);
+    console.log('Runes', runes);
     // if (runes) {
     res.send(runes);
 });
