@@ -36,19 +36,17 @@ const tokenReplacements = [
         name: 'Silver Ratio',
         regex: /sr/,
         fn(str, matches) {
-            return Math.sqrt(2);
+            console.log(matches);
+            const result = str.replace(matches[0], Math.sqrt(2));
+          console.log("reult", result);
+            return result;
         },
     },
     {
-        regex: /^(.+?)\*(.+?)$/,
-        fn(str, matches) {
-            return +matches[1] * +matches[2];
-        },
-    },
-    {
-        regex: /^(-?\d*)u((\d+)y)*/,
+        regex: /(-?\d*)u((\d+)y)*/,
         fn(str, matches, { gridUnit }) {
-            return +matches[1] * gridUnit;
+            console.log(str);
+            return str.replace(matches[0], +matches[1] * gridUnit);
         },
     },
     {
@@ -77,6 +75,19 @@ const tokenReplacements = [
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
             return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
+        },
+    },
+    // Multiplication & division
+    {
+        regex: /^(.+?)[\*|\/](.+?)$/,
+        fn(str, matches) {
+            console.log(str, matches);
+            const isMultiplication = str.includes('*');
+            if (isMultiplication) {
+              return +matches[1] * +matches[2];
+            } else {
+              return +matches[1] / +matches[2];
+            }
         },
     },
 ];
@@ -128,7 +139,6 @@ export default function(string) {
                     matches,
                     pairRegEx = /(.+?)(,|$)/g;
 
-                console.log('AS -', argStr, argStr.matchAll);
                 tokenArgs = [...argStr.matchAll(pairRegEx)].map(
                     match => match[1]
                 );
@@ -137,17 +147,10 @@ export default function(string) {
                         .trim()
                         .split(' ')
                         .map(str => {
-                            let newArg = str;
-                            for (let tr of tokenReplacements) {
-                                if (tr.regex.test(str)) {
-                                    const matches = tr.regex.exec(str);
-                                    newArg = tr.fn(str, matches, {
-                                        ...gridContext,
-                                    });
-                                }
-                            }
-
-                            return +newArg;
+                            return +tokenReplacements.reduce((a, b) => {
+                                return b.regex.test(a) ? 
+                                b.fn(a, b.regex.exec(a), { ...gridContext }) : a;
+                            }, str);
                         });
                 });
                 if (type === 'grid') {

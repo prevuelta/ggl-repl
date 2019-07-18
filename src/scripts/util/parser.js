@@ -100,6 +100,10 @@ const elements = {
                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
             } else if (token.type === 'corner') {
                 const nextToken = tokenGroups.tokens[idx + 1];
+                const origin = 
+                const center = { x: , y: );
+                const angle = 
+                const dist = dist(origin, center);
                 if (previousToken && nextToken) {
                     string = `L L `;
                 }
