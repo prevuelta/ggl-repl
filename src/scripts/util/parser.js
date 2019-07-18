@@ -67,20 +67,21 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${
+        start.y
+    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
-
-const commandArgMapping = {};
 
 const elements = {
     path: tokenGroup => {
         const pathString = [];
+        let previousToken;
         tokenGroup.tokens.forEach((token, idx) => {
             const { type } = token;
-            let command, string;
+            let string = '';
             if (['point', 'vector'].includes(token.type)) {
                 const [i, j] = token.args;
-                string = `${i} ${j}`;
+                let command;
                 if (token.type === 'point') {
                     if (!idx) {
                         command = 'M';
@@ -94,12 +95,17 @@ const elements = {
                         command = 'l';
                     }
                 }
+                string = `${command} ${i} ${j}`;
             } else if (token.type === 'arc') {
-                command = '';
                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+            } else if (token.type === 'corner') {
+                const nextToken = tokenGroups.tokens[idx + 1];
+                if (previousToken && nextToken) {
+                    string = `L L `;
+                }
             }
-
-            pathString.push(`${command} ${string}`);
+            pathString.push(string);
+            previousToken = token;
         });
         return props => <path d={pathString.join(' ')} />;
     },

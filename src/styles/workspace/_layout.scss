@@ -1,6 +1,6 @@
 $panel-width: 20%;
 $statusbar-height: 18px;
-$browser-height: $u2 + $hu;
+$browser-height: $u4;
 $header-height: $statusbar-height + $browser-height;
 
 * {
@@ -85,6 +85,13 @@ body {
     right: 0;
     height: $browser-height;
     background: $dark;
+
+    .thumbnail {
+        width: $u2;
+        height: $u2;
+        background: orange;
+        margin: 0 $hu 0 0;
+    }
 }
 
 .browser ul {
@@ -100,6 +107,8 @@ body {
     @extend .tag;
     background: red;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 
     &:hover {
         background: white;
@@ -107,7 +116,7 @@ body {
 
     &.active {
         background: white;
-        pointer-events: none;
+        // pointer-events: none;
     }
 }
 

@@ -10,12 +10,14 @@ export default function RenderLayer(props) {
     const stroke = app.mode === modes.DOCUMENT ? 'black' : 'none';
 
     return (
-        <svg className="renderer-svg" height={height} width={width}>
+        <svg
+            className="renderer-svg"
+            height={height}
+            width={width}
+            viewBox={`0 0 ${width} ${height}`}>
             <g fill={fill} stroke={stroke}>
                 {grids && grids.map((Element, i) => <Element key={i} />)}
-                {paths.map((Element, i) => (
-                    <Element key={i} />
-                ))}
+                {paths.map((Element, i) => <Element key={i} />)}
             </g>
         </svg>
     );

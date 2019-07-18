@@ -10,7 +10,11 @@ export default props => {
                         key={r.id}
                         onClick={() => (window.location.hash = r.id)}
                         className={r.id === props.active ? 'active' : ''}>
+                        <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                         {r.name}
+                        <button onClick={() => props.deleteRune(r.id)}>
+                            x
+                        </button>
                     </li>
                 ))}
                 <li onClick={props.newRune}>+</li>

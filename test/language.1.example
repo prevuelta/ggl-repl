@@ -1,8 +1,0 @@
-// Basic Path Rectangle
-p0 0,10 0,v-10 -10,0 10
-// Units
-0 0,5u 0,2u 3u,0 1u
-// Width & height
-v0 0,w 0,0 0.5h,-w 0
-
-

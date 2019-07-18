@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MODE_TAGS } from '../util/constants';
-import { Source, Renderer, Browser } from './components';
+import { Source, Renderer, Browser, Preview } from './components';
 import example from '../example.rs';
 import { generateName, guid, lexer, parser } from '../util';
 import { RenderLayer } from './components/layers';
@@ -124,6 +124,19 @@ class Workspace extends Component {
         this.setState({ runes: [...this.state.runes, newRune], rune: newRune });
     };
 
+    deleteRune = id => {
+        console.log('Id', id);
+        fetch('/rune', {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id }),
+        }).then(res => {
+            this.getRunes();
+        });
+    };
+
     setRune = rune => {
         if (typeof rune === 'string') {
             rune = this.state.runes.find(r => r.id === rune);
@@ -151,6 +164,7 @@ class Workspace extends Component {
                 <Browser
                     runes={runes}
                     newRune={this.newRune}
+                    deleteRune={this.deleteRune}
                     active={rune && rune.id}
                 />
                 <Source
@@ -159,6 +173,7 @@ class Workspace extends Component {
                     setExample={this.setExample}
                     handleCursorChange={this.cursorChange}
                 />
+                {rune && <Preview rendered={rune.svg} />}
                 {rune && (
                     <Renderer
                         mode={state.app.mode}

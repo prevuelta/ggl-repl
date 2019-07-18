@@ -30,3 +30,20 @@
         color: $cream-dark;
     }
 }
+
+.preview {
+    position: fixed;
+    right: $u2;
+    top: $u7;
+    width: $u10;
+    height: $u10;
+    border: 1px solid red;
+    background: white;
+    padding: $u2;
+
+    svg {
+        max-width: 100%;
+        height: auto;
+        background: pink;
+    }
+}

@@ -11,7 +11,17 @@ const typeDefinitions = {
     '+': 'path',
     P: 'path',
     A: 'path',
+    C: 'path',
     G: 'grid',
+    F: 'fill',
+};
+
+const commandMappings = {
+    G: 'grid',
+    P: 'point',
+    '+': 'vector',
+    C: 'corner',
+    A: 'arc',
     F: 'fill',
 };
 
@@ -22,6 +32,19 @@ const TWO_PI = PI * 2;
 const negative = str => str[0] === '-';
 
 const tokenReplacements = [
+    {
+        name: 'Silver Ratio',
+        regex: /sr/,
+        fn(str, matches) {
+            return Math.sqrt(2);
+        },
+    },
+    {
+        regex: /^(.+?)\*(.+?)$/,
+        fn(str, matches) {
+            return +matches[1] * +matches[2];
+        },
+    },
     {
         regex: /^(-?\d*)u((\d+)y)*/,
         fn(str, matches, { gridUnit }) {
@@ -53,18 +76,10 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
 ];
-
-const tokenTypeMappings = {
-    G: 'grid',
-    P: 'point',
-    '+': 'vector',
-    A: 'arc',
-    F: 'fill',
-};
 
 function getCommand() {}
 
@@ -100,7 +115,7 @@ export default function(string) {
 
             const commands = line.split(
                 new RegExp(
-                    `[,| |^](?=[${Object.keys(tokenTypeMappings).join('|')}])`
+                    `[,| |^](?=[${Object.keys(commandMappings).join('|')}])`
                 )
             );
 
@@ -108,11 +123,12 @@ export default function(string) {
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
-                const type = tokenTypeMappings[ref];
+                const type = commandMappings[ref];
                 let tokenArgs = [],
                     matches,
                     pairRegEx = /(.+?)(,|$)/g;
 
+                console.log('AS -', argStr, argStr.matchAll);
                 tokenArgs = [...argStr.matchAll(pairRegEx)].map(
                     match => match[1]
                 );
@@ -128,7 +144,6 @@ export default function(string) {
                                     newArg = tr.fn(str, matches, {
                                         ...gridContext,
                                     });
-                                    break;
                                 }
                             }
 
