@@ -29,6 +29,10 @@ const OverlayLayer = props => {
                     );
                     point.x = currentValue[0];
                     point.y = currentValue[1];
+                } else if (token.type === 'corner') {
+                    currentValue = token.args;
+                    point.x = currentValue[0];
+                    point.y = currentValue[1];
                 } else if (token.type === 'arc') {
                     currentValue = [token.args[0], token.args[1]];
                     const start = { x: token.args[0], y: token.args[1] };

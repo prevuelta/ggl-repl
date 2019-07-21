@@ -12,7 +12,11 @@ export default props => {
                         className={r.id === props.active ? 'active' : ''}>
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                         {r.name}
-                        <button onClick={() => props.deleteRune(r.id)}>
+                        <button
+                            onClick={e => {
+                                e.preventDefault();
+                                props.deleteRune(r.id);
+                            }}>
                             x
                         </button>
                     </li>

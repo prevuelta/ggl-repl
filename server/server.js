@@ -3,7 +3,7 @@ import config from './config';
 import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
-import { guid } from './util';
+import { guid, generateName } from './util';
 import svg2img from 'svg2img';
 // import gm from 'gm';
 // const im = gm.subClass({ imageMagick: true });
@@ -27,8 +27,12 @@ app
     .route('/rune')
     .post((req, res) => {
         const rune = req.body;
+
+        rune.modified = +new Date();
+
         if (!rune.id) {
             rune.id = guid();
+            rune.created = +new Date();
         }
 
         const filePath = `${storage}/${rune.id}.json`;
@@ -55,21 +59,47 @@ app
         //     console.log('Error', err);
         // });
     })
+    .put((req, res) => {
+        const newRune = {
+            id: guid(),
+            script: '',
+            svg: '',
+            name: generateName(),
+            modified: +new Date(),
+            created: +new Date(),
+        };
+        const filePath = `${storage}/${newRune.id}.json`;
+        fs.writeFile(filePath, JSON.stringify(newRune), err => {
+            if (err) {
+                res.sendStatus(500);
+            }
+            res.sendStatus(200);
+        });
+    })
     .delete((req, res) => {
         const { id } = req.body;
-        console.log(id);
-        fs.unlinkSync(`${storage}/thumbs/${id}.png`);
-        fs.unlinkSync(`${storage}/${id}.json`);
-        return 200;
+        console.log('Deleting rune: ', id);
+        fs.unlink(`${storage}/${id}.json`, err => {
+            if (err) console.log('huh', err);
+            const thumbPath = `${storage}/thumbs/${id}.png`;
+            if (fs.existsSync(thumbPath)) {
+                fs.unlink(thumbPath, err => {
+                    if (err) console.log('Wat', err);
+                    res.sendStatus(204);
+                });
+            } else {
+                res.sendStatus(204);
+            }
+        });
     });
 
 app.get('/runes', (req, res) => {
-    console.log('Storage', storage);
     const runes = glob.sync(`${storage}/*.json`).map(f => {
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
-    // console.log('Runes', runes);
-    // if (runes) {
+    runes.sort((a, b) => {
+        return +a.created > +b.created ? 1 : +a.created < +b.created ? -1 : 0;
+    });
     res.send(runes);
 });
 

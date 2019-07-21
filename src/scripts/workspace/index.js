@@ -37,6 +37,7 @@ class Workspace extends Component {
             } else {
                 window.location.hash = runes[0].id;
             }
+            this.setState({ runes });
         });
     }
 
@@ -103,25 +104,30 @@ class Workspace extends Component {
             id: rune.id,
         };
         console.log('Payload', payload);
-        fetch('/rune', {
+        return fetch('/rune', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
         }).then(res => {
-            console.log(res.statusCode);
             this.getRunes();
         });
     };
 
     newRune = () => {
-        const newRune = {
-            script: '',
-            svg: '',
-            name: generateName(),
-        };
-        this.setState({ runes: [...this.state.runes, newRune], rune: newRune });
+        console.log('Creating rune...');
+        return fetch('/rune', {
+            method: 'put',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(res => {
+            console.log(res);
+            if (res.status === 200) {
+                this.getRunes();
+            }
+        });
     };
 
     deleteRune = id => {
@@ -132,17 +138,24 @@ class Workspace extends Component {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ id }),
-        }).then(res => {
-            this.getRunes();
-        });
+        })
+            .then(res => {
+                console.log('what');
+                this.getRunes();
+            })
+            .catch(err => {
+                console.log(err);
+            });
     };
 
     setRune = rune => {
         if (typeof rune === 'string') {
             rune = this.state.runes.find(r => r.id === rune);
         }
-        this.setState({ rune });
-        this.parseInput(rune.script);
+        if (rune) {
+            this.setState({ rune });
+            this.parseInput(rune.script);
+        }
     };
 
     render() {

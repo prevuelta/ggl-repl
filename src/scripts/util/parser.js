@@ -77,18 +77,18 @@ const elements = {
         const pathString = [];
         let previousToken;
         tokenGroup.tokens.forEach((token, idx) => {
-            const { type } = token;
+            const { type, args } = token;
             let string = '';
-            if (['point', 'vector'].includes(token.type)) {
-                const [i, j] = token.args;
+            if (['point', 'vector'].includes(type)) {
+                const [i, j] = args;
                 let command;
-                if (token.type === 'point') {
+                if (type === 'point') {
                     if (!idx) {
                         command = 'M';
                     } else {
                         command = 'L';
                     }
-                } else if (token.type === 'vector') {
+                } else if (type === 'vector') {
                     if (!idx) {
                         command = 'm';
                     } else {
@@ -96,16 +96,18 @@ const elements = {
                     }
                 }
                 string = `${command} ${i} ${j}`;
-            } else if (token.type === 'arc') {
+            } else if (type === 'arc') {
                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
-            } else if (token.type === 'corner') {
-                const nextToken = tokenGroups.tokens[idx + 1];
-                const origin = 
-                const center = { x: , y: );
-                const angle = 
-                const dist = dist(origin, center);
+            } else if (type === 'corner') {
+                const nextToken = tokenGroup.tokens[idx + 1];
+                // const origin =
+                const center = { x: args[0], y: args[1] };
+                const dist = getDistance(origin, center);
+                const angle = args[2] || 0;
+                const endX = center.x;
+                const end = { x: center.x, y: endY };
+                string = `L ${center.x} ${center.y}`;
                 if (previousToken && nextToken) {
-                    string = `L L `;
                 }
             }
             pathString.push(string);
