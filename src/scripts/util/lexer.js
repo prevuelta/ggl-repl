@@ -81,8 +81,8 @@ const tokenReplacements = [
     {
         regex: /^(.+?)[\*|\/](.+?)$/,
         fn(str, matches) {
-            console.log(str, matches);
             const isMultiplication = str.includes('*');
+            console.log("Multmatch", str, matches);
             if (isMultiplication) {
               return +matches[1] * +matches[2];
             } else {

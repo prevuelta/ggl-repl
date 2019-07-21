@@ -3,6 +3,7 @@ import GridLayer from '../workspace/components/layers/grid';
 import {
     getDistance,
     getAngle,
+    getCross,
     polarToCartesian,
     PI,
     HALF_PI,
@@ -75,7 +76,7 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
 const elements = {
     path: tokenGroup => {
         const pathString = [];
-        let previousToken;
+        let currentLocation = {x: 0, y: 0};
         tokenGroup.tokens.forEach((token, idx) => {
             const { type, args } = token;
             let string = '';
@@ -83,12 +84,16 @@ const elements = {
                 const [i, j] = args;
                 let command;
                 if (type === 'point') {
+                    currentLocation.x = i;
+                    currentLocation.y = j;
                     if (!idx) {
                         command = 'M';
                     } else {
                         command = 'L';
                     }
                 } else if (type === 'vector') {
+                    currentLocation.x += i;
+                    currentLocation.y += j;
                     if (!idx) {
                         command = 'm';
                     } else {
@@ -98,17 +103,16 @@ const elements = {
                 string = `${command} ${i} ${j}`;
             } else if (type === 'arc') {
                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+                currentLocation.x = token.args[0];
+                currentLocation.y = token.args[1];
             } else if (type === 'corner') {
-                const nextToken = tokenGroup.tokens[idx + 1];
-                // const origin =
+                // const nextToken = tokenGroup.tokens[idx + 1];
                 const center = { x: args[0], y: args[1] };
-                const dist = getDistance(origin, center);
-                const angle = args[2] || 0;
-                const endX = center.x;
-                const end = { x: center.x, y: endY };
+                const dist = getDistance(currentLocation, center);
+                const initialAngle = getAngle(currentLocation, centeR);
+                const newAngle = HALF_PI;//args[2] || 0;
+                const end = { x: endX, y: endY };
                 string = `L ${center.x} ${center.y}`;
-                if (previousToken && nextToken) {
-                }
             }
             pathString.push(string);
             previousToken = token;
