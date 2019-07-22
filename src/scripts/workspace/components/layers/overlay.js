@@ -5,18 +5,13 @@ import { Node } from '../overlayHelperShapes';
 import { getArcEndpoint } from '../../../util/parser';
 const { Fragment } = React;
 
-// const pointStrings = {
-//     [POINT_TYPES.STRAIGHT]: (mX, mY) => `L ${mX} ${mY}`,
-//     [POINT_TYPES.ARC]: (mX, mY) => `A 50 50 0 0 1 ${mX} ${mY}`,
-// };
-
 const OverlayLayer = props => {
     let { height, width, lexed } = props;
     let currentValue = [0, 0];
     const paths = lexed.filter(g => g.type === 'path');
     const points = paths.reduce((array1, newGroup) => {
         const reduced = newGroup.tokens
-            .filter(t => ['vector', 'point', 'arc'].includes(t.type))
+            .filter(t => ['vector', 'point', 'arc', 'corner'].includes(t.type))
             .reduce((array2, token) => {
                 let point = {};
                 if (token.type === 'point') {
@@ -33,6 +28,7 @@ const OverlayLayer = props => {
                     currentValue = token.args;
                     point.x = currentValue[0];
                     point.y = currentValue[1];
+                    point.color = 'teal';
                 } else if (token.type === 'arc') {
                     currentValue = [token.args[0], token.args[1]];
                     const start = { x: token.args[0], y: token.args[1] };

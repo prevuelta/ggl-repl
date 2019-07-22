@@ -15,14 +15,9 @@ function getSide(adj, opp, hyp) {
     console.warn('Invalid values passed to getSide');
 }
 
-export function getCross (p1, p2) {
-  return (p1.x * p2.y) -(p1.y * p2.x)
-}
-
 export function addVector(v1, v2) {
   return { x: v1.x + v2.x, y: v1.y + v2.y };
 }
-
 
 function getAngle(p1, p2) {
     let angle = Math.atan2(p1.y - p2.y, p1.x - p2.x);

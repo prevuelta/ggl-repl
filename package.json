@@ -11,7 +11,7 @@
         "prewatch": "rm -r dist/*; npm run copy-statics; npm run lib",
         "watch": "run-p copy-statics watch:js watch:css build:html run:server run:client",
         "watch:js": "nodemon --watch ./src/scripts -x 'npm run build:js'",
-        "watch:css": "node-sass -w ./src/styles/main.scss > ./dist/main.css",
+        "watch:css": "node-sass -w ./src/styles/main.scss ./dist/main.css",
         "watch:html": "watch 'npm run build:html'",
         "build": "echo 'building app...'; run-s lib  build:js build:css copy-statics",
         "build:html": "cp ./src/index.html ./dist/index.html",

@@ -1,13 +1,14 @@
 import React from 'react';
 import GridLayer from '../workspace/components/layers/grid';
 import {
-    getDistance,
+    HALF_PI,
+    PI,
+    TWO_PI,
     getAngle,
     getCross,
+    getDistance,
     polarToCartesian,
-    PI,
-    HALF_PI,
-    TWO_PI,
+    addVector,
 } from '../util/trig';
 import { modes } from '../util/constants';
 import { Store } from '../data';
@@ -109,13 +110,20 @@ const elements = {
                 // const nextToken = tokenGroup.tokens[idx + 1];
                 const center = { x: args[0], y: args[1] };
                 const dist = getDistance(currentLocation, center);
-                const initialAngle = getAngle(currentLocation, centeR);
-                const newAngle = HALF_PI;//args[2] || 0;
-                const end = { x: endX, y: endY };
-                string = `L ${center.x} ${center.y}`;
+                const initialAngle = getAngle(currentLocation, center);
+                console.log("Distance", dist, initialAngle);
+                const angle = args[2] || 0;
+                const test = { x: 0, y: 0 };
+                const newAngle = angle + initialAngle;
+                const newX = Math.cos(newAngle) * dist;
+                const newY = Math.sin(newAngle) * dist;
+                test.x += newX;
+                test.y += newY;
+                // const end = { x: endX, y: endY };
+                const end = addVector(center, test);
+                string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
             }
             pathString.push(string);
-            previousToken = token;
         });
         return props => <path d={pathString.join(' ')} />;
     },
