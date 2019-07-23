@@ -16,14 +16,28 @@ const typeDefinitions = {
     F: 'fill',
 };
 
-const commandMappings = {
-    G: 'grid',
-    P: 'point',
-    '+': 'vector',
-    C: 'corner',
-    A: 'arc',
-    F: 'fill',
-};
+const commandRefs = {
+  G: {
+    name: 'grid',
+    argsRegEx: /\s?(\d+\s\d+\s\d+\s\d+)/
+  },
+  P: {
+    name: 'point',
+    argsRegEx: /\s?([\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g
+  },
+  '+' : {
+    name: 'vector',
+    argsRegEx: /\s?([\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g
+  },
+  C: {
+    name: 'corner',
+    argsRegEx: /\s?([\d|a-z|\*|\/|\s]+?)$/
+  },
+  A: {
+    name: 'arc',
+    argsRegEx: /\s?([\d|a-z|\*|\/|\s]+?)$/
+  }
+}
 
 const { PI } = Math;
 const HALF_PI = PI / 2;
@@ -36,9 +50,9 @@ const tokenReplacements = [
         name: 'Silver Ratio',
         regex: /sr/,
         fn(str, matches) {
-            console.log(matches);
+            // console.log(matches);
             const result = str.replace(matches[0], Math.sqrt(2));
-          console.log("reult", result);
+            // console.log("reult", result);
             return result;
         },
     },
@@ -115,7 +129,7 @@ export default function(string) {
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^\d/.test(line)) {
-                line = `P${line}`;
+                line = `P ${line}`;
             }
 
             const typeRef = line.substr(0, 1);
@@ -126,7 +140,7 @@ export default function(string) {
 
             const commands = line.split(
                 new RegExp(
-                    `[,| |^](?=[${Object.keys(commandMappings).join('|')}])`
+                    `[ |^](?=[${Object.keys(commandRefs).join('|')}])`
                 )
             );
 
@@ -134,14 +148,16 @@ export default function(string) {
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
-                const type = commandMappings[ref];
+                const commandRef = commandRefs[ref];
+                const { name, argsRegEx }= commandRef;
                 let tokenArgs = [],
-                    matches,
-                    pairRegEx = /(.+?)(,|$)/g;
+                    matches;
 
-                tokenArgs = [...argStr.matchAll(pairRegEx)].map(
+                tokenArgs = [...argStr.matchAll(argsRegEx)].map(
                     match => match[1]
-                );
+                ).filter(match => !!match);
+
+                console.log("Token args", name, argStr, tokenArgs);
                 tokenArgs = tokenArgs.map(arg => {
                     return arg
                         .trim()
@@ -153,7 +169,7 @@ export default function(string) {
                             }, str);
                         });
                 });
-                if (type === 'grid') {
+                if (name === 'grid') {
                     const [xUnits, yUnits, gridUnit] = tokenArgs[0];
                     gridContext = {
                         width: xUnits * gridUnit,
@@ -166,7 +182,7 @@ export default function(string) {
                 tokens = [
                     ...tokens,
                     ...tokenArgs.map(args => ({
-                        type,
+                        name,
                         args,
                     })),
                 ];
