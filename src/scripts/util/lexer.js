@@ -119,13 +119,14 @@ export default function(string) {
         .replace(/-\s*\n\s+?/g, ',')
         .trim()
         .split('\n');
-    const tokenGroups = lines
+    let tokens = [];
+    lines
         .filter(
             line =>
                 !(regEx.comment.test(line.trim()) || regEx.emptyLine.test(line))
         )
         .map(line => {
-            const nesting = (line.match(/ {2}/g) || []).length;
+            const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^\d/.test(line)) {
@@ -137,14 +138,19 @@ export default function(string) {
             if (!typeRef) return;
 
             const type = typeDefinitions[typeRef];
+          
+            if (/[A|P|\+|C]/.test(typeRef)) {
+              tokens.push({
+                name: 'path',
+                depth
+              });
+            }
 
             const commands = line.split(
                 new RegExp(
                     `[ |^](?=[${Object.keys(commandRefs).join('|')}])`
                 )
             );
-
-            let tokens = [];
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
@@ -157,7 +163,6 @@ export default function(string) {
                     match => match[1]
                 ).filter(match => !!match);
 
-                console.log("Token args", name, argStr, tokenArgs);
                 tokenArgs = tokenArgs.map(arg => {
                     return arg
                         .trim()
@@ -184,18 +189,11 @@ export default function(string) {
                     ...tokenArgs.map(args => ({
                         name,
                         args,
+                        depth
                     })),
                 ];
             });
-
-            return type === 'grid'
-                ? { type, args: tokens[0].args, nesting }
-                : {
-                      type,
-                      tokens,
-                      nesting,
-                  };
         });
 
-    return tokenGroups;
+    return tokens;
 }

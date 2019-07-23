@@ -1,4 +1,4 @@
-import { views, modes } from '../util/constants';
+import {  modes } from '../util/constants';
 
 function Rune() {
     return {

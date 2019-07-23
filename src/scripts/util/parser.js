@@ -1,11 +1,10 @@
-import React from 'react';
-import GridLayer from '../workspace/components/layers/grid';
+// import React from 'react';
+// import GridLayer from '../workspace/components/layers/grid';
 import {
     HALF_PI,
     PI,
     TWO_PI,
     getAngle,
-    getCross,
     getDistance,
     polarToCartesian,
     addVector,
@@ -16,21 +15,21 @@ import { Store } from '../data';
 let state = Store.getState();
 
 // import Grid from '../
-function Grid(props) {
-    const [xUnits, yUnits, gridUnit, divisions] = props.args;
-    const width = xUnits * gridUnit;
-    const height = yUnits * gridUnit;
-    return (
-        <GridLayer
-            width={width}
-            height={height}
-            gridUnit={gridUnit}
-            xUnits={xUnits}
-            yUnits={yUnits}
-            divisions={divisions}
-        />
-    );
-}
+// function Grid(props) {
+//     const [xUnits, yUnits, gridUnit, divisions] = props.args;
+//     const width = xUnits * gridUnit;
+//     const height = yUnits * gridUnit;
+//     return (
+//         <GridLayer
+//             width={width}
+//             height={height}
+//             gridUnit={gridUnit}
+//             xUnits={xUnits}
+//             yUnits={yUnits}
+//             divisions={divisions}
+//         />
+//     );
+// }
 
 export function tokenToSVGArc(token, isFirst) {
     const [
@@ -74,78 +73,112 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
-const elements = {
-    path: tokenGroup => {
-        const pathString = [];
-        let currentLocation = {x: 0, y: 0};
-        tokenGroup.tokens.forEach((token, idx) => {
-            const { type, args } = token;
-            let string = '';
-            if (['point', 'vector'].includes(type)) {
-                const [i, j] = args;
-                let command;
-                if (type === 'point') {
-                    currentLocation.x = i;
-                    currentLocation.y = j;
-                    if (!idx) {
-                        command = 'M';
-                    } else {
-                        command = 'L';
-                    }
-                } else if (type === 'vector') {
-                    currentLocation.x += i;
-                    currentLocation.y += j;
-                    if (!idx) {
-                        command = 'm';
-                    } else {
-                        command = 'l';
-                    }
-                }
-                string = `${command} ${i} ${j}`;
-            } else if (type === 'arc') {
-                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
-                currentLocation.x = token.args[0];
-                currentLocation.y = token.args[1];
-            } else if (type === 'corner') {
-                // const nextToken = tokenGroup.tokens[idx + 1];
-                const center = { x: args[0], y: args[1] };
-                const dist = getDistance(currentLocation, center);
-                const initialAngle = getAngle(currentLocation, center);
-                console.log("Distance", dist, initialAngle);
-                const angle = args[2] || 0;
-                const test = { x: 0, y: 0 };
-                const newAngle = angle + initialAngle;
-                const newX = Math.cos(newAngle) * dist;
-                const newY = Math.sin(newAngle) * dist;
-                test.x += newX;
-                test.y += newY;
-                // const end = { x: endX, y: endY };
-                const end = addVector(center, test);
-                string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
-            }
-            pathString.push(string);
-        });
-        return props => <path d={pathString.join(' ')} />;
-    },
-    grid: tokenGroup => props => <Grid args={tokenGroup.args} />,
-};
+// const elements = {
+//     path: tokenGroup => {
+//         const pathString = [];
+//         let currentLocation = {x: 0, y: 0};
+//         tokenGroup.tokens.forEach((token, idx) => {
+//             const { type, args } = token;
+//             let string = '';
+//             if (['point', 'vector'].includes(type)) {
+//                 const [i, j] = args;
+//                 let command;
+//                 if (type === 'point') {
+//                     currentLocation.x = i;
+//                     currentLocation.y = j;
+//                     if (!idx) {
+//                         command = 'M';
+//                     } else {
+//                         command = 'L';
+//                     }
+//                 } else if (type === 'vector') {
+//                     currentLocation.x += i;
+//                     currentLocation.y += j;
+//                     if (!idx) {
+//                         command = 'm';
+//                     } else {
+//                         command = 'l';
+//                     }
+//                 }
+//                 string = `${command} ${i} ${j}`;
+//             } else if (type === 'arc') {
+//                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+//                 currentLocation.x = token.args[0];
+//                 currentLocation.y = token.args[1];
+//             } else if (type === 'corner') {
+//                 // const nextToken = tokenGroup.tokens[idx + 1];
+//                 const center = { x: args[0], y: args[1] };
+//                 const dist = getDistance(currentLocation, center);
+//                 const initialAngle = getAngle(currentLocation, center);
+//                 console.log("Distance", dist, initialAngle);
+//                 const angle = args[2] || 0;
+//                 const test = { x: 0, y: 0 };
+//                 const newAngle = angle + initialAngle;
+//                 const newX = Math.cos(newAngle) * dist;
+//                 const newY = Math.sin(newAngle) * dist;
+//                 test.x += newX;
+//                 test.y += newY;
+//                 // const end = { x: endX, y: endY };
+//                 const end = addVector(center, test);
+//                 string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
+//             }
+//             pathString.push(string);
+//         });
+//         return props => <path d={pathString.join(' ')} />;
+    // },
+    // grid: tokenGroup => props => <Grid args={tokenGroup.args} />,
+// };
 
-export default function(tokenGroups) {
+export default function(tokens) {
     let state = Store.getState();
-    return tokenGroups.reduce(
-        (obj, tokenGroup) => {
-            if (elements.hasOwnProperty(tokenGroup.type)) {
-                const element = elements[tokenGroup.type](tokenGroup);
-                if (tokenGroup.type === 'grid') {
-                    obj.grids.push(element);
-                } else {
-                    obj.paths.push(element);
-                }
-            } else {
-                console.warn(`Token ref ${tokenGroup.type} has no element`);
-            }
-            return obj;
-        },
-        { grids: [], paths: [] }
-    );
+    let tree = { };
+    let branch = tree;
+    tokens = tokens.map(t => { delete t.args; return t });
+    let currentDepth = -1;
+    tokens.forEach(token => {
+      if (token.depth > currentDepth) {
+        branch.children = [...(branch.children || []),token];
+        token.parent = branch;
+        branch = token;
+      } else if(token.depth < currentDepth) {
+        const dif = currentDepth - token.depth;
+        for (let i = 0; i < dif; i++) {
+          branch = branch.parent;
+        }
+        branch.parent.children.push(token);
+        token.parent = branch.parent;
+        branch = token;
+      } else {
+        branch.children = [...(branch.children || []),token];
+      }
+      currentDepth = token.depth;
+    });
+
+    // console.log("Tree", JSON.stringify(tree, null, 1));
+
+    // function buildTree (arr, depth) {
+    //   if (token.depth > depth) {
+        // currentToken.children.push(token);
+        // // recurseToken(tree) 
+      // } else {
+      // }
+
+    // }
+
+    // return tokens.reduce(
+    //     (obj, token) => {
+            // if (elements.hasOwnProperty(tokenGroup.type)) {
+            //     const element = elements[tokenGroup.type](tokenGroup);
+                // if (tokenGroup.type === 'grid') {
+                //     obj.grids.push(element);
+                // } else {
+                //     obj.paths.push(element);
+                // }
+            // } else {
+                // console.warn(`Token ref ${tokenGroup.type} has no element`);
+            // }
+            // return obj;
+        // },
+        // { grids: [], paths: [] }
+    // );
 }
