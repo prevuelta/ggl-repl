@@ -54,11 +54,11 @@ class Workspace extends Component {
         const { rune } = this.state;
         if (rune) {
             const lexed = lexer(source);
-            console.log('Lexed', lexed);
+            console.log('TOKENS', lexed);
             const parsed = parser(lexed);
             console.log('Parsed', parsed);
             const { width, height } = lexed
-                .filter(t => t.type === 'grid')
+                .filter(t => t.name === 'grid')
                 .reduce(
                     (a, b) => {
                         a.width = Math.max(b.args[0] * b.args[2], a.width);
