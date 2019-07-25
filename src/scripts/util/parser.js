@@ -73,7 +73,7 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
-// const elements = {
+const elements = {
 //     path: tokenGroup => {
 //         const pathString = [];
 //         let currentLocation = {x: 0, y: 0};
@@ -126,44 +126,58 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
 //         });
 //         return props => <path d={pathString.join(' ')} />;
     // },
-    // grid: tokenGroup => props => <Grid args={tokenGroup.args} />,
-// };
+  grid: token => 'gridEl' //tokenGroup => props => <Grid args={tokenGroup.args} />,
+};
 
 export default function(tokens) {
     let state = Store.getState();
-    let tree = { };
+    let tree = { children: [], token: { name: 'root' }};
     let branch = tree;
     tokens = tokens.map(t => { delete t.args; return t });
     let currentDepth = -1;
     tokens.forEach(token => {
       if (token.depth > currentDepth) {
-        branch.children = [...(branch.children || []),token];
-        token.parent = branch;
-        branch = token;
-      } else if(token.depth < currentDepth) {
+        const newBranch = { token };
+        branch.children = [...(branch.children || []), newBranch];
+        newBranch.parent = branch;
+        branch = newBranch;
+      }
+       else if (token.depth < currentDepth || ( branch.name === 'path' && token.name === 'path')) {
         const dif = currentDepth - token.depth;
         for (let i = 0; i < dif; i++) {
           branch = branch.parent;
         }
-        branch.parent.children.push(token);
-        token.parent = branch.parent;
-        branch = token;
+         const newBranch = { token };
+        branch.parent.children.push(newBranch);
+        newBranch.parent = branch.parent;
+        branch = newBranch;
       } else {
-        branch.children = [...(branch.children || []),token];
+        if (branch.token.name === 'path') {
+          branch.tokens = [...(branch.tokens || []), token];
+        } else {
+          branch.children = [...(branch.children || []),{ token }];
+        }
       }
       currentDepth = token.depth;
     });
 
-    // console.log("Tree", JSON.stringify(tree, null, 1));
+    const output = { grids: [], paths: [] };
 
-    // function buildTree (arr, depth) {
-    //   if (token.depth > depth) {
-        // currentToken.children.push(token);
-        // // recurseToken(tree) 
-      // } else {
-      // }
+    function iterateNodes (branch) {
+        (branch.children || []).forEach(c =>  {
+          if path get element set children
+          children = iterateNodes
+          iterateNodes(c);
+          if (branch.token.name === 'grid') {
+            output.grids.push(elements['grid'](branch.token));
+          }
+        });
+    }
 
-    // }
+    iterateNodes(tree);
+
+    console.log(output);
+
 
     // return tokens.reduce(
     //     (obj, token) => {
