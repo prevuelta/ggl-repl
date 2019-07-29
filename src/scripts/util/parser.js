@@ -53,7 +53,6 @@ export function tokenToSVGArc(token, isFirst) {
 function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const originalAngle = angle;
     const startAngle = getAngle(start, center);
-    console.log('Start', start, 'Center', center, 'Start angle', startAngle);
     angle += startAngle;
     angle = angle % TWO_PI;
 
@@ -75,10 +74,8 @@ function createSVGElement(type, token, childTokens, children) {}
 
 const elements = {
     path: ({ tokens, token: path }, children = []) => {
-        console.log('Path children', children);
         const pathString = [];
         let currentLocation = { x: 0, y: 0 };
-        console.log(tokens);
         (tokens || []).forEach((token, idx) => {
             const { name, args } = token;
             let string = '';
@@ -112,7 +109,6 @@ const elements = {
                 const center = { x: args[0], y: args[1] };
                 const dist = getDistance(currentLocation, center);
                 const initialAngle = getAngle(currentLocation, center);
-                console.log('Distance', dist, initialAngle);
                 const angle = args[2] || 0;
                 const test = { x: 0, y: 0 };
                 const newAngle = angle + initialAngle;
@@ -170,7 +166,6 @@ export default function(tokens) {
                 node = node.parent;
             }
             const newBranch = { token };
-            console.log('PARENT', node, token.name);
             node.parent.children.push(newBranch);
             newBranch.parent = node.parent;
             node = newBranch;
@@ -192,19 +187,15 @@ export default function(tokens) {
     // </path>
 
     function iterateNodes(node) {
-        console.log(node.token.name);
         if (node.token.name === 'grid') {
             output.grids.push(elements['grid'](node));
             return props => (
                 <Fragment>
-                    {node.children
+                    {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(
-                            El =>
-                                console.log('Element (grid child)', El) || (
-                                    <El />
-                                )
-                        )}
+                        .map(El => (
+                            <El />
+                        ))}
                 </Fragment>
             );
         }
@@ -218,8 +209,8 @@ export default function(tokens) {
         return el;
     }
 
-    console.log('TREE', parseTree);
+    // console.log('TREE', parseTree);
     output.paths = iterateNodes(parseTree);
-    console.log('OUTPUT', output);
+    // console.log('OUTPUT', output);
     return output;
 }

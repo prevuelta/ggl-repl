@@ -58,7 +58,7 @@ class Workspace extends Component {
             const lexed = lex(source);
             console.log('TOKENS', lexed);
             const parsed = parse(lexed);
-            console.log('Parsed', parsed);
+            console.log('PARSED', parsed);
             const { width, height } = lexed
                 .filter(t => t.name === 'grid')
                 .reduce(
@@ -142,7 +142,6 @@ class Workspace extends Component {
             body: JSON.stringify({ id }),
         })
             .then(res => {
-                console.log('what');
                 this.getRunes();
             })
             .catch(err => {
@@ -172,8 +171,6 @@ class Workspace extends Component {
             width,
             height,
         } = this.state;
-
-        console.log(parsed);
 
         return (
             <div className="workspace">

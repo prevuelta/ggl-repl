@@ -6,26 +6,6 @@ import AceEditor from 'react-ace';
 export default props => {
     return (
         <div className="source-inspector">
-            <ul className="test-examples">
-                <li>
-                    <button onClick={e => props.setExample('')}>Clear</button>
-                    <button onClick={e => props.setExample('G10 10 40 5')}>
-                        Grid
-                    </button>
-                    <button
-                        onClick={e =>
-                            props.setExample('p0 0,10 0,10 10,0 10,0 0')
-                        }>
-                        Basic Rect
-                    </button>
-                    <button
-                        onClick={e =>
-                            props.setExample('p0 0,vw 0,0 h,-w 0,0 -h')
-                        }>
-                        Substitution
-                    </button>
-                </li>
-            </ul>
             <AceEditor
                 tabSize={2}
                 className="editable"

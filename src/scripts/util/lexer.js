@@ -23,11 +23,11 @@ const commandRefs = {
     },
     P: {
         name: 'point',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g,
+        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[-|\d|a-z|\*|\/]+)\s?/g,
     },
     '+': {
         name: 'vector',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g,
+        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[-|\d|a-z|\*|\/]+)\s?/g,
     },
     C: {
         name: 'corner',
@@ -66,9 +66,14 @@ const tokenReplacements = [
     {
         regex: /(-?[\d|\.]*)([w|h])$/,
         fn(str, matches, { width, height }) {
+            console.log(str, matches);
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
             return (
-                clamp(+matches[1] || 1, -1, 1) *
-                { w: width, h: height }[matches[2]]
+                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
             );
         },
     },
@@ -157,7 +162,7 @@ export default function(string) {
 
                 tokenArgs = [...argStr.matchAll(argsRegEx)]
                     .map(match => match[1])
-                    .filter(match => !!match);
+                    .filter(match => match !== undefined);
 
                 console.log('Token args', tokenArgs);
 
@@ -176,6 +181,7 @@ export default function(string) {
                         });
                 });
                 if (name === 'grid') {
+                    if (!tokenArgs.length) return;
                     const [xUnits, yUnits, gridUnit] = tokenArgs[0];
                     gridContext = {
                         width: xUnits * gridUnit,
