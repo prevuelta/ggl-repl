@@ -37,6 +37,8 @@ app
 
         const filePath = `${storage}/${rune.id}.json`;
 
+        console.log('Saving svg', rune.svg);
+
         svg2img(rune.svg, (error, buffer) => {
             //returns a Buffer
             const thumbFileName = `${rune.id}.png`;

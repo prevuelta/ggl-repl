@@ -31,11 +31,11 @@ const commandRefs = {
     },
     C: {
         name: 'corner',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?)$/,
+        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?),?$/,
     },
     A: {
         name: 'arc',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?)$/,
+        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?),?$/,
     },
 };
 
@@ -68,9 +68,7 @@ const tokenReplacements = [
         fn(str, matches, { width, height }) {
             console.log(str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             return (
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
@@ -93,7 +91,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
     // Multiplication & division
@@ -164,7 +162,7 @@ export default function(string) {
                     .map(match => match[1])
                     .filter(match => match !== undefined);
 
-                console.log('Token args', tokenArgs);
+                console.log('Token args', argStr, tokenArgs);
 
                 tokenArgs = tokenArgs.map(arg => {
                     return arg

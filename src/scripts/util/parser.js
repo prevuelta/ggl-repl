@@ -9,7 +9,6 @@ import {
     polarToCartesian,
     addVector,
 } from '../util/trig';
-import { modes } from '../util/constants';
 import { Store } from '../data';
 
 const { Fragment } = React;
@@ -67,7 +66,9 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${
+        start.y
+    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 function createSVGElement(type, token, childTokens, children) {}
@@ -123,26 +124,14 @@ const elements = {
             pathString.push(string);
         });
         return props => (
-            <path d={pathString.join(' ') + ' Z'} fill-rule="evenodd">
-                {children.map(Child => (
-                    <Child />
-                ))}
+            <path d={pathString.join(' ') + ' Z'} fillRule="evenodd">
+                {children.map(Child => <Child />)}
             </path>
         );
     },
     grid: ({ token }) => props => <Grid args={token.args} />,
     root: (_, children = null) => props => {
-        let state = Store.getState();
-        const { app } = state;
-        const fill = app.mode === modes.DOCUMENT ? 'none' : 'black';
-        const stroke = app.mode === modes.DOCUMENT ? 'black' : 'none';
-        return (
-            <g fill={fill} stroke={stroke}>
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </g>
-        );
+        return <Fragment>{children.map(Child => <Child />)}</Fragment>;
     },
 };
 
@@ -193,9 +182,7 @@ export default function(tokens) {
                 <Fragment>
                     {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(El => (
-                            <El />
-                        ))}
+                        .map(El => <El />)}
                 </Fragment>
             );
         }

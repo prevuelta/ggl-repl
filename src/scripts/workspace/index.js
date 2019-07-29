@@ -73,7 +73,9 @@ class Workspace extends Component {
                 <RenderLayer
                     width={width}
                     height={height}
-                    paths={parsed.paths}
+                    stroke={'none'}
+                    fill={'black'}
+                    PathElements={parsed.paths}
                 />
             );
             rune.svg = svgString;
@@ -187,19 +189,20 @@ class Workspace extends Component {
                     setExample={this.setExample}
                     handleCursorChange={this.cursorChange}
                 />
-                {parsed && rune && (
-                    <Fragment>
-                        <Preview rendered={rune.svg} />
-                        <Renderer
-                            mode={state.app.mode}
-                            width={width}
-                            height={height}
-                            rune={rune}
-                            elements={parsed}
-                            lexed={lexed}
-                        />
-                    </Fragment>
-                )}
+                {parsed &&
+                    rune && (
+                        <Fragment>
+                            <Preview rendered={rune.svg} />
+                            <Renderer
+                                mode={state.app.mode}
+                                width={width}
+                                height={height}
+                                rune={rune}
+                                elements={parsed}
+                                lexed={lexed}
+                            />
+                        </Fragment>
+                    )}
             </div>
         );
     }
