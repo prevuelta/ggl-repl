@@ -3,8 +3,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MODE_TAGS } from '../util/constants';
 import { Source, Renderer, Browser, Preview } from './components';
 import example from '../example.rs';
-import { generateName, guid, lexer, parser } from '../util';
+import { generateName, guid, lex, parse } from '../util';
 import { RenderLayer } from './components/layers';
+
+const { Fragment } = React;
 
 const defaultHeight = 50;
 const defaultWidth = 50;
@@ -20,8 +22,8 @@ class Workspace extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            parsed: { grids: [], paths: [] },
-            lexed: [],
+            parsed: null,
+            lexed: null,
             runes: [],
             rune: null,
         };
@@ -53,9 +55,9 @@ class Workspace extends Component {
     parseInput = (source, event) => {
         const { rune } = this.state;
         if (rune) {
-            const lexed = lexer(source);
+            const lexed = lex(source);
             console.log('TOKENS', lexed);
-            const parsed = parser(lexed);
+            const parsed = parse(lexed);
             console.log('Parsed', parsed);
             const { width, height } = lexed
                 .filter(t => t.name === 'grid')
@@ -171,6 +173,8 @@ class Workspace extends Component {
             height,
         } = this.state;
 
+        console.log(parsed);
+
         return (
             <div className="workspace">
                 <StatusBar mode={state.app.mode} save={this.saveRune} />
@@ -186,16 +190,18 @@ class Workspace extends Component {
                     setExample={this.setExample}
                     handleCursorChange={this.cursorChange}
                 />
-                {rune && <Preview rendered={rune.svg} />}
-                {rune && (
-                    <Renderer
-                        mode={state.app.mode}
-                        width={width}
-                        height={height}
-                        rune={rune}
-                        elements={parsed}
-                        lexed={lexed}
-                    />
+                {parsed && rune && (
+                    <Fragment>
+                        <Preview rendered={rune.svg} />
+                        <Renderer
+                            mode={state.app.mode}
+                            width={width}
+                            height={height}
+                            rune={rune}
+                            elements={parsed}
+                            lexed={lexed}
+                        />
+                    </Fragment>
                 )}
             </div>
         );

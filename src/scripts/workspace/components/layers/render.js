@@ -1,13 +1,11 @@
 import React from 'react';
 import { Store } from '../../../data';
-import { modes } from '../../../util/constants';
 
 export default function RenderLayer(props) {
-    const { height, width, grids, paths } = props;
-    const { app } = Store.getState();
-    const fill = app.mode === modes.DOCUMENT ? 'none' : 'black';
-    const stroke = app.mode === modes.DOCUMENT ? 'black' : 'none';
+    const { height, width, grids, PathElements } = props;
     const viewBox = `0 0 ${width} ${height}`;
+
+    console.log('Path Elements', PathElements);
 
     return (
         <svg
@@ -15,11 +13,8 @@ export default function RenderLayer(props) {
             height={height}
             width={width}
             viewBox={viewBox}>
-            <g fill={fill} stroke={stroke}>
-                {grids && grids.map((Element, i) => <Element key={i} />)}
-                {paths}
-            </g>
+            {grids && grids.map((Element, i) => <Element key={i} />)}
+            {PathElements && <PathElements />}
         </svg>
     );
 }
-                // {paths.map((Element, i) => <Element key={i} />)}

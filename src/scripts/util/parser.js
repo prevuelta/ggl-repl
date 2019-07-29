@@ -12,7 +12,7 @@ import {
 import { modes } from '../util/constants';
 import { Store } from '../data';
 
-let state = Store.getState();
+const { Fragment } = React;
 
 // import Grid from '../
 function Grid(props) {
@@ -68,146 +68,158 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${
-        start.y
-    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
+function createSVGElement(type, token, childTokens, children) {}
+
 const elements = {
-  path: ({ tokens, token: path}, children) => {
-            const pathString = [];
-            let currentLocation = {x: 0, y: 0};
-            console.log(path);
-            tokens.forEach((token, idx) => {
-                const { type, args } = token;
-                let string = '';
-                if (['point', 'vector'].includes(type)) {
-                    const [i, j] = args;
-                    let command;
-                    if (type === 'point') {
-                        currentLocation.x = i;
-                        currentLocation.y = j;
-                        if (!idx) {
-                            command = 'M';
-                        } else {
-                            command = 'L';
-                        }
-                    } else if (type === 'vector') {
-                        currentLocation.x += i;
-                        currentLocation.y += j;
-                        if (!idx) {
-                            command = 'm';
-                        } else {
-                            command = 'l';
-                        }
+    path: ({ tokens, token: path }, children = []) => {
+        console.log('Path children', children);
+        const pathString = [];
+        let currentLocation = { x: 0, y: 0 };
+        console.log(tokens);
+        (tokens || []).forEach((token, idx) => {
+            const { name, args } = token;
+            let string = '';
+            if (['point', 'vector'].includes(name)) {
+                const [i, j] = args;
+                let command;
+                if (name === 'point') {
+                    currentLocation.x = i;
+                    currentLocation.y = j;
+                    if (!idx) {
+                        command = 'M';
+                    } else {
+                        command = 'L';
                     }
-                    string = `${command} ${i} ${j}`;
-                } else if (type === 'arc') {
-                    string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
-                    currentLocation.x = token.args[0];
-                    currentLocation.y = token.args[1];
-                } else if (type === 'corner') {
-                    // const nextToken = tokenGroup.tokens[idx + 1];
-                    const center = { x: args[0], y: args[1] };
-                    const dist = getDistance(currentLocation, center);
-                    const initialAngle = getAngle(currentLocation, center);
-                    console.log("Distance", dist, initialAngle);
-                    const angle = args[2] || 0;
-                    const test = { x: 0, y: 0 };
-                    const newAngle = angle + initialAngle;
-                    const newX = Math.cos(newAngle) * dist;
-                    const newY = Math.sin(newAngle) * dist;
-                    test.x += newX;
-                    test.y += newY;
-                    // const end = { x: endX, y: endY };
-                    const end = addVector(center, test);
-                    string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
+                } else if (name === 'vector') {
+                    currentLocation.x += i;
+                    currentLocation.y += j;
+                    if (!idx) {
+                        command = 'm';
+                    } else {
+                        command = 'l';
+                    }
                 }
-                pathString.push(string);
-            });
-            return props => <path d={pathString.join(' ')}>{children}</path>;
+                string = `${command} ${i} ${j}`;
+            } else if (name === 'arc') {
+                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+                currentLocation.x = token.args[0];
+                currentLocation.y = token.args[1];
+            } else if (name === 'corner') {
+                // const nextToken = tokenGroup.tokens[idx + 1];
+                const center = { x: args[0], y: args[1] };
+                const dist = getDistance(currentLocation, center);
+                const initialAngle = getAngle(currentLocation, center);
+                console.log('Distance', dist, initialAngle);
+                const angle = args[2] || 0;
+                const test = { x: 0, y: 0 };
+                const newAngle = angle + initialAngle;
+                const newX = Math.cos(newAngle) * dist;
+                const newY = Math.sin(newAngle) * dist;
+                test.x += newX;
+                test.y += newY;
+                // const end = { x: endX, y: endY };
+                const end = addVector(center, test);
+                string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
+            }
+            pathString.push(string);
+        });
+        return props => (
+            <path d={pathString.join(' ') + ' Z'} fill-rule="evenodd">
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </path>
+        );
     },
     grid: ({ token }) => props => <Grid args={token.args} />,
-    root: (_, children) => props => <g>{children}</g>
+    root: (_, children = null) => props => {
+        let state = Store.getState();
+        const { app } = state;
+        const fill = app.mode === modes.DOCUMENT ? 'none' : 'black';
+        const stroke = app.mode === modes.DOCUMENT ? 'black' : 'none';
+        return (
+            <g fill={fill} stroke={stroke}>
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </g>
+        );
+    },
 };
 
 export default function(tokens) {
     let state = Store.getState();
-    let tree = { children: [], token: { name: 'root' } };
-    let branch = tree;
-    // tokens = tokens.map(t => {
-    //     delete t.args;
-        // return t;
-    // });
+    let parseTree = { children: [], token: { name: 'root' } };
+    let node = parseTree;
     let currentDepth = -1;
     tokens.forEach(token => {
         if (token.depth > currentDepth) {
             const newBranch = { token };
-            branch.children = [...(branch.children || []), newBranch];
-            newBranch.parent = branch;
-            branch = newBranch;
+            node.children = [...(node.children || []), newBranch];
+            newBranch.parent = node;
+            node = newBranch;
         } else if (
             token.depth < currentDepth ||
-            (branch.token.name === 'path' && token.name === 'path')
+            (node.token.name === 'path' && token.name === 'path')
         ) {
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
-                branch = branch.parent;
+                node = node.parent;
             }
             const newBranch = { token };
-            console.log("PARENT", branch, token.name);
-            branch.parent.children.push(newBranch);
-            newBranch.parent = branch.parent;
-            branch = newBranch;
+            console.log('PARENT', node, token.name);
+            node.parent.children.push(newBranch);
+            newBranch.parent = node.parent;
+            node = newBranch;
         } else {
-            if (branch.token.name === 'path') {
-                branch.tokens = [...(branch.tokens || []), token];
+            if (node.token.name === 'path') {
+                node.tokens = [...(node.tokens || []), token];
             } else {
-                branch.children = [...(branch.children || []), { token }];
+                node.children = [...(node.children || []), { token }];
             }
         }
         currentDepth = token.depth;
     });
 
-    const output = { grids: [], paths: [] };
+    const output = { grids: [], paths: null };
 
-    function iterateNodes(branch) {
-            console.log(branch.token.name);
-            if (branch.token.name === 'grid') {
-                output.grids.push(elements['grid'](branch));
-                return branch.children.map(child => iterateNodes(child));
-            }
-            if (branch.children) {
-                // const el = elementNames
-                // return `<p>${branch.token.name} ${branch.children.map(c => iterateNodes(c))}</p>`;
-                return elements[branch.token.name](branch, branch.children.map(child => iterateNodes(child)));
-            }
-            // return `<b>${branch.token.name}</b>`;
-          const el =  elements[branch.token.name](branch);
-          console.log(el);
-          return el;
+    // <path>
+    // <path>
+    // <path>
+    // </path>
+
+    function iterateNodes(node) {
+        console.log(node.token.name);
+        if (node.token.name === 'grid') {
+            output.grids.push(elements['grid'](node));
+            return props => (
+                <Fragment>
+                    {node.children
+                        .map(child => iterateNodes(child))
+                        .map(
+                            El =>
+                                console.log('Element (grid child)', El) || (
+                                    <El />
+                                )
+                        )}
+                </Fragment>
+            );
+        }
+        if (node.children) {
+            return elements[node.token.name](
+                node,
+                node.children.map(child => iterateNodes(child))
+            );
+        }
+        const el = elements[node.token.name](node);
+        return el;
     }
 
-    console.log("TREE", tree);
-    // console.log(iterateNodes(tree));
-    output.paths = iterateNodes(tree);
-    console.log("OUTPUT", output);
+    console.log('TREE', parseTree);
+    output.paths = iterateNodes(parseTree);
+    console.log('OUTPUT', output);
     return output;
-
-    // return tokens.reduce(
-    //     (obj, token) => {
-    // if (elements.hasOwnProperty(tokenGroup.type)) {
-    //     const element = elements[tokenGroup.type](tokenGroup);
-    // if (tokenGroup.type === 'grid') {
-    //     obj.grids.push(element);
-    // } else {
-    //     obj.paths.push(element);
-    // }
-    // } else {
-    // console.warn(`Token ref ${tokenGroup.type} has no element`);
-    // }
-    // return obj;
-    // },
-    // { grids: [], paths: [] }
-    // );
 }

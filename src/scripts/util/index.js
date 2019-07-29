@@ -1,5 +1,5 @@
-export { default as lexer } from './lexer';
-export { default as parser } from './parser';
+export { default as lex } from './lexer';
+export { default as parse } from './parser';
 
 export default {
     getIndices(points, gridPoints) {

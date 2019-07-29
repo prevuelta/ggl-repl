@@ -17,27 +17,27 @@ const typeDefinitions = {
 };
 
 const commandRefs = {
-  G: {
-    name: 'grid',
-    argsRegEx: /\s?(\d+\s\d+\s\d+\s\d+)/
-  },
-  P: {
-    name: 'point',
-    argsRegEx: /\s?([\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g
-  },
-  '+' : {
-    name: 'vector',
-    argsRegEx: /\s?([\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g
-  },
-  C: {
-    name: 'corner',
-    argsRegEx: /\s?([\d|a-z|\*|\/|\s]+?)$/
-  },
-  A: {
-    name: 'arc',
-    argsRegEx: /\s?([\d|a-z|\*|\/|\s]+?)$/
-  }
-}
+    G: {
+        name: 'grid',
+        argsRegEx: /\s?(\d+\s\d+\s\d+\s\d+)/,
+    },
+    P: {
+        name: 'point',
+        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g,
+    },
+    '+': {
+        name: 'vector',
+        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[\d|a-z|\*|\/]+)\s?/g,
+    },
+    C: {
+        name: 'corner',
+        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?)$/,
+    },
+    A: {
+        name: 'arc',
+        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?)$/,
+    },
+};
 
 const { PI } = Math;
 const HALF_PI = PI / 2;
@@ -57,9 +57,9 @@ const tokenReplacements = [
         },
     },
     {
-        regex: /(-?\d*)u((\d+)y)*/,
+        regex: /(-?\d*)u/,
         fn(str, matches, { gridUnit }) {
-            console.log(str);
+            console.log(str, matches);
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
     },
@@ -88,7 +88,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
+            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
     },
     // Multiplication & division
@@ -96,17 +96,15 @@ const tokenReplacements = [
         regex: /^(.+?)[\*|\/](.+?)$/,
         fn(str, matches) {
             const isMultiplication = str.includes('*');
-            console.log("Multmatch", str, matches);
+            console.log('Multmatch', str, matches);
             if (isMultiplication) {
-              return +matches[1] * +matches[2];
+                return +matches[1] * +matches[2];
             } else {
-              return +matches[1] / +matches[2];
+                return +matches[1] / +matches[2];
             }
         },
     },
 ];
-
-function getCommand() {}
 
 export default function(string) {
     let gridContext = {
@@ -138,30 +136,30 @@ export default function(string) {
             if (!typeRef) return;
 
             const type = typeDefinitions[typeRef];
-          
+
             if (/[A|P|\+|C]/.test(typeRef)) {
-              tokens.push({
-                name: 'path',
-                depth
-              });
+                tokens.push({
+                    name: 'path',
+                    depth,
+                });
             }
 
             const commands = line.split(
-                new RegExp(
-                    `[ |^](?=[${Object.keys(commandRefs).join('|')}])`
-                )
+                new RegExp(`[ |^]?(?=[${Object.keys(commandRefs).join('|')}])`)
             );
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
                 const commandRef = commandRefs[ref];
-                const { name, argsRegEx }= commandRef;
+                const { name, argsRegEx } = commandRef;
                 let tokenArgs = [],
                     matches;
 
-                tokenArgs = [...argStr.matchAll(argsRegEx)].map(
-                    match => match[1]
-                ).filter(match => !!match);
+                tokenArgs = [...argStr.matchAll(argsRegEx)]
+                    .map(match => match[1])
+                    .filter(match => !!match);
+
+                console.log('Token args', tokenArgs);
 
                 tokenArgs = tokenArgs.map(arg => {
                     return arg
@@ -169,8 +167,11 @@ export default function(string) {
                         .split(' ')
                         .map(str => {
                             return +tokenReplacements.reduce((a, b) => {
-                                return b.regex.test(a) ? 
-                                b.fn(a, b.regex.exec(a), { ...gridContext }) : a;
+                                return b.regex.test(a)
+                                    ? b.fn(a, b.regex.exec(a), {
+                                          ...gridContext,
+                                      })
+                                    : a;
                             }, str);
                         });
                 });
@@ -189,7 +190,7 @@ export default function(string) {
                     ...tokenArgs.map(args => ({
                         name,
                         args,
-                        depth
+                        depth,
                     })),
                 ];
             });

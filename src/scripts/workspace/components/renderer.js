@@ -8,6 +8,8 @@ function Renderer(props) {
     const verticalPadding = 40;
     const horizontalPadding = 40;
 
+    console.log(props.elements);
+
     return (
         <div className="renderer">
             <div
@@ -26,7 +28,8 @@ function Renderer(props) {
                 <RenderLayer
                     width={width}
                     height={height}
-                    {...props.elements}
+                    PathElements={props.elements.paths}
+                    grids={props.elements.grids}
                 />
                 {mode !== modes.PREVIEW && (
                     <OverlayLayer width={width} height={height} lexed={lexed} />
