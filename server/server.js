@@ -5,15 +5,15 @@ import glob from 'glob';
 import fs from 'fs';
 import { guid, generateName } from './util';
 import svg2img from 'svg2img';
-// import gm from 'gm';
-// const im = gm.subClass({ imageMagick: true });
+import { exec } from 'child_process';
 
 const app = express();
 const { port } = config;
 
 const appDir = path.join(__dirname, '../dist');
 const storage = `${__dirname}/stored`;
-const thumbDir = `${storage}/stored`;
+const thumbDir = `${storage}/thumbs`;
+const tmpDir = `${__dirname}/tmp`;
 
 app.use(express.static(appDir));
 app.use('/thumbs', express.static(`${storage}/thumbs`));
@@ -23,8 +23,7 @@ app.use(express.json());
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
-app
-    .route('/rune')
+app.route('/rune')
     .post((req, res) => {
         const rune = req.body;
 
@@ -42,7 +41,7 @@ app
         svg2img(rune.svg, (error, buffer) => {
             //returns a Buffer
             const thumbFileName = `${rune.id}.png`;
-            const thumbPath = `${storage}/thumbs/${thumbFileName}`;
+            const thumbPath = `${thumbDir}/${thumbFileName}`;
             fs.writeFileSync(thumbPath, buffer);
             rune.thumb = thumbFileName;
 
@@ -80,7 +79,6 @@ app
     })
     .delete((req, res) => {
         const { id } = req.body;
-        console.log('Deleting rune: ', id);
         fs.unlink(`${storage}/${id}.json`, err => {
             if (err) console.log('huh', err);
             const thumbPath = `${storage}/thumbs/${id}.png`;
@@ -94,6 +92,21 @@ app
             }
         });
     });
+
+const output = `${tmpDir}/montage.png`;
+exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
+    console.log(err, stdout, stderr);
+});
+
+app.get('/preview', (req, res) => {
+    const output = `${tmpDir}/montage.png`;
+    exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
+        if (err) {
+            res.sendStatus(500);
+        }
+        res.sendFile(output);
+    });
+});
 
 app.get('/runes', (req, res) => {
     const runes = glob.sync(`${storage}/*.json`).map(f => {

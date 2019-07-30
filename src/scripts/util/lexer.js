@@ -14,12 +14,18 @@ const typeDefinitions = {
     C: 'path',
     G: 'grid',
     F: 'fill',
+    R: 'rotate',
+    T: 'translate',
 };
 
 const commandRefs = {
     G: {
         name: 'grid',
         argsRegEx: /\s?(\d+\s\d+\s\d+\s\d+)/,
+    },
+    R: {
+        name: 'rotate',
+        argsRegEx: /\s?([-|\d|a-z|\*|\/]+)\s?/,
     },
     P: {
         name: 'point',
@@ -68,7 +74,9 @@ const tokenReplacements = [
         fn(str, matches, { width, height }) {
             console.log(str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             return (
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
@@ -91,7 +99,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
+            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
     },
     // Multiplication & division
