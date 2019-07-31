@@ -66,9 +66,7 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${
-        start.y
-    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 function createSVGElement(type, token, childTokens, children) {}
@@ -78,7 +76,9 @@ const elements = {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -88,7 +88,7 @@ const elements = {
         (tokens || []).forEach((token, idx) => {
             const { name, args } = token;
             let string = '';
-            if (['point', 'vector'].includes(name)) {
+            if (isDrawCommand(name)) {
                 const [i, j] = args;
                 let command;
                 if (name === 'point') {
@@ -134,15 +134,27 @@ const elements = {
         return props => (
             <Fragment>
                 <path d={pathString.join(' ') + ' Z'} fillRule="evenodd" />
-                {children.map(Child => <Child />)}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
             </Fragment>
         );
     },
     grid: ({ token }) => props => <Grid args={token.args} />,
     root: (_, children = null) => props => {
-        return <Fragment>{children.map(Child => <Child />)}</Fragment>;
+        return (
+            <Fragment>
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
+        );
     },
 };
+
+function isDrawCommand(name) {
+    return ['vector', 'point', 'arc'].includes(name);
+}
 
 export default function(tokens) {
     let state = Store.getState();
@@ -157,7 +169,8 @@ export default function(tokens) {
             node = newBranch;
         } else if (
             token.depth < currentDepth ||
-            (node.token.name === 'path' && token.name === 'path')
+            (node.token.name === 'path' && token.name === 'path') ||
+            !isDrawCommand(token.name)
         ) {
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
@@ -191,7 +204,9 @@ export default function(tokens) {
                 <Fragment>
                     {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(El => <El />)}
+                        .map(El => (
+                            <El />
+                        ))}
                 </Fragment>
             );
         }
@@ -205,8 +220,8 @@ export default function(tokens) {
         return el;
     }
 
-    // console.log('TREE', parseTree);
+    console.log('TREE', parseTree);
     output.paths = iterateNodes(parseTree);
-    // console.log('OUTPUT', output);
+    console.log('OUTPUT', output);
     return output;
 }
