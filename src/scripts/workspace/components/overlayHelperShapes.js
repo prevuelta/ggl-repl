@@ -14,3 +14,26 @@ export const Node = props => {
         />
     );
 };
+
+export const Cross = props => {
+    const { location, size = 5, color = COLORS.BLUE } = props;
+    console.log(location);
+    return (
+        <g stroke={color}>
+            <line
+                x1={location.x}
+                x2={location.x}
+                y1={location.y - size / 2}
+                y2={location.y + size / 2}
+                fill="none"
+            />
+            <line
+                x1={location.x - size / 2}
+                x2={location.x + size / 2}
+                y1={location.y}
+                y2={location.y}
+                fill="none"
+            />
+        </g>
+    );
+};

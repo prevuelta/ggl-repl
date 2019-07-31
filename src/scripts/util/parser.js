@@ -4,16 +4,16 @@ import {
     HALF_PI,
     PI,
     TWO_PI,
+    addVector,
     getAngle,
     getDistance,
     polarToCartesian,
-    addVector,
+    radToDeg,
 } from '../util/trig';
 import { Store } from '../data';
 
 const { Fragment } = React;
 
-// import Grid from '../
 function Grid(props) {
     const [xUnits, yUnits, gridUnit, divisions] = props.args;
     const width = xUnits * gridUnit;
@@ -66,14 +66,21 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${
+        start.y
+    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 function createSVGElement(type, token, childTokens, children) {}
 
 const elements = {
-    rotate: ({ token }, children = []) => {
-        return props => <p>ROTATE</p>;
+    rotate: ({ token }, children = []) => props => {
+        const [angle, x = 0, y = 0] = token.args;
+        return (
+            <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
+                {children.map(Child => <Child />)}
+            </g>
+        );
     },
     path: ({ tokens, token: path }, children = []) => {
         const pathString = [];
@@ -125,22 +132,15 @@ const elements = {
             pathString.push(string);
         });
         return props => (
-            <path d={pathString.join(' ') + ' Z'} fillRule="evenodd">
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </path>
+            <Fragment>
+                <path d={pathString.join(' ') + ' Z'} fillRule="evenodd" />
+                {children.map(Child => <Child />)}
+            </Fragment>
         );
     },
     grid: ({ token }) => props => <Grid args={token.args} />,
     root: (_, children = null) => props => {
-        return (
-            <Fragment>
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </Fragment>
-        );
+        return <Fragment>{children.map(Child => <Child />)}</Fragment>;
     },
 };
 
@@ -191,9 +191,7 @@ export default function(tokens) {
                 <Fragment>
                     {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(El => (
-                            <El />
-                        ))}
+                        .map(El => <El />)}
                 </Fragment>
             );
         }

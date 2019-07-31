@@ -25,15 +25,15 @@ const commandRefs = {
     },
     R: {
         name: 'rotate',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/]+)\s?/,
+        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/,
     },
     P: {
         name: 'point',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[-|\d|a-z|\*|\/]+)\s?/g,
+        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g,
     },
     '+': {
         name: 'vector',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/]+\s[-|\d|a-z|\*|\/]+)\s?/g,
+        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g,
     },
     C: {
         name: 'corner',
@@ -74,9 +74,7 @@ const tokenReplacements = [
         fn(str, matches, { width, height }) {
             console.log(str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             return (
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
@@ -99,7 +97,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
         },
     },
     // Multiplication & division
