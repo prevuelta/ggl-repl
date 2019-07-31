@@ -88,7 +88,8 @@ const elements = {
         (tokens || []).forEach((token, idx) => {
             const { name, args } = token;
             let string = '';
-            if (isDrawCommand(name)) {
+            console.log(token);
+            if (isPointOrVector(name)) {
                 const [i, j] = args;
                 let command;
                 if (name === 'point') {
@@ -110,9 +111,10 @@ const elements = {
                 }
                 string = `${command} ${i} ${j}`;
             } else if (name === 'arc') {
-                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+                console.log('Arc args', token);
                 currentLocation.x = token.args[0];
                 currentLocation.y = token.args[1];
+                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
             } else if (name === 'corner') {
                 // const nextToken = tokenGroup.tokens[idx + 1];
                 const center = { x: args[0], y: args[1] };
@@ -152,10 +154,6 @@ const elements = {
     },
 };
 
-function isDrawCommand(name) {
-    return ['vector', 'point', 'arc'].includes(name);
-}
-
 export default function(tokens) {
     let state = Store.getState();
     let parseTree = { children: [], token: { name: 'root' } };
@@ -192,11 +190,6 @@ export default function(tokens) {
 
     const output = { grids: [], paths: null };
 
-    // <path>
-    // <path>
-    // <path>
-    // </path>
-
     function iterateNodes(node) {
         if (node.token.name === 'grid') {
             output.grids.push(elements['grid'](node));
@@ -222,6 +215,13 @@ export default function(tokens) {
 
     console.log('TREE', parseTree);
     output.paths = iterateNodes(parseTree);
-    console.log('OUTPUT', output);
+    // console.log('OUTPUT', output);
     return output;
+}
+
+function isDrawCommand(name) {
+    return ['vector', 'point', 'arc'].includes(name);
+}
+function isPointOrVector(name) {
+    return ['vector', 'point'].includes(name);
 }

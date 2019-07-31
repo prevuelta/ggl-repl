@@ -1,30 +1,24 @@
 {
     "name": "Rune",
     "version": "0.0.1",
-    "description":
-        "SVG glyph creator using paper.js. Grid based design system to produce letter forms, icons etc then export as SVG from browser.",
+    "description": "SVG glyph creator using paper.js. Grid based design system to produce letter forms, icons etc then export as SVG from browser.",
     "main": "app.min.js",
     "scripts": {
         "flow": "flow",
         "start": "run-s lib build run:client",
         "run:server": "nodemon -r esm ./server/server.js -i server/storage",
-        "run:client":
-            "browser-sync start --proxy 'http://localhost:7300' --watch './dist' --port  7200",
-        "prewatch": "rm -r dist/*; npm run copy-statics; npm run lib",
-        "watch":
-            "run-p copy-statics watch:js watch:css build:html run:server run:client",
+        "run:client": "browser-sync start --proxy 'http://localhost:7300' --watch './dist' --port  7200",
+        "prewatch": "rm -r dist/*; npm run build:css; npm run copy-statics; npm run lib",
+        "watch": "run-p copy-statics watch:js watch:css build:html run:server run:client",
         "watch:js": "nodemon --watch ./src/scripts -x 'npm run build:js'",
         "watch:css": "node-sass -w ./src/styles/main.scss ./dist/main.css",
         "watch:html": "watch 'npm run build:html'",
-        "build":
-            "echo 'building app...'; run-s lib  build:js build:css copy-statics",
+        "build": "echo 'building app...'; run-s lib  build:js build:css copy-statics",
         "build:html": "cp ./src/index.html ./dist/index.html",
         "build:js": "rollup -c rollup.config.app.js",
-        "build:css":
-            "echo 'compiling stylesheets...'; sass ./src/styles/main.scss:./dist/styles/main.css",
+        "build:css": "echo 'compiling stylesheets...'; sass ./src/styles/main.scss:./dist/styles/main.css",
         "lib": "rollup -c rollup.config.lib.js",
-        "copy-statics":
-            "echo 'Copying statics...'; cp -R ./src/assets/ ./dist/assets/",
+        "copy-statics": "echo 'Copying statics...'; cp -R ./src/assets/ ./dist/assets/",
         "test": "nodemon -r esm -e example,js ./test/test.js"
     },
     "repository": {

@@ -56,25 +56,23 @@ const tokenReplacements = [
         name: 'Silver Ratio',
         regex: /sr/,
         fn(str, matches) {
-            // console.log(matches);
             const result = str.replace(matches[0], Math.sqrt(2));
-            // console.log("reult", result);
             return result;
         },
     },
     {
         regex: /(-?\d*)u/,
         fn(str, matches, { gridUnit }) {
-            console.log(str, matches);
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
     },
     {
         regex: /(-?[\d|\.]*)([w|h])$/,
         fn(str, matches, { width, height }) {
-            console.log(str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             return (
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
@@ -97,7 +95,7 @@ const tokenReplacements = [
     {
         regex: /^c$/,
         fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${gridUnit * xUnits / 2} ${gridUnit * yUnits / 2}`;
+            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
         },
     },
     // Multiplication & division
@@ -105,7 +103,6 @@ const tokenReplacements = [
         regex: /^(.+?)[\*|\/](.+?)$/,
         fn(str, matches) {
             const isMultiplication = str.includes('*');
-            console.log('Multmatch', str, matches);
             if (isMultiplication) {
                 return +matches[1] * +matches[2];
             } else {
@@ -167,8 +164,6 @@ export default function(string) {
                 tokenArgs = [...argStr.matchAll(argsRegEx)]
                     .map(match => match[1])
                     .filter(match => match !== undefined);
-
-                console.log('Token args', argStr, tokenArgs);
 
                 tokenArgs = tokenArgs.map(arg => {
                     return arg

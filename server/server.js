@@ -36,8 +36,6 @@ app.route('/rune')
 
         const filePath = `${storage}/${rune.id}.json`;
 
-        console.log('Saving svg', rune.svg);
-
         svg2img(rune.svg, (error, buffer) => {
             //returns a Buffer
             const thumbFileName = `${rune.id}.png`;
@@ -113,7 +111,11 @@ app.get('/runes', (req, res) => {
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
     runes.sort((a, b) => {
-        return +a.created > +b.created ? 1 : +a.created < +b.created ? -1 : 0;
+        const dateA = +new Date(a.created);
+        const dateB = +new Date(b.created);
+        if (dateA > dateB) return 1;
+        if (dateA < dateB) return -1;
+        return 0;
     });
     res.send(runes);
 });

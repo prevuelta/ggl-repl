@@ -127,7 +127,6 @@ class Workspace extends Component {
                 'Content-Type': 'application/json',
             },
         }).then(res => {
-            console.log(res);
             if (res.status === 200) {
                 this.getRunes();
             }
@@ -135,7 +134,6 @@ class Workspace extends Component {
     };
 
     deleteRune = id => {
-        console.log('Id', id);
         fetch('/rune', {
             method: 'delete',
             headers: {
@@ -189,20 +187,19 @@ class Workspace extends Component {
                     setExample={this.setExample}
                     handleCursorChange={this.cursorChange}
                 />
-                {parsed &&
-                    rune && (
-                        <Fragment>
-                            <Preview rendered={rune.svg} />
-                            <Renderer
-                                mode={state.app.mode}
-                                width={width}
-                                height={height}
-                                rune={rune}
-                                elements={parsed}
-                                lexed={lexed}
-                            />
-                        </Fragment>
-                    )}
+                {parsed && rune && (
+                    <Fragment>
+                        <Preview rendered={rune.svg} />
+                        <Renderer
+                            mode={state.app.mode}
+                            width={width}
+                            height={height}
+                            rune={rune}
+                            elements={parsed}
+                            lexed={lexed}
+                        />
+                    </Fragment>
+                )}
             </div>
         );
     }

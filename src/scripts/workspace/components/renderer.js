@@ -8,8 +8,6 @@ function Renderer(props) {
     const verticalPadding = 40;
     const horizontalPadding = 40;
 
-    console.log(props.elements);
-
     return (
         <div className="renderer">
             <div
