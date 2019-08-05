@@ -14,6 +14,7 @@ export default props => {
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                         {r.name}
                         <Button
+                            icon="true"
                             onClick={e => {
                                 e.preventDefault();
                                 props.deleteRune(r.id);

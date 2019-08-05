@@ -25,7 +25,7 @@ const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
 const commandRefs = {
     G: {
         name: 'grid',
-        argsRegEx: /\s?(\d+\s\d+\s\d+\s\d+)/,
+        argsRegEx: /\s?(\d+\s\d+\s[\d|u|\.|w|h]+\s\d+)/,
     },
     R: {
         name: 'rotate',
@@ -74,12 +74,24 @@ const tokenReplacements = [
         },
     },
     {
+        name: 'Grid Units',
         regex: /(-?[\d|\.]*)u/,
         fn(str, matches, { gridUnit }) {
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
     },
     {
+        name: 'Center',
+        regex: /^c([x|y])$/,
+        fn(str, matches, { width, height, gridUnit }) {
+            return str.replace(
+                matches[0],
+                { x: width, y: height }[matches[1]] / 2
+            );
+        },
+    },
+    {
+        name: 'Width & Height',
         regex: /(-?[\d|\.]*)([w|h])$/,
         fn(str, matches, { width, height }) {
             console.log('W|H', str, matches);

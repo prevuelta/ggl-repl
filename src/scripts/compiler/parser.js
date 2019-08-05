@@ -156,7 +156,16 @@ const elements = {
             </Fragment>
         );
     },
-    grid: ({ token }) => props => <Grid args={token.args} />,
+    grid: ({ token }, children = null) => props => {
+        return (
+            <Fragment>
+                <Grid args={token.args} />,
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
+        );
+    },
     root: (_, children = null) => props => {
         return (
             <Fragment>
@@ -205,8 +214,8 @@ export default function(tokens) {
     const output = { grids: [], paths: null };
 
     function iterateNodes(node) {
-        if (node.token.name === 'grid') {
-            output.grids.push(elements['grid'](node));
+        if (node.token.name === 'grid_DISABLE') {
+            // output.grids.push(elements['grid'](node));
             return props => (
                 <Fragment>
                     {(node.children || [])

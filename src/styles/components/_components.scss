@@ -1,7 +1,8 @@
 .switch,
 .button {
-    width: $uh;
     height: $uh;
+    width: auto;
+    padding: $qu;
     cursor: pointer;
     border-radius: 2px;
     text-align: center;
@@ -13,6 +14,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    &.icon {
+        width: $uh;
+        padding: 0;
+    }
 
     svg {
         width: $u;
