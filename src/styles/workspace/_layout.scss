@@ -1,7 +1,8 @@
 $panel-width: 20%;
 $statusbar-height: 18px;
 $browser-height: $u4;
-$header-height: $statusbar-height + $browser-height;
+$browser-width: $u * 20;
+$header-height: $statusbar-height; //+ $browser-height;
 
 * {
     box-sizing: border-box;
@@ -58,9 +59,9 @@ body {
 }
 
 .source-inspector {
-    width: 40%;
-    left: 0;
-    background: red;
+    // width: 40%;
+    left: $browser-width;
+    // background: red;
 
     textarea {
         outline: none;
@@ -82,8 +83,12 @@ body {
     position: fixed;
     top: $statusbar-height;
     left: 0;
-    right: 0;
-    height: $browser-height;
+    // top: $;
+    bottom: 0;
+    // right: 0;
+    // height: $browser-height;
+    min-height: 100%;
+    width: $browser-width;
     background: $dark;
 
     .thumbnail {
@@ -95,20 +100,26 @@ body {
 }
 
 .browser ul {
-    display: flex;
-    align-items: center;
-    padding: $hu;
+    // display: flex;
+    // align-items: center;
+    // padding: $hu;
 }
 
 .browser ul li {
     // width: $u2;
     // height: $u2;
+    // @extend .tag;
     margin: 0 $u 0 0;
-    @extend .tag;
-    background: red;
     cursor: pointer;
     display: flex;
     align-items: center;
+    padding: 2px;
+    background: $sky-dark;
+    color: $sky;
+
+    .button {
+        margin-left: auto;
+    }
 
     &:hover {
         background: white;
@@ -117,6 +128,15 @@ body {
     &.active {
         background: white;
         // pointer-events: none;
+
+        .button svg {
+            fill: $rust;
+        }
+    }
+
+    svg {
+        width: $u;
+        height: $u;
     }
 }
 

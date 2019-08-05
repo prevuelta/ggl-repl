@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import { POINT_TYPES } from '../../../util/constants';
 import { getDistance } from '../../../util/trig';
 import { Node, Cross } from '../overlayHelperShapes';
-import { getArcEndpoint } from '../../../util/parser';
+import { getArcEndpoint } from '../../../compiler/parser';
 const { Fragment } = React;
 
 const OverlayLayer = props => {
@@ -14,10 +14,12 @@ const OverlayLayer = props => {
             currentValue = token.args;
             point.x = currentValue[0];
             point.y = currentValue[1];
+            point.type = 'node';
         } else if (token.name === 'vector') {
             currentValue = currentValue.map((v, i) => v + token.args[i]);
             point.x = currentValue[0];
             point.y = currentValue[1];
+            point.type = 'node';
         } else if (token.name === 'rotate') {
             if (token.args.length === 3) {
                 point.x = token.args[1];
@@ -37,15 +39,20 @@ const OverlayLayer = props => {
             const radius = getDistance(start, center);
             point = [
                 {
-                    ...start,
-                    color: 'orange',
-                },
-                {
                     ...center,
                     circle: {
                         ...center,
                         radius,
                     },
+                    color: 'pink',
+                },
+                {
+                    ...start,
+                    color: 'orange',
+                },
+                {
+                    ...center,
+                    type: 'cross',
                     color: 'pink',
                 },
             ];
@@ -63,7 +70,7 @@ const OverlayLayer = props => {
                         r={point.circle.radius}
                         fill="none"
                         stroke="red"
-                        opacity="0.2"
+                        opacity="0.5"
                     />
                 )}
                 {point.type === 'node' && (

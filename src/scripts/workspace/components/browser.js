@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { X, Cross } from '../icons';
+import Button from './button';
 
 export default props => {
     return (
@@ -11,13 +13,13 @@ export default props => {
                         className={r.id === props.active ? 'active' : ''}>
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                         {r.name}
-                        <button
+                        <Button
                             onClick={e => {
                                 e.preventDefault();
                                 props.deleteRune(r.id);
                             }}>
-                            x
-                        </button>
+                            <X />
+                        </Button>
                     </li>
                 ))}
                 <li onClick={props.newRune}>+</li>

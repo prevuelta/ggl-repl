@@ -71,7 +71,19 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
 
 function createSVGElement(type, token, childTokens, children) {}
 
+// TODO: generic transform element factory
+
 const elements = {
+    translate: ({ token }, children = []) => props => {
+        const [x = 0, y = 0] = token.args;
+        return (
+            <g transform={`translate(${x} ${y})`}>
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </g>
+        );
+    },
     rotate: ({ token }, children = []) => props => {
         const [angle, x = 0, y = 0] = token.args;
         return (
@@ -82,13 +94,16 @@ const elements = {
             </g>
         );
     },
+    circle: ({ token }) => props => {
+        const [x, y, r] = token.args;
+        return <circle cx={x} cy={y} r={r} />;
+    },
     path: ({ tokens, token: path }, children = []) => {
         const pathString = [];
         let currentLocation = { x: 0, y: 0 };
         (tokens || []).forEach((token, idx) => {
             const { name, args } = token;
             let string = '';
-            console.log(token);
             if (isPointOrVector(name)) {
                 const [i, j] = args;
                 let command;
@@ -111,7 +126,6 @@ const elements = {
                 }
                 string = `${command} ${i} ${j}`;
             } else if (name === 'arc') {
-                console.log('Arc args', token);
                 currentLocation.x = token.args[0];
                 currentLocation.y = token.args[1];
                 string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;

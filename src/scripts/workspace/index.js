@@ -1,22 +1,15 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MODE_TAGS } from '../util/constants';
-import { Source, Renderer, Browser, Preview } from './components';
+import { Source, Renderer, Browser, Preview, StatusBar } from './components';
 import example from '../example.rs';
-import { generateName, guid, lex, parse } from '../util';
+import { generateName, guid } from '../util';
+import { lex, parse } from '../compiler';
 import { RenderLayer } from './components/layers';
 
 const { Fragment } = React;
 
 const defaultHeight = 50;
 const defaultWidth = 50;
-
-const StatusBar = props => (
-    <div className="statusbar">
-        <span className="tag">{MODE_TAGS[props.mode]} mode</span>
-        <button onClick={props.save}>Save</button>
-    </div>
-);
 
 class Workspace extends Component {
     constructor(props) {

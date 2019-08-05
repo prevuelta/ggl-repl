@@ -2,12 +2,11 @@ import matchAll from 'string.prototype.matchall';
 
 matchAll.shim();
 
-import lexer from '../src/scripts/util/lexer';
-import parser from '../src/scripts/util/parser';
+import { lex, parse } from '../src/scripts/compile';
 import fs from 'fs';
 
 const example = fs.readFileSync('./test/example.rs', 'UTF-8');
 
-const tokenGroups = lexer(example);
+const tokenGroups = lex(example);
 // console.log('Lexemes', JSON.stringify(tokenGroups, null, 2));
-console.log('Parsed input', parser(tokenGroups));
+console.log('Parsed input', parse(tokenGroups));

@@ -12,11 +12,15 @@ const typeDefinitions = {
     P: 'path',
     A: 'path',
     C: 'path',
+    O: 'circle',
     G: 'grid',
     F: 'fill',
     R: 'rotate',
     T: 'translate',
 };
+
+const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
+const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
 
 const commandRefs = {
     G: {
@@ -25,28 +29,37 @@ const commandRefs = {
     },
     R: {
         name: 'rotate',
-        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/,
+        argsRegEx: multiArgRegEx,
+    },
+    T: {
+        name: 'translate',
+        argsRegEx: pairArgRegEx,
     },
     P: {
         name: 'point',
-        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g,
+        argsRegEx: pairArgRegEx,
     },
     '+': {
         name: 'vector',
-        argsRegEx: /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g,
+        argsRegEx: pairArgRegEx,
     },
     C: {
+        name: 'circle',
+        argsRegEx: multiArgRegEx,
+    },
+    L: {
         name: 'corner',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?),?$/,
+        argsRegEx: multiArgRegEx,
     },
     A: {
         name: 'arc',
-        argsRegEx: /\s?([-|\d|a-z|\*|\/|\s]+?),?$/,
+        argsRegEx: multiArgRegEx,
     },
 };
 
 const { PI } = Math;
 const HALF_PI = PI / 2;
+const QUARTER_PI = PI / 4;
 const TWO_PI = PI * 2;
 
 const negative = str => str[0] === '-';
@@ -61,7 +74,7 @@ const tokenReplacements = [
         },
     },
     {
-        regex: /(-?\d*)u/,
+        regex: /(-?[\d|\.]*)u/,
         fn(str, matches, { gridUnit }) {
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
@@ -69,6 +82,7 @@ const tokenReplacements = [
     {
         regex: /(-?[\d|\.]*)([w|h])$/,
         fn(str, matches, { width, height }) {
+            console.log('W|H', str, matches);
             const multiplier = matches[1]
                 ? matches[1] === '-'
                     ? -1
@@ -80,22 +94,24 @@ const tokenReplacements = [
         },
     },
     {
-        regex: /^(-?[\d|\.]*)pi$/,
+        regex: /-?([h|q])pi/,
         fn(str, matches) {
-            const mult = +str.split('pi')[0];
-            return (mult || 1) * (negative(str) ? -PI : PI);
+            const result = str.replace(
+                /.pi/,
+                { h: HALF_PI, q: QUARTER_PI }[matches[1]]
+            );
+            console.log('[h|q]pi matching:', matches, result);
+            return result;
         },
     },
     {
-        regex: /-?hpi/,
+        regex: /(-?[\d|\.]*)pi/,
         fn(str, matches) {
-            return +str.replace('hpi', HALF_PI);
-        },
-    },
-    {
-        regex: /^c$/,
-        fn(str, matches, { gridUnit, yUnits, xUnits }) {
-            return `${(gridUnit * xUnits) / 2} ${(gridUnit * yUnits) / 2}`;
+            console.log('PI', str, matches);
+            const mult = +matches[1];
+            return str.replace(/-?[\d|\.]*pi/, str => {
+                return (mult || 1) * PI;
+            });
         },
     },
     // Multiplication & division
@@ -103,6 +119,7 @@ const tokenReplacements = [
         regex: /^(.+?)[\*|\/](.+?)$/,
         fn(str, matches) {
             const isMultiplication = str.includes('*');
+            console.log('MULT/DIV', str, matches);
             if (isMultiplication) {
                 return +matches[1] * +matches[2];
             } else {
@@ -111,6 +128,8 @@ const tokenReplacements = [
         },
     },
 ];
+
+// TODO: Break token replacement into replace, compute
 
 export default function(string) {
     let gridContext = {
@@ -156,8 +175,11 @@ export default function(string) {
 
             commands.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.)/);
+
+                if (!commandRefs[ref]) return;
+
                 const commandRef = commandRefs[ref];
-                const { name, argsRegEx } = commandRef;
+                const { name = '', argsRegEx } = commandRef;
                 let tokenArgs = [],
                     matches;
 
@@ -170,6 +192,7 @@ export default function(string) {
                         .trim()
                         .split(' ')
                         .map(str => {
+                            console.log('Arg Str', str);
                             return +tokenReplacements.reduce((a, b) => {
                                 return b.regex.test(a)
                                     ? b.fn(a, b.regex.exec(a), {

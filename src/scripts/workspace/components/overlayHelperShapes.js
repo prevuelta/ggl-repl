@@ -17,9 +17,8 @@ export const Node = props => {
 
 export const Cross = props => {
     const { location, size = 5, color = COLORS.BLUE } = props;
-    console.log(location);
     return (
-        <g stroke={color}>
+        <g stroke={color} transform={`rotate(45, ${location.x} ${location.y})`}>
             <line
                 x1={location.x}
                 x2={location.x}

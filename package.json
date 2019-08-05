@@ -8,7 +8,7 @@
         "start": "run-s lib build run:client",
         "run:server": "nodemon -r esm ./server/server.js -i server/storage",
         "run:client": "browser-sync start --proxy 'http://localhost:7300' --watch './dist' --port  7200",
-        "prewatch": "rm -r dist/*; npm run build:css; npm run copy-statics; npm run lib",
+        "prewatch": "npm run build:css; npm run copy-statics; npm run lib",
         "watch": "run-p copy-statics watch:js watch:css build:html run:server run:client",
         "watch:js": "nodemon --watch ./src/scripts -x 'npm run build:js'",
         "watch:css": "node-sass -w ./src/styles/main.scss ./dist/main.css",
