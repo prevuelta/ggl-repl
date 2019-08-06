@@ -8,7 +8,7 @@ const clamp = function(val, min, max) {
 };
 
 const typeDefinitions = {
-    '+': 'path',
+    V: 'path',
     P: 'path',
     A: 'path',
     C: 'path',
@@ -39,7 +39,7 @@ const commandRefs = {
         name: 'point',
         argsRegEx: pairArgRegEx,
     },
-    '+': {
+    V: {
         name: 'vector',
         argsRegEx: pairArgRegEx,
     },

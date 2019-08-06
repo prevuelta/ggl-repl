@@ -22,7 +22,30 @@ app.use(express.json());
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
-app.route('/rune')
+app.route('/rune/:id?')
+    .get((req, res) => {
+        console.log(req.params.id);
+        const { id } = req.params;
+        // if (fs.
+        // if (fs.existsSync(thumbPath)) {
+        if (id) {
+            const filePath = path.join(storage, `${id}.json`);
+            if (fs.existsSync(filePath)) {
+                console.log(filePath);
+                if (req.query.svg) {
+                    const rune = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+                    console.log(rune.svg);
+                    res.send(rune.svg);
+                } else {
+                    res.sendFile(filePath);
+                }
+            } else {
+                res.send(500);
+            }
+        } else {
+            res.send(400);
+        }
+    })
     .post((req, res) => {
         const rune = req.body;
 
@@ -31,6 +54,7 @@ app.route('/rune')
 
         if (!rune.created) {
             // rune.id = guid();
+            console.log('Setting created');
             rune.created = now;
         }
 

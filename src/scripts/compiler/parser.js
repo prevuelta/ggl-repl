@@ -135,14 +135,11 @@ const elements = {
                 const dist = getDistance(currentLocation, center);
                 const initialAngle = getAngle(currentLocation, center);
                 const angle = args[2] || 0;
-                const test = { x: 0, y: 0 };
                 const newAngle = angle + initialAngle;
                 const newX = Math.cos(newAngle) * dist;
                 const newY = Math.sin(newAngle) * dist;
-                test.x += newX;
-                test.y += newY;
-                // const end = { x: endX, y: endY };
-                const end = addVector(center, test);
+
+                const end = addVector(center, { x: newX, y: newY });
                 string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
             }
             pathString.push(string);

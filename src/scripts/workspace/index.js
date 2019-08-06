@@ -100,7 +100,6 @@ class Workspace extends Component {
             name: rune.name,
             id: rune.id,
         };
-        console.log('Payload', payload);
         return fetch('/rune', {
             method: 'post',
             headers: {
