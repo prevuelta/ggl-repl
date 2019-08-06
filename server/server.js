@@ -3,17 +3,16 @@ import config from './config';
 import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
-import { guid, generateName } from './util';
-import svg2img from 'svg2img';
+import { guid, generateName, saveThumbnail } from './util';
 import { exec } from 'child_process';
 
 const app = express();
 const { port } = config;
 
 const appDir = path.join(__dirname, '../dist');
-const storage = `${__dirname}/stored`;
+const storage = `${__dirname}/../stored`;
 const thumbDir = `${storage}/thumbs`;
-const tmpDir = `${__dirname}/tmp`;
+const tmpDir = `${__dirname}/../tmp`;
 
 app.use(express.static(appDir));
 app.use('/thumbs', express.static(`${storage}/thumbs`));
@@ -27,52 +26,53 @@ app.route('/rune')
     .post((req, res) => {
         const rune = req.body;
 
-        rune.modified = +new Date();
+        const now = new Date().toJSON();
+        rune.modified = now;
 
-        if (!rune.id) {
-            rune.id = guid();
-            rune.created = +new Date();
+        if (!rune.created) {
+            // rune.id = guid();
+            rune.created = now;
         }
 
         const filePath = `${storage}/${rune.id}.json`;
+        const thumbFileName = `${rune.id}.png`;
+        const thumbPath = `${thumbDir}/${thumbFileName}`;
+        rune.thumb = thumbFileName;
 
-        svg2img(rune.svg, (error, buffer) => {
-            //returns a Buffer
-            const thumbFileName = `${rune.id}.png`;
-            const thumbPath = `${thumbDir}/${thumbFileName}`;
-            fs.writeFileSync(thumbPath, buffer);
-            rune.thumb = thumbFileName;
-
-            fs.writeFile(filePath, JSON.stringify(rune), err => {
+        fs.writeFile(filePath, JSON.stringify(rune), err => {
+            saveThumbnail(rune.svg, thumbPath, () => {
                 if (err) {
-                    res.sendStatus(500);
+                    res.status(500).send("Couldn't save file");
                 }
                 res.sendStatus(200);
             });
         });
-
-        // const buf = new Buffer(rune.svg);
-        // im(buf)
-        //     .resize(100, 100)
-        // .write(`${storage}/thumbs/test.png`, err => {
-        //     console.log('Error', err);
-        // });
     })
     .put((req, res) => {
-        const newRune = {
+        const now = new Date().toJSON();
+        const rune = {
             id: guid(),
             script: '',
-            svg: '',
+            svg: '<svg></svg>',
             name: generateName(),
-            modified: +new Date(),
-            created: +new Date(),
+            modified: now,
+            created: now,
         };
-        const filePath = `${storage}/${newRune.id}.json`;
-        fs.writeFile(filePath, JSON.stringify(newRune), err => {
-            if (err) {
-                res.sendStatus(500);
-            }
-            res.sendStatus(200);
+        const filePath = `${storage}/${rune.id}.json`;
+
+        const thumbFileName = `${rune.id}.png`;
+        const thumbPath = `${thumbDir}/${thumbFileName}`;
+        rune.thumb = thumbFileName;
+
+        fs.writeFile(filePath, JSON.stringify(rune), err => {
+            saveThumbnail(rune.svg, thumbPath, err2 => {
+                console.log(err2);
+                if (err) {
+                    console.log(err);
+                    res.statusStatus(500);
+                }
+                res.sendStatus(200);
+            });
         });
     })
     .delete((req, res) => {
@@ -93,7 +93,7 @@ app.route('/rune')
 
 const output = `${tmpDir}/montage.png`;
 exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
-    console.log(err, stdout, stderr);
+    console.log('Montage generated');
 });
 
 app.get('/preview', (req, res) => {

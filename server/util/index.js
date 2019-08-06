@@ -1,4 +1,5 @@
 export * from './nameGenerator';
+export { default as saveThumbnail } from './saveThumbnail';
 export function guid(a) {
     return a
         ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)

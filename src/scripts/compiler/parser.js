@@ -156,7 +156,7 @@ const elements = {
             </Fragment>
         );
     },
-    grid: ({ token }, children = null) => props => {
+    grid: ({ token }, children = []) => props => {
         return (
             <Fragment>
                 <Grid args={token.args} />,
@@ -166,7 +166,7 @@ const elements = {
             </Fragment>
         );
     },
-    root: (_, children = null) => props => {
+    root: (_, children = []) => props => {
         return (
             <Fragment>
                 {children.map((Child, i) => (
