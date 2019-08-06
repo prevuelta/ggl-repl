@@ -53,8 +53,7 @@ app.route('/rune/:id?')
         rune.modified = now;
 
         if (!rune.created) {
-            // rune.id = guid();
-            console.log('Setting created');
+            console.log('Adding created');
             rune.created = now;
         }
 

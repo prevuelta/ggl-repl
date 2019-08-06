@@ -94,11 +94,10 @@ class Workspace extends Component {
 
     saveRune = () => {
         const { rune, source } = this.state;
+
         const payload = {
+            ...rune,
             script: source,
-            svg: rune.svg,
-            name: rune.name,
-            id: rune.id,
         };
         return fetch('/rune', {
             method: 'post',

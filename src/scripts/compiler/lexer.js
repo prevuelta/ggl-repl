@@ -151,10 +151,11 @@ export default function(string) {
     };
 
     const lines = string
-        .replace(/-\s*\n\s+?/g, ',')
+        .replace(/-\s*[\n|\r]\s*/g, ' ')
         .trim()
         .split('\n');
     let tokens = [];
+    console.log(lines);
     lines
         .filter(
             line =>
@@ -174,7 +175,7 @@ export default function(string) {
 
             const type = typeDefinitions[typeRef];
 
-            if (/[A|P|\+|C]/.test(typeRef)) {
+            if (/[A|P|\+|L]/.test(typeRef)) {
                 tokens.push({
                     name: 'path',
                     depth,
@@ -204,7 +205,7 @@ export default function(string) {
                         .trim()
                         .split(' ')
                         .map(str => {
-                            console.log('Arg Str', str);
+                            // console.log('Arg Str', str);
                             return +tokenReplacements.reduce((a, b) => {
                                 return b.regex.test(a)
                                     ? b.fn(a, b.regex.exec(a), {
