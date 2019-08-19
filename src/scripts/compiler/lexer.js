@@ -17,6 +17,8 @@ const typeDefinitions = {
     F: 'fill',
     R: 'rotate',
     T: 'translate',
+    D: 'difference',
+    U: 'union',
 };
 
 const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
@@ -91,21 +93,7 @@ const tokenReplacements = [
         },
     },
     {
-        name: 'Width & Height',
-        regex: /(-?[\d|\.]*)([w|h])$/,
-        fn(str, matches, { width, height }) {
-            console.log('W|H', str, matches);
-            const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
-                : 1;
-            return (
-                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]]
-            );
-        },
-    },
-    {
+        name: 'Parts of PI',
         regex: /-?([h|q])pi/,
         fn(str, matches) {
             const result = str.replace(
@@ -114,6 +102,22 @@ const tokenReplacements = [
             );
             console.log('[h|q]pi matching:', matches, result);
             return result;
+        },
+    },
+    {
+        name: 'Width & Height',
+        regex: /(-?[\d|\.]*)([w|h])/,
+        fn(str, matches, { width, height }) {
+            console.log('W|H', str, matches);
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
+            const replacement =
+                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
+            const is = str.replace(matches[0], replacement);
+            return is;
         },
     },
     {
@@ -128,15 +132,21 @@ const tokenReplacements = [
     },
     // Multiplication & division
     {
-        regex: /^(.+?)[\*|\/](.+?)$/,
+        regex: /^(.+?)([\*|\/|\-|\+])(.+?)$/,
         fn(str, matches) {
-            const isMultiplication = str.includes('*');
+            // const isMultiplication = str.includes('*');
             console.log('MULT/DIV', str, matches);
-            if (isMultiplication) {
-                return +matches[1] * +matches[2];
-            } else {
-                return +matches[1] / +matches[2];
-            }
+            return {
+                '*': (a, b) => a * b,
+                '+': (a, b) => a + b,
+                '-': (a, b) => a - b,
+                '/': (a, b) => a / b,
+            }[matches[2]](+matches[1], +matches[3]);
+            // if (isMultiplication) {
+            //     return +matches[1] * +matches[3];
+            // } else {
+            //     return +matches[1] / +matches[3];
+            // }
         },
     },
 ];
@@ -205,7 +215,7 @@ export default function(string) {
                         .trim()
                         .split(' ')
                         .map(str => {
-                            // console.log('Arg Str', str);
+                            console.log('Arg Str', str);
                             return +tokenReplacements.reduce((a, b) => {
                                 return b.regex.test(a)
                                     ? b.fn(a, b.regex.exec(a), {

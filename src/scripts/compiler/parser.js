@@ -156,7 +156,7 @@ const elements = {
     grid: ({ token }, children = []) => props => {
         return (
             <Fragment>
-                <Grid args={token.args} />,
+                <Grid args={token.args} />
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -190,6 +190,7 @@ export default function(tokens) {
             (node.token.name === 'path' && token.name === 'path') ||
             !isDrawCommand(token.name)
         ) {
+            console.log(node.token, currentDepth);
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
                 node = node.parent;
@@ -223,14 +224,12 @@ export default function(tokens) {
                 </Fragment>
             );
         }
+        const elFn = elements[node.token.name];
+        if (!elFn) return '';
         if (node.children) {
-            return elements[node.token.name](
-                node,
-                node.children.map(child => iterateNodes(child))
-            );
+            return elFn(node, node.children.map(child => iterateNodes(child)));
         }
-        const el = elements[node.token.name](node);
-        return el;
+        return elFn(node);
     }
 
     console.log('TREE', parseTree);

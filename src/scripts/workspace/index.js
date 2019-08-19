@@ -48,9 +48,12 @@ class Workspace extends Component {
     parseInput = (source, event) => {
         const { rune } = this.state;
         if (rune) {
+            // Create token list
             const lexed = lex(source);
+            // Create
             console.log('TOKENS', lexed);
             const parsed = parse(lexed);
+            // Create render tree
             console.log('PARSED', parsed);
             const { width, height } = lexed
                 .filter(t => t.name === 'grid')
