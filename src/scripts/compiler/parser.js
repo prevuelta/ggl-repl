@@ -94,6 +94,16 @@ const elements = {
             </g>
         );
     },
+    scale: ({ token }, children = []) => props => {
+        const [scale] = token.args;
+        return (
+            <g transform={`scale(${scale} ${scale})`}>
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </g>
+        );
+    },
     circle: ({ token }) => props => {
         const [x, y, r] = token.args;
         return <circle cx={x} cy={y} r={r} />;

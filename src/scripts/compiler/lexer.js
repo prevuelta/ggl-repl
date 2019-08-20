@@ -17,12 +17,14 @@ const typeDefinitions = {
     F: 'fill',
     R: 'rotate',
     T: 'translate',
+    S: 'scale',
     D: 'difference',
     U: 'union',
 };
 
 const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
 const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
+const singleArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+)\s?$/g;
 
 const commandRefs = {
     G: {
@@ -33,6 +35,11 @@ const commandRefs = {
         name: 'rotate',
         argsRegEx: multiArgRegEx,
     },
+    S: {
+        name: 'scale',
+        argsRegEx: singleArgRegEx,
+    },
+
     T: {
         name: 'translate',
         argsRegEx: pairArgRegEx,
@@ -116,8 +123,7 @@ const tokenReplacements = [
                 : 1;
             const replacement =
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
-            const is = str.replace(matches[0], replacement);
-            return is;
+            return str.replace(matches[0], replacement);
         },
     },
     {
