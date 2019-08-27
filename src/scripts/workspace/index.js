@@ -65,17 +65,28 @@ class Workspace extends Component {
                     },
                     { width: defaultWidth, height: defaultHeight }
                 );
+
             const svgString = renderToStaticMarkup(
                 <RenderLayer
                     width={width}
                     height={height}
                     stroke={'none'}
                     fill={'black'}
-                    PathElements={parsed.paths}
-                    print={true}
+                    PathElements={parse(lexed, false).paths}
                 />
             );
             rune.svg = svgString;
+            const svgString = renderToStaticMarkup(
+                <RenderLayer
+                    width={width}
+                    height={height}
+                    stroke={'none'}
+                    fill={'black'}
+                    PathElements={parse(lexed, false).paths}
+                />
+            );
+            rune.svg = svgString;
+
             this.setState({
                 source,
                 parsed,
@@ -182,19 +193,20 @@ class Workspace extends Component {
                     setExample={this.setExample}
                     handleCursorChange={this.cursorChange}
                 />
-                {parsed && rune && (
-                    <Fragment>
-                        <Preview rendered={rune.svg} />
-                        <Renderer
-                            mode={state.app.mode}
-                            width={width}
-                            height={height}
-                            rune={rune}
-                            elements={parsed}
-                            lexed={lexed}
-                        />
-                    </Fragment>
-                )}
+                {parsed &&
+                    rune && (
+                        <Fragment>
+                            <Preview rendered={rune.svg} />
+                            <Renderer
+                                mode={state.app.mode}
+                                width={width}
+                                height={height}
+                                rune={rune}
+                                elements={parsed}
+                                lexed={lexed}
+                            />
+                        </Fragment>
+                    )}
             </div>
         );
     }

@@ -19,7 +19,7 @@ app.use('/thumbs', express.static(`${storage}/thumbs`));
 app.use(express.json());
 
 app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:9000'); // update to match the domain you will make the request from
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5100'); // update to match the domain you will make the request from
     res.header(
         'Access-Control-Allow-Headers',
         'Origin, X-Requested-With, Content-Type, Accept'
@@ -57,6 +57,7 @@ app
     })
     .post((req, res) => {
         const rune = req.body;
+        console.log(rune);
 
         const now = new Date().toJSON();
         rune.modified = now;
@@ -134,7 +135,7 @@ app.get('/preview', (req, res) => {
         if (err) {
             res.sendStatus(500);
         }
-        res.sendFile(output);
+        res.sendFile(path.resolve(output));
     });
 });
 

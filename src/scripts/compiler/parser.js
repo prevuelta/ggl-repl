@@ -66,7 +66,9 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return `${start.x} ${
+        start.y
+    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
 }
 
 function createSVGElement(type, token, childTokens, children) {}
@@ -78,9 +80,7 @@ const elements = {
         const [x = 0, y = 0] = token.args;
         return (
             <g transform={`translate(${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -88,9 +88,7 @@ const elements = {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -98,9 +96,7 @@ const elements = {
         const [scale] = token.args;
         return (
             <g transform={`scale(${scale} ${scale})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -157,34 +153,26 @@ const elements = {
         return props => (
             <Fragment>
                 <path d={pathString.join(' ') + ' Z'} fillRule="evenodd" />
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
+                {children.map((Child, i) => <Child key={i} />)}
             </Fragment>
         );
     },
-    grid: ({ token }, children = []) => props => {
+    grid: ({ token, showGrids }, children = []) => props => {
         return (
             <Fragment>
-                <Grid args={token.args} />
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
+                {showGrids && <Grid args={token.args} />}
+                {children.map((Child, i) => <Child key={i} />)}
             </Fragment>
         );
     },
     root: (_, children = []) => props => {
         return (
-            <Fragment>
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
-            </Fragment>
+            <Fragment>{children.map((Child, i) => <Child key={i} />)}</Fragment>
         );
     },
 };
 
-export default function(tokens) {
+export default function(tokens, showGrids = true) {
     let state = Store.getState();
     let parseTree = { children: [], token: { name: 'root' } };
     let node = parseTree;
@@ -228,16 +216,18 @@ export default function(tokens) {
                 <Fragment>
                     {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(El => (
-                            <El />
-                        ))}
+                        .map(El => <El />)}
                 </Fragment>
             );
         }
         const elFn = elements[node.token.name];
         if (!elFn) return '';
         if (node.children) {
-            return elFn(node, node.children.map(child => iterateNodes(child)));
+            console.log('Show grids', showGrids);
+            return elFn(
+                { ...node, ...showGrids },
+                node.children.map(child => iterateNodes(child))
+            );
         }
         return elFn(node);
     }
