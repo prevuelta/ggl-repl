@@ -31,7 +31,8 @@ app.use(function(req, res, next) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
-app.route('/rune/:id?')
+app
+    .route('/rune/:id?')
     .get((req, res) => {
         console.log(req.params.id);
         const { id } = req.params;
@@ -43,7 +44,6 @@ app.route('/rune/:id?')
                 console.log(filePath);
                 if (req.query.svg) {
                     const rune = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    console.log(rune.svg);
                     res.send(rune.svg);
                 } else {
                     res.sendFile(filePath);
