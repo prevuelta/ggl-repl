@@ -14,11 +14,11 @@ export default function RenderLayer(props) {
 
     return (
         <svg
+            xmlns="http://www.w3.org/2000/svg"
             className="renderer-svg"
             height={height}
             width={width}
             viewBox={viewBox}>
-            {grids && grids.map((Element, i) => <Element key={i} />)}
             <g fill={fill} stroke={stroke}>
                 {PathElements && <PathElements />}
             </g>

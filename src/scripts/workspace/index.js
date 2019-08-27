@@ -72,6 +72,7 @@ class Workspace extends Component {
                     stroke={'none'}
                     fill={'black'}
                     PathElements={parsed.paths}
+                    print={true}
                 />
             );
             rune.svg = svgString;
