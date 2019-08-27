@@ -2,8 +2,20 @@
 
 //= require lib/normalize.css
 
-@import 'base/measure', 'base/global', 'base/colors', 'base/helpers',
-    'base/type', 'workspace/header', 'workspace/layout', 'workspace/dialogue',
-    'components/form', 'components/action-bar', 'components/svg',
-    'components/tablet', 'components/renderer', 'components/components',
-    'components/sheet', 'components/overlay', 'components/tools';
+@import 'base/measure',
+    'base/global',
+    'base/colors',
+    'base/helpers',
+    'base/type',
+    'workspace/header',
+    'workspace/layout',
+    'workspace/dialogue',
+    'components/form',
+    'components/action-bar',
+    'components/svg',
+    'components/tablet',
+    'components/renderer',
+    'components/components',
+    'components/sheet',
+    'components/overlay',
+    'components/tools';
