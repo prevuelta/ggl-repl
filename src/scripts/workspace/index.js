@@ -76,16 +76,6 @@ class Workspace extends Component {
                 />
             );
             rune.svg = svgString;
-            const svgString = renderToStaticMarkup(
-                <RenderLayer
-                    width={width}
-                    height={height}
-                    stroke={'none'}
-                    fill={'black'}
-                    PathElements={parse(lexed, false).paths}
-                />
-            );
-            rune.svg = svgString;
 
             this.setState({
                 source,
@@ -108,12 +98,15 @@ class Workspace extends Component {
     };
 
     saveRune = () => {
+        console.log('Save rune');
         const { rune, source } = this.state;
 
         const payload = {
             ...rune,
             script: source,
         };
+        console.log('payload', payload);
+
         return fetch('/rune', {
             method: 'post',
             headers: {

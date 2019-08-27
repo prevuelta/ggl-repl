@@ -157,10 +157,10 @@ const elements = {
             </Fragment>
         );
     },
-    grid: ({ token, showGrids }, children = []) => props => {
+    grid: ({ token }, children = []) => props => {
         return (
             <Fragment>
-                {showGrids && <Grid args={token.args} />}
+                <Grid args={token.args} />
                 {children.map((Child, i) => <Child key={i} />)}
             </Fragment>
         );
@@ -224,10 +224,7 @@ export default function(tokens, showGrids = true) {
         if (!elFn) return '';
         if (node.children) {
             console.log('Show grids', showGrids);
-            return elFn(
-                { ...node, ...showGrids },
-                node.children.map(child => iterateNodes(child))
-            );
+            return elFn(node, node.children.map(child => iterateNodes(child)));
         }
         return elFn(node);
     }

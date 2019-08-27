@@ -57,7 +57,7 @@ app
     })
     .post((req, res) => {
         const rune = req.body;
-        console.log(rune);
+        // console.log(rune);
 
         const now = new Date().toJSON();
         rune.modified = now;
@@ -71,6 +71,8 @@ app
         const thumbFileName = `${rune.id}.png`;
         const thumbPath = `${thumbDir}/${thumbFileName}`;
         rune.thumb = thumbFileName;
+
+        console.log('Writing file');
 
         fs.writeFile(filePath, JSON.stringify(rune), err => {
             saveThumbnail(rune.svg, thumbPath, () => {
