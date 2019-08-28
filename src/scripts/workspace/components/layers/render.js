@@ -19,10 +19,10 @@ export default function RenderLayer(props) {
             height={height}
             width={width}
             viewBox={viewBox}>
-            {grids && grids.map((Element, i) => <Element key={i} />)}
             <g fill={fill} stroke={stroke}>
                 {PathElements && <PathElements />}
             </g>
         </svg>
     );
 }
+// {grids && grids.map((Element, i) => <Element key={i} />)}

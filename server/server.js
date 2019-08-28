@@ -31,8 +31,7 @@ app.use(function(req, res, next) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
-app
-    .route('/rune/:id?')
+app.route('/rune/:id?')
     .get((req, res) => {
         console.log(req.params.id);
         const { id } = req.params;
