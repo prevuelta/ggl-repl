@@ -19,7 +19,7 @@ export default function RenderLayer(props) {
             height={height}
             width={width}
             viewBox={viewBox}>
-            <g fill={fill} stroke={stroke}>
+            <g id="style" fill={fill} stroke={stroke}>
                 {PathElements && <PathElements />}
             </g>
         </svg>
