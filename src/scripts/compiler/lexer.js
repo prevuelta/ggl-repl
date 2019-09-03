@@ -127,12 +127,17 @@ const tokenReplacements = [
         },
     },
     {
+        name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
         fn(str, matches) {
             console.log('PI', str, matches);
-            const mult = +matches[1];
-            return str.replace(/-?[\d|\.]*pi/, str => {
-                return (mult || 1) * PI;
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
+            return str.replace(matches[0], str => {
+                return (multiplier || 1) * PI;
             });
         },
     },
