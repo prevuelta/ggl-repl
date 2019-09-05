@@ -95,8 +95,9 @@ body {
     .thumbnail {
         width: $u2;
         height: $u2;
-        background: orange;
+        background: $cream;
         margin: 0 $hu 0 0;
+        object-fit: contain;
     }
 }
 

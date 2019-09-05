@@ -7,6 +7,6 @@ export default props => (
     <div className="statusbar">
         <span className="tag">{MODE_TAGS[props.mode]} mode</span>
         <Button onClick={props.save}>Save</Button>
-        <Notifications notifications={[]} />
+        <Notifications notifications={[props.message]} />
     </div>
 );

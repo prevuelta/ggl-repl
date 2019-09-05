@@ -20,6 +20,7 @@ const typeDefinitions = {
     S: 'scale',
     D: 'difference',
     U: 'union',
+    I: 'intersect',
 };
 
 const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
@@ -39,7 +40,10 @@ const commandRefs = {
         name: 'scale',
         argsRegEx: singleArgRegEx,
     },
-
+    I: {
+        name: 'intersect',
+        argsRegEx: multiArgRegEx,
+    },
     T: {
         name: 'translate',
         argsRegEx: pairArgRegEx,
@@ -117,9 +121,7 @@ const tokenReplacements = [
         fn(str, matches, { width, height }) {
             console.log('W|H', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             const replacement =
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
@@ -132,9 +134,7 @@ const tokenReplacements = [
         fn(str, matches) {
             console.log('PI', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;

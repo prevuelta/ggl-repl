@@ -4,7 +4,7 @@ export default props => {
     return (
         <ul className="notifications">
             {props.notifications.map(notification => {
-                return <p>{notification.message}</p>;
+                return <li>{notification}</li>;
             })}
         </ul>
     );

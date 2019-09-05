@@ -11,6 +11,8 @@ const { Fragment } = React;
 const defaultHeight = 50;
 const defaultWidth = 50;
 
+const AUTO_SAVE_TIMEOUT = 10000;
+
 class Workspace extends Component {
     constructor(props) {
         super(props);
@@ -19,6 +21,7 @@ class Workspace extends Component {
             lexed: null,
             runes: [],
             rune: null,
+            message: '',
         };
     }
 
@@ -33,8 +36,15 @@ class Workspace extends Component {
                 window.location.hash = runes[0].id;
             }
             this.setState({ runes });
+            this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
         });
     }
+
+    autosave = () => {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
+        this.setState({ message: `Autosaved at ${new Date()}` });
+    };
 
     getRunes = () => {
         return fetch('/runes')
@@ -98,14 +108,12 @@ class Workspace extends Component {
     };
 
     saveRune = () => {
-        console.log('Save rune');
         const { rune, source } = this.state;
 
         const payload = {
             ...rune,
             script: source,
         };
-        console.log('payload', payload);
 
         return fetch('/rune', {
             method: 'post',
@@ -120,15 +128,19 @@ class Workspace extends Component {
 
     newRune = () => {
         console.log('Creating rune...');
-        return fetch('/rune', {
-            method: 'put',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then(res => {
-            if (res.status === 200) {
-                this.getRunes();
-            }
+
+        this.saveRune().then(() => {
+            fetch('/rune', {
+                method: 'put',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(res => {
+                if (res.status === 200) {
+                    this.getRunes();
+                    this.setRune(this.state.runes[this.state.runes.length - 1]);
+                }
+            });
         });
     };
 
@@ -169,11 +181,16 @@ class Workspace extends Component {
             rune,
             width,
             height,
+            message,
         } = this.state;
 
         return (
             <div className="workspace">
-                <StatusBar mode={state.app.mode} save={this.saveRune} />
+                <StatusBar
+                    mode={state.app.mode}
+                    save={this.saveRune}
+                    message={message}
+                />
                 <Browser
                     runes={runes}
                     newRune={this.newRune}
