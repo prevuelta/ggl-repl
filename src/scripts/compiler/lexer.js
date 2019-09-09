@@ -79,9 +79,18 @@ const negative = str => str[0] === '-';
 
 const tokenReplacements = [
     {
+        name: 'Single axis',
+        regex: /^([x|y])(.+?)$/,
+        replace(str, matches) {
+            // const result
+            const isY = matches[1] === 'y';
+            return `${matches[2]}`;
+        },
+    },
+    {
         name: 'Silver Ratio',
         regex: /sr/,
-        fn(str, matches) {
+        replace(str, matches) {
             const result = str.replace(matches[0], Math.sqrt(2));
             return result;
         },
@@ -89,14 +98,14 @@ const tokenReplacements = [
     {
         name: 'Grid Units',
         regex: /(-?[\d|\.]*)u/,
-        fn(str, matches, { gridUnit }) {
+        replace(str, matches, { gridUnit }) {
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
     },
     {
         name: 'Center',
         regex: /^c([x|y])$/,
-        fn(str, matches, { width, height, gridUnit }) {
+        replace(str, matches, { width, height, gridUnit }) {
             return str.replace(
                 matches[0],
                 { x: width, y: height }[matches[1]] / 2
@@ -106,7 +115,7 @@ const tokenReplacements = [
     {
         name: 'Parts of PI',
         regex: /-?([h|q])pi/,
-        fn(str, matches) {
+        replace(str, matches) {
             const result = str.replace(
                 /.pi/,
                 { h: HALF_PI, q: QUARTER_PI }[matches[1]]
@@ -118,10 +127,12 @@ const tokenReplacements = [
     {
         name: 'Width & Height',
         regex: /(-?[\d|\.]*)([w|h])/,
-        fn(str, matches, { width, height }) {
+        replace(str, matches, { width, height }) {
             console.log('W|H', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             const replacement =
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
@@ -131,10 +142,12 @@ const tokenReplacements = [
     {
         name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
-        fn(str, matches) {
+        replace(str, matches) {
             console.log('PI', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
@@ -144,7 +157,7 @@ const tokenReplacements = [
     // Multiplication & division
     {
         regex: /^(.+?)([\*|\/|\-|\+])(.+?)$/,
-        fn(str, matches) {
+        replace(str, matches) {
             // const isMultiplication = str.includes('*');
             console.log('MULT/DIV', str, matches);
             return {
@@ -229,7 +242,7 @@ export default function(string) {
                             console.log('Arg Str', str);
                             return +tokenReplacements.reduce((a, b) => {
                                 return b.regex.test(a)
-                                    ? b.fn(a, b.regex.exec(a), {
+                                    ? b.replace(a, b.regex.exec(a), {
                                           ...gridContext,
                                       })
                                     : a;
