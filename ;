@@ -14,7 +14,7 @@ const typeDefinitions = {
     C: 'path',
     O: 'circle',
     G: 'grid',
-    F: 'flip',
+    F: 'fill',
     R: 'rotate',
     T: 'translate',
     S: 'scale',
@@ -26,7 +26,7 @@ const typeDefinitions = {
 const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
 const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
 const singleArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+)\s?$/g;
-const singleOrPairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s?[-|\d|\.|a-z|\*|\/]+)?\s?/g;
+const singleOrPairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s?[-|\d|\.|a-z|\*|\/]+?)\s?/g;
 
 const commandRefs = {
     G: {
@@ -36,10 +36,6 @@ const commandRefs = {
     R: {
         name: 'rotate',
         argsRegEx: multiArgRegEx,
-    },
-    F: {
-        name: 'flip',
-        argsRegEx: pairArgRegEx,
     },
     S: {
         name: 'scale',
@@ -82,19 +78,17 @@ const TWO_PI = PI * 2;
 
 const negative = str => str[0] === '-';
 
-const preSplitReplacements = [
+const tokenReplacements = [
     {
         name: 'Single axis',
         regex: /^([x|y])(.+?)$/,
         replace(str, matches) {
             const isY = matches[1] === 'y';
-            const result = `${isY ? '0 ' : ''}${matches[2]}${!isY ? ' 0' : ''}`;
+            const result = `${isY ? '0 ' : ''}${matches[2]}${!isY  ? ' 0' : ''}`;
+            console.log(result);
             return result;
         },
     },
-];
-
-const tokenReplacements = [
     {
         name: 'Silver Ratio',
         regex: /sr/,
@@ -200,12 +194,8 @@ export default function(string) {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
 
-            if (/^[\d]/.test(line)) {
+            if (/^\d/.test(line)) {
                 line = `P ${line}`;
-            }
-
-            if (/^[V|x|y]/.test(line)) {
-                line = `P 0 0,${line}`;
             }
 
             const typeRef = line.substr(0, 1);
@@ -242,33 +232,27 @@ export default function(string) {
                 console.log('Token args', tokenArgs);
 
                 tokenArgs = tokenArgs.map(arg => {
-                    console.log(arg);
-                    arg.trim();
-                    arg = preSplitReplacements.reduce((a, b) => {
-                        return b.regex.test(a)
-                            ? b.replace(a, b.regex.exec(a))
-                            : a;
-                    }, arg);
-                    console.log('ARG', arg);
-
-                    return arg.split(' ').map(str => {
-                        console.log(str);
-                        return +tokenReplacements.reduce((a, b) => {
-                            if (b.regex.test(a)) {
-                                const matches = b.regex.exec(a);
-                                const vars = { ...gridContext };
-                                console.log(
-                                    b.name,
-                                    b.regex.toString(),
-                                    matches,
-                                    b.replace(a, matches, vars)
-                                );
-                                return b.replace(a, matches, vars);
-                            } else {
-                                return a;
-                            }
-                        }, str);
-                    });
+                    return arg
+                        .trim()
+                        .split(' ')
+                        .map(str => {
+                            console.log('Arg Str', str);
+                            return +tokenReplacements.reduce((a, b) => {
+                                if (b.regex.test(a)) {
+                                    const matches = b.regex.exec(a);
+                                    const vars = { ...gridContext };
+                                    console.log(
+                                        b.name,
+                                        b.regex.toString(),
+                                        matches,
+                                        b.replace(a, matches, vars)
+                                    );
+                                    return b.replace(a, matches, vars);
+                                } else {
+                                    return a;
+                                }
+                            }, str);
+                        });
                 });
                 if (name === 'grid') {
                     if (!tokenArgs.length) return;

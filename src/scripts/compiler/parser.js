@@ -84,6 +84,16 @@ const elements = {
             </g>
         );
     },
+    flip: ({ token }, children = []) => props => {
+        console.log('Flip args', token.args);
+        const [x = 1, y = 1] = token.args;
+        return (
+            <g transform={`scale(${x}, ${y})`} transformOrigin="center">
+                {children.map(Child => <Child />)}
+            </g>
+        );
+    },
+
     rotate: ({ token }, children = []) => props => {
         const [angle, x = 0, y = 0] = token.args;
         return (
@@ -227,7 +237,6 @@ export default function(tokens, showGrids = true) {
         const elFn = elements[node.token.name];
         if (!elFn) return '';
         if (node.children) {
-            console.log('Show grids', showGrids);
             return elFn(opt, node.children.map(child => iterateNodes(child)));
         }
         return elFn(opt);
