@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import GridLayer from '../workspace/components/layers/grid';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
 import {
@@ -93,7 +94,6 @@ const elements = {
         );
     },
     flip: ({ token }, children = []) => props => {
-        console.log('Flip args', token.args);
         const [x = 1, y = 1] = token.args;
         return (
             <g transform={`scale(${x}, ${y})`} transform-origin="center">
@@ -157,13 +157,16 @@ const elements = {
                     }
                 }
                 string = `${command} ${i} ${j}`;
-                points.push({ ...currentLocation });
+                points.push({ x: currentLocation.x, y: currentLocation.y });
             } else if (name === 'arc') {
-                currentLocation.x = token.args[0];
-                currentLocation.y = token.args[1];
                 const arcData = tokenToSVGArc(token);
                 string = `${idx ? 'L' : 'M'} ${arcData.string}`;
-                points.push({ ...currentLocation }, arcData.start, arcData.end);
+                currentLocation = arcData.end;
+                points.push(
+                    { x: currentLocation.x, y: currentLocation.y },
+                    arcData.start,
+                    arcData.end
+                );
                 helpers.push(
                     <circle
                         cx={arcData.center.x}
