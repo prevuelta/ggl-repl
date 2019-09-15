@@ -85,10 +85,10 @@ const negative = str => str[0] === '-';
 const preSplitReplacements = [
     {
         name: 'Single axis',
-        regex: /^([x|y])(.+?)$/,
+        regex: /^(.+?)([x|y])$/,
         replace(str, matches) {
-            const isY = matches[1] === 'y';
-            const result = `${isY ? '0 ' : ''}${matches[2]}${!isY ? ' 0' : ''}`;
+            const isY = matches[2] === 'y';
+            const result = `${isY ? '0 ' : ''}${matches[1]}${!isY ? ' 0' : ''}`;
             return result;
         },
     },
