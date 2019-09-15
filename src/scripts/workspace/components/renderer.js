@@ -29,9 +29,10 @@ function Renderer(props) {
                     PathElements={props.elements.paths}
                     grids={props.elements.grids}
                 />
-                {mode !== modes.PREVIEW && (
+                {false && mode !== modes.PREVIEW && (
                     <OverlayLayer width={width} height={height} lexed={lexed} />
                 )}
+                <svg id="overlay" height={height} width={width}></svg>
             </div>
         </div>
     );

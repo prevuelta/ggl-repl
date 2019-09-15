@@ -74,7 +74,7 @@ const OverlayLayer = props => {
                     />
                 )}
                 {point.type === 'node' && (
-                    <Node key={i} location={point} color={point.color} />
+                    <Node key={i} x={point.x} y={point.y} color={point.color} />
                 )}
                 {point.type === 'cross' && (
                     <Cross location={point} color={point.color} size={10} />

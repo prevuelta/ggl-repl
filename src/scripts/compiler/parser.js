@@ -1,5 +1,7 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import GridLayer from '../workspace/components/layers/grid';
+import { Node, Cross } from '../workspace/components/overlayHelperShapes';
 import {
     HALF_PI,
     PI,
@@ -40,6 +42,7 @@ export function tokenToSVGArc(token, isFirst) {
         largeArcFlag,
         sweep,
     ] = token.args;
+
     return describeArc(
         { x: startX, y: startY },
         { x: centerX, y: centerY },
@@ -66,9 +69,13 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     const radius = getDistance(start, center);
     var end = polarToCartesian(center, radius, angle);
 
-    return `${start.x} ${
-        start.y
-    } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`;
+    return {
+        string: `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
+        end,
+        start,
+        radius,
+        center,
+    };
 }
 
 function createSVGElement(type, token, childTokens, children) {}
@@ -80,16 +87,19 @@ const elements = {
         const [x = 0, y = 0] = token.args;
         return (
             <g transform={`translate(${x} ${y})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
     flip: ({ token }, children = []) => props => {
-        console.log('Flip args', token.args);
         const [x = 1, y = 1] = token.args;
         return (
-            <g transform={`scale(${x}, ${y})`} transformOrigin="center">
-                {children.map(Child => <Child />)}
+            <g transform={`scale(${x}, ${y})`} transform-origin="center">
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -98,7 +108,9 @@ const elements = {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -106,7 +118,9 @@ const elements = {
         const [scale] = token.args;
         return (
             <g transform={`scale(${scale} ${scale})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -114,9 +128,11 @@ const elements = {
         const [x, y, r] = token.args;
         return <circle cx={x} cy={y} r={r} />;
     },
-    path: ({ tokens, token: path }, children = []) => {
+    path: ({ tokens, token: path, showHelpers }, children = []) => {
         const pathString = [];
         let currentLocation = { x: 0, y: 0 };
+        let helpers = [];
+        const points = [];
         (tokens || []).forEach((token, idx) => {
             const { name, args } = token;
             let string = '';
@@ -141,10 +157,31 @@ const elements = {
                     }
                 }
                 string = `${command} ${i} ${j}`;
+                points.push({ x: currentLocation.x, y: currentLocation.y });
             } else if (name === 'arc') {
-                currentLocation.x = token.args[0];
-                currentLocation.y = token.args[1];
-                string = `${idx ? 'L' : 'M'} ${tokenToSVGArc(token)}`;
+                const arcData = tokenToSVGArc(token);
+                string = `${idx ? 'L' : 'M'} ${arcData.string}`;
+                currentLocation = arcData.end;
+                points.push(
+                    { x: currentLocation.x, y: currentLocation.y },
+                    arcData.start,
+                    arcData.end
+                );
+                helpers.push(
+                    <circle
+                        cx={arcData.center.x}
+                        cy={arcData.center.y}
+                        r={arcData.radius}
+                        fill="none"
+                        stroke="red"
+                        opacity="0.5"
+                    />,
+                    <Cross
+                        x={arcData.center.x}
+                        y={arcData.center.y}
+                        size={10}
+                    />
+                );
             } else if (name === 'corner') {
                 // const nextToken = tokenGroup.tokens[idx + 1];
                 const center = { x: args[0], y: args[1] };
@@ -154,38 +191,51 @@ const elements = {
                 const newAngle = angle + initialAngle;
                 const newX = Math.cos(newAngle) * dist;
                 const newY = Math.sin(newAngle) * dist;
-
                 const end = addVector(center, { x: newX, y: newY });
                 string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
+                points.push(center, end);
             } else if (name === 'intersect') {
                 console.log('Intersect args', args);
             }
 
             pathString.push(string);
         });
+        helpers = [
+            ...points.map(({ x, y }) => <Node x={x} y={y} color="red" />),
+            ...helpers,
+        ];
         return props => (
             <Fragment>
                 <path d={pathString.join(' ') + ' Z'} fillRule="evenodd" />
-                {children.map((Child, i) => <Child key={i} />)}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+                {showHelpers && helpers}
             </Fragment>
         );
     },
-    grid: ({ token, showGrids }, children = []) => props => {
+    grid: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
-                {showGrids && <Grid args={token.args} />}
-                {children.map((Child, i) => <Child key={i} />)}
+                {showHelpers && <Grid args={token.args} />}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
             </Fragment>
         );
     },
     root: (_, children = []) => props => {
         return (
-            <Fragment>{children.map((Child, i) => <Child key={i} />)}</Fragment>
+            <Fragment>
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
         );
     },
 };
 
-export default function(tokens, showGrids = true) {
+export default function(tokens, showHelpers = true) {
     let state = Store.getState();
     let parseTree = { children: [], token: { name: 'root' } };
     let node = parseTree;
@@ -223,14 +273,16 @@ export default function(tokens, showGrids = true) {
     const output = { grids: [], paths: null };
 
     function iterateNodes(node) {
-        const opt = { ...node, showGrids };
+        const opt = { ...node, showHelpers };
         if (node.token.name === 'grid_DISABLE') {
             // output.grids.push(elements['grid'](node));
             return props => (
                 <Fragment>
                     {(node.children || [])
                         .map(child => iterateNodes(child))
-                        .map(El => <El />)}
+                        .map(El => (
+                            <El />
+                        ))}
                 </Fragment>
             );
         }
