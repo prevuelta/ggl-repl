@@ -32,7 +32,11 @@ function Grid(props) {
     );
 }
 
-export function tokenToSVGArc(token, isFirst) {
+function CircleGrid(props) {
+    return <p>CIRCLE GRID</p>;
+}
+
+export function tokenToArc(token, isFirst) {
     const [
         startX,
         startY,
@@ -50,6 +54,12 @@ export function tokenToSVGArc(token, isFirst) {
         largeArcFlag,
         sweep
     );
+}
+
+export function tokenToVArc(start, center, token) {
+    const [_, __, angle, largeArcFlag, sweep] = token.args;
+
+    return describeArc(start, center, angle, largeArcFlag, sweep);
 }
 
 function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
@@ -159,7 +169,35 @@ const elements = {
                 string = `${command} ${i} ${j}`;
                 points.push({ x: currentLocation.x, y: currentLocation.y });
             } else if (name === 'arc') {
-                const arcData = tokenToSVGArc(token);
+                const arcData = tokenToArc(token);
+                string = `${idx ? 'L' : 'M'} ${arcData.string}`;
+                currentLocation = arcData.end;
+                points.push(
+                    { x: currentLocation.x, y: currentLocation.y },
+                    arcData.start,
+                    arcData.end
+                );
+                helpers.push(
+                    <circle
+                        cx={arcData.center.x}
+                        cy={arcData.center.y}
+                        r={arcData.radius}
+                        fill="none"
+                        stroke="red"
+                        opacity="0.5"
+                    />,
+                    <Cross
+                        x={arcData.center.x}
+                        y={arcData.center.y}
+                        size={10}
+                    />
+                );
+            } else if (name === 'varc') {
+                const center = {
+                    x: currentLocation.x + token.args[0],
+                    y: currentLocation.y + token.args[1],
+                };
+                const arcData = tokenToVArc(currentLocation, center, token);
                 string = `${idx ? 'L' : 'M'} ${arcData.string}`;
                 currentLocation = arcData.end;
                 points.push(
@@ -218,6 +256,16 @@ const elements = {
         return (
             <Fragment>
                 {showHelpers && <Grid args={token.args} />}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
+        );
+    },
+    circlegrid: ({ token, showHelpers }, children = []) => props => {
+        return (
+            <Fragment>
+                {showHelpers && <CircleGrid args={token.args} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -301,7 +349,7 @@ export default function(tokens, showHelpers = true) {
 }
 
 function isDrawCommand(name) {
-    return ['vector', 'point', 'arc'].includes(name);
+    return ['vector', 'point', 'arc', 'varc'].includes(name);
 }
 function isPointOrVector(name) {
     return ['vector', 'point'].includes(name);

@@ -8,12 +8,13 @@ const clamp = function(val, min, max) {
 };
 
 const typeDefinitions = {
-    V: 'path',
     P: 'path',
+    v: 'path',
     A: 'path',
+    a: 'path',
     C: 'path',
-    O: 'circle',
     G: 'grid',
+    g: 'circlegrid',
     F: 'flip',
     R: 'rotate',
     T: 'translate',
@@ -32,6 +33,10 @@ const commandRefs = {
     G: {
         name: 'grid',
         argsRegEx: /\s?(\d+\s\d+\s[\d|u|\.|w|h]+\s\d+)/,
+    },
+    g: {
+        name: 'circlegrid',
+        argsRegEx: multiArgRegEx,
     },
     R: {
         name: 'rotate',
@@ -57,7 +62,7 @@ const commandRefs = {
         name: 'point',
         argsRegEx: singleOrPairArgRegEx,
     },
-    V: {
+    v: {
         name: 'vector',
         argsRegEx: singleOrPairArgRegEx,
     },
@@ -71,6 +76,10 @@ const commandRefs = {
     },
     A: {
         name: 'arc',
+        argsRegEx: multiArgRegEx,
+    },
+    a: {
+        name: 'varc',
         argsRegEx: multiArgRegEx,
     },
 };
@@ -136,7 +145,9 @@ const tokenReplacements = [
         regex: /(-?[\d|\.]*)([w|h])/,
         replace(str, matches, { width, height }) {
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             const replacement =
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
@@ -149,7 +160,9 @@ const tokenReplacements = [
         replace(str, matches) {
             console.log('PI', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-' ? -1 : matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
                 : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
@@ -204,7 +217,7 @@ export default function(string) {
                 line = `P ${line}`;
             }
 
-            if (/^[V|x|y]/.test(line)) {
+            if (/^[v]/.test(line)) {
                 line = `P 0 0,${line}`;
             }
 
@@ -214,7 +227,7 @@ export default function(string) {
 
             const type = typeDefinitions[typeRef];
 
-            if (/[A|P|\+|L]/.test(typeRef)) {
+            if (/[AaPvL]/.test(typeRef)) {
                 tokens.push({
                     name: 'path',
                     depth,
@@ -222,7 +235,7 @@ export default function(string) {
             }
 
             const commands = line.split(
-                new RegExp(`[ |^]?(?=[${Object.keys(commandRefs).join('|')}])`)
+                new RegExp(`^|[, ](?=[${Object.keys(commandRefs).join('')}])`)
             );
 
             commands.forEach(command => {
@@ -270,6 +283,18 @@ export default function(string) {
                         }, str);
                     });
                 });
+                if (name === 'circlegrid') {
+                    if (!tokenArgs.length) return;
+                    const [radius, xUnits, yUnits] = tokenArgs[0];
+                    gridContext = {
+                        // width: xUnits * gridUnit,
+                        // height: yUnits * gridUnit,
+                        radius,
+                        xUnits,
+                        yUnits,
+                        gridUnit,
+                    };
+                }
                 if (name === 'grid') {
                     if (!tokenArgs.length) return;
                     const [xUnits, yUnits, gridUnit] = tokenArgs[0];

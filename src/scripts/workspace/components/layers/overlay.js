@@ -15,7 +15,7 @@ const OverlayLayer = props => {
             point.x = currentValue[0];
             point.y = currentValue[1];
             point.type = 'node';
-        } else if (token.name === 'vector') {
+        } else if (token.name === 'vpoint') {
             currentValue = currentValue.map((v, i) => v + token.args[i]);
             point.x = currentValue[0];
             point.y = currentValue[1];

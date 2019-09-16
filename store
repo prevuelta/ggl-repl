@@ -1,6 +1,0 @@
-G12 12 30 2
-  T0 1u
-    A2u 3u 5u 3u hpi 1,A7u 0 7u 3u hpi 1-
-    V0 1u,-1u 1u,1u 1u,A10u 7u 7u 7u hpi 1,A5u 10u 5u 7u hpi 1-
-    A4u 7u 5u 7u -hpi,V2u 0,A7u 8u 7u 7u -pi,V-1u 0,0 -2u-
-    A7u 4u 7u 3u pi,A 5u 2u 5u 3u -hpi

@@ -59,9 +59,7 @@ body {
 }
 
 .source-inspector {
-    // width: 40%;
     left: $browser-width;
-    // background: red;
 
     textarea {
         outline: none;
@@ -70,7 +68,6 @@ body {
         background: $cream-dark;
         font-size: 1.2em;
         color: $cream;
-        // padding: 10px;
     }
 }
 
@@ -84,13 +81,11 @@ body {
     position: fixed;
     top: $statusbar-height;
     left: 0;
-    // top: $;
     bottom: 0;
-    // right: 0;
-    // height: $browser-height;
     min-height: 100%;
     width: $browser-width;
     background: $dark;
+    overflow-y: scroll;
 
     .thumbnail {
         width: $u2;
@@ -101,16 +96,7 @@ body {
     }
 }
 
-.browser ul {
-    // display: flex;
-    // align-items: center;
-    // padding: $hu;
-}
-
 .browser ul li {
-    // width: $u2;
-    // height: $u2;
-    // @extend .tag;
     margin: 0 $u 0 0;
     cursor: pointer;
     display: flex;

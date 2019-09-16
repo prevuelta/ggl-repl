@@ -29,16 +29,16 @@ function Renderer(props) {
                     PathElements={props.elements.paths}
                     grids={props.elements.grids}
                 />
-                {false && mode !== modes.PREVIEW && (
-                    <OverlayLayer width={width} height={height} lexed={lexed} />
-                )}
-                <svg id="overlay" height={height} width={width}></svg>
             </div>
         </div>
     );
 }
 
 export default Renderer;
+// {false && mode !== modes.PREVIEW && (
+//     <OverlayLayer width={width} height={height} lexed={lexed} />
+// )}
+// csvg id="overlay" height={height} width={width}></svg>
 // <GridLayer
 //     width={width}
 //     height={height}
