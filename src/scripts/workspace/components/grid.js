@@ -1,8 +1,7 @@
 import React from 'react';
-import { Line, Vline, Hline } from '../../components';
-import { Group } from '../../components';
-import { COLORS, POINT_TYPES } from '../../../util/constants';
-import WorkspaceUtil from '../../workspaceUtil';
+import { Line, Vline, Hline, Group } from '../components';
+import { COLORS } from '../../util/constants';
+import WorkspaceUtil from '../workspaceUtil';
 
 export function GridLines(props) {
     const { gridUnit, xUnits, yUnits, height, width, divisions } = props;
@@ -68,7 +67,7 @@ export function GridLines(props) {
     return <Group>{lines}</Group>;
 }
 
-export default function GridLayer(props) {
+export default function Grid(props) {
     const { height, width } = props;
     return (
         <svg className="background-svg" height={height} width={width}>

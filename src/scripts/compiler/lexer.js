@@ -91,7 +91,28 @@ const TWO_PI = PI * 2;
 
 const negative = str => str[0] === '-';
 
-const preSplitReplacements = [
+const pairArgReplacements = [
+    {
+        name: 'Circle unit',
+        regex: /^(.+?)r(.+?)s$/,
+        replace(str, matches, gridContext) {
+            const { radius, rings, segments, offset } = gridContext;
+            console.log('Circle grid matches', matches, gridContext);
+
+            const r = +matches[1];
+            const s = +matches[2];
+            const sInterval = TWO_PI / segments;
+            const rInterval = radius / rings;
+            const theta = sInterval * s + offset;
+            const newRadius = rInterval * r;
+            console.log('Angle', theta, newRadius, rInterval, r, s, sInterval);
+            const x = Math.cos(theta) * newRadius + radius;
+            const y = Math.sin(theta) * newRadius + radius;
+            const newStr = `${x.toFixed(4)} ${y.toFixed(4)}`;
+            console.log('NEW STR', newStr);
+            return newStr;
+        },
+    },
     {
         name: 'Single axis',
         regex: /^(.+?)([x|y])$/,
@@ -103,7 +124,7 @@ const preSplitReplacements = [
     },
 ];
 
-const tokenReplacements = [
+const singleArgReplacements = [
     {
         name: 'Silver Ratio',
         regex: /sr/,
@@ -169,22 +190,16 @@ const tokenReplacements = [
             });
         },
     },
-    // Multiplication & division
     {
+        name: 'Multiplication & division',
         regex: /^(.+?)([\*|\/|\-|\+])(.+?)$/,
         replace(str, matches) {
-            // const isMultiplication = str.includes('*');
             return {
                 '*': (a, b) => a * b,
                 '+': (a, b) => a + b,
                 '-': (a, b) => a - b,
                 '/': (a, b) => a / b,
             }[matches[2]](+matches[1], +matches[3]);
-            // if (isMultiplication) {
-            //     return +matches[1] * +matches[3];
-            // } else {
-            //     return +matches[1] / +matches[3];
-            // }
         },
     },
 ];
@@ -252,30 +267,20 @@ export default function(string) {
                     .map(match => match[1])
                     .filter(match => match !== undefined);
 
-                console.log('Token args', tokenArgs);
+                const vars = { ...gridContext };
 
-                tokenArgs = tokenArgs.map(arg => {
-                    arg.trim();
-                    arg = preSplitReplacements.reduce((a, b) => {
+                tokenArgs = tokenArgs.map(argStr => {
+                    console.log('ARG', argStr);
+                    argStr.trim();
+                    argStr = pairArgReplacements.reduce((a, b) => {
                         return b.regex.test(a)
-                            ? b.replace(a, b.regex.exec(a))
+                            ? b.replace(a, b.regex.exec(a), vars)
                             : a;
-                    }, arg);
-                    arg = arg
-                        .split(',')
-                        .map(argPair => {
-                            // return b.regex.test(a)
-                            //     ? b.replace(a, b.regex.exec(a))
-                            //     : a;
-                            return argPair;
-                        })
-                        .join(',');
-                    return arg.split(' ').map(str => {
-                        console.log(str);
-                        return +tokenReplacements.reduce((a, b) => {
+                    }, argStr);
+                    return argStr.split(' ').map(str => {
+                        return +singleArgReplacements.reduce((a, b) => {
                             if (b.regex.test(a)) {
                                 const matches = b.regex.exec(a);
-                                const vars = { ...gridContext };
                                 console.log(
                                     b.name,
                                     b.regex.toString(),

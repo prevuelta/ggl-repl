@@ -66,11 +66,19 @@ class Workspace extends Component {
             // Create render tree
             console.log('PARSED', parsed);
             const { width, height } = lexed
-                .filter(t => t.name === 'grid')
+                .filter(t => t.name.includes('grid'))
                 .reduce(
                     (a, b) => {
-                        a.width = Math.max(b.args[0] * b.args[2], a.width);
-                        a.height = Math.max(b.args[1] * b.args[2], a.height);
+                        if (b.name === 'circlegrid') {
+                            a.width = Math.max(b.args[0] * 2, a.width);
+                            a.height = Math.max(b.args[0] * 2, a.height);
+                        } else {
+                            a.width = Math.max(b.args[0] * b.args[2], a.width);
+                            a.height = Math.max(
+                                b.args[1] * b.args[2],
+                                a.height
+                            );
+                        }
                         return a;
                     },
                     { width: defaultWidth, height: defaultHeight }

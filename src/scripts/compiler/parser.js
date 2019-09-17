@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import GridLayer from '../workspace/components/layers/grid';
+import { Grid, CircleGrid } from '../workspace/components';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
 import {
     HALF_PI,
@@ -16,12 +16,12 @@ import { Store } from '../data';
 
 const { Fragment } = React;
 
-function Grid(props) {
+function GridContainer(props) {
     const [xUnits, yUnits, gridUnit, divisions] = props.args;
     const width = xUnits * gridUnit;
     const height = yUnits * gridUnit;
     return (
-        <GridLayer
+        <Grid
             width={width}
             height={height}
             gridUnit={gridUnit}
@@ -30,10 +30,6 @@ function Grid(props) {
             divisions={divisions}
         />
     );
-}
-
-function CircleGrid(props) {
-    return <p>CIRCLE GRID</p>;
 }
 
 export function tokenToArc(token, isFirst) {
@@ -255,7 +251,7 @@ const elements = {
     grid: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
-                {showHelpers && <Grid args={token.args} />}
+                {showHelpers && <GridContainer args={token.args} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -263,9 +259,20 @@ const elements = {
         );
     },
     circlegrid: ({ token, showHelpers }, children = []) => props => {
+        const [radius, rings, segments, offset = 0] = token.args;
+        const width = radius * 2;
+        const height = radius * 2;
         return (
             <Fragment>
-                {showHelpers && <CircleGrid args={token.args} />}
+                {showHelpers && (
+                    <CircleGrid
+                        width={width}
+                        height={height}
+                        radius={radius}
+                        segments={segments}
+                        rings={rings}
+                    />
+                )}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
