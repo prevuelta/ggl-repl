@@ -114,7 +114,7 @@ const tokenReplacements = [
     },
     {
         name: 'Grid Units',
-        regex: /(-?[\d|\.]*)u/,
+        regex: /(-?[\d\.]*)u/,
         replace(str, matches, { gridUnit }) {
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
@@ -255,15 +255,21 @@ export default function(string) {
                 console.log('Token args', tokenArgs);
 
                 tokenArgs = tokenArgs.map(arg => {
-                    console.log(arg);
                     arg.trim();
                     arg = preSplitReplacements.reduce((a, b) => {
                         return b.regex.test(a)
                             ? b.replace(a, b.regex.exec(a))
                             : a;
                     }, arg);
-                    console.log('ARG', arg);
-
+                    arg = arg
+                        .split(',')
+                        .map(argPair => {
+                            // return b.regex.test(a)
+                            //     ? b.replace(a, b.regex.exec(a))
+                            //     : a;
+                            return argPair;
+                        })
+                        .join(',');
                     return arg.split(' ').map(str => {
                         console.log(str);
                         return +tokenReplacements.reduce((a, b) => {
@@ -285,25 +291,36 @@ export default function(string) {
                 });
                 if (name === 'circlegrid') {
                     if (!tokenArgs.length) return;
-                    const [radius, xUnits, yUnits] = tokenArgs[0];
+
+                    const [radius, segments, rings, offset = 0] = tokenArgs[0];
+
                     gridContext = {
-                        // width: xUnits * gridUnit,
-                        // height: yUnits * gridUnit,
+                        width: radius * 2,
+                        height: radius * 2,
                         radius,
-                        xUnits,
-                        yUnits,
-                        gridUnit,
+                        segments,
+                        rings,
+                        offset,
                     };
                 }
                 if (name === 'grid') {
                     if (!tokenArgs.length) return;
-                    const [xUnits, yUnits, gridUnit] = tokenArgs[0];
+                    const [
+                        xUnits,
+                        yUnits,
+                        gridUnit,
+                        offsetX = 0,
+                        offsetY = 0,
+                    ] = tokenArgs[0];
+
                     gridContext = {
                         width: xUnits * gridUnit,
                         height: yUnits * gridUnit,
                         xUnits,
                         yUnits,
                         gridUnit,
+                        offsetX,
+                        offsetY,
                     };
                 }
                 tokens = [
