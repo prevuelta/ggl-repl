@@ -147,7 +147,7 @@ const singleArgReplacements = [
     },
     {
         name: 'Grid Units',
-        regex: /(-?[\d\.]*)u/,
+        regex: /(-?[\d|\.]*)u/,
         replace(str, matches, { gridUnit }) {
             return str.replace(matches[0], +matches[1] * gridUnit);
         },
@@ -178,9 +178,7 @@ const singleArgReplacements = [
         regex: /(-?[\d|\.]*)([w|h])/,
         replace(str, matches, { width, height }) {
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             const replacement =
                 clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
@@ -193,9 +191,7 @@ const singleArgReplacements = [
         replace(str, matches) {
             console.log('PI', str, matches);
             const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
+                ? matches[1] === '-' ? -1 : matches[1]
                 : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;

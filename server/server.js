@@ -100,11 +100,14 @@ app
         rune.thumb = thumbFileName;
 
         fs.writeFile(filePath, JSON.stringify(rune), err => {
+            if (err) {
+                console.log(err);
+                res.sendStatus(500);
+            }
             saveThumbnail(rune.svg, thumbPath, err2 => {
-                console.log(err2);
-                if (err) {
-                    console.log(err);
-                    res.statusStatus(500);
+                if (err2) {
+                    console.log(err2);
+                    res.sendStatus(500);
                 }
                 res.sendStatus(200);
             });
