@@ -102,10 +102,22 @@ const pairArgReplacements = [
             const r = +matches[1];
             const s = +matches[2];
             const sInterval = TWO_PI / segments;
+            console.log(radius, rings);
             const rInterval = radius / rings;
             const theta = sInterval * s + offset;
             const newRadius = rInterval * r;
-            console.log('Angle', theta, newRadius, rInterval, r, s, sInterval);
+            console.log(
+                'Radius',
+                radius,
+                'New Radius',
+                newRadius,
+                'Theta',
+                theta,
+                rInterval,
+                r,
+                s,
+                sInterval
+            );
             const x = Math.cos(theta) * newRadius + radius;
             const y = Math.sin(theta) * newRadius + radius;
             const newStr = `${x.toFixed(4)} ${y.toFixed(4)}`;
@@ -297,7 +309,7 @@ export default function(string) {
                 if (name === 'circlegrid') {
                     if (!tokenArgs.length) return;
 
-                    const [radius, segments, rings, offset = 0] = tokenArgs[0];
+                    const [radius, rings, segments, offset = 0] = tokenArgs[0];
 
                     gridContext = {
                         width: radius * 2,
