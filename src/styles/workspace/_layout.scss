@@ -82,10 +82,10 @@ body {
     top: $statusbar-height;
     left: 0;
     bottom: 0;
-    min-height: 100%;
     width: $browser-width;
     background: $dark;
     overflow-y: scroll;
+    border-bottom: 2px solid red;
 
     .thumbnail {
         width: $u2;
@@ -96,12 +96,16 @@ body {
     }
 }
 
+.browser ul {
+    display: block;
+}
+
 .browser ul li {
     margin: 0 $u 0 0;
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 2px;
+    padding: 2px $hu;
     background: $sky-dark;
     color: $sky;
 
@@ -120,6 +124,11 @@ body {
         .button svg {
             fill: $rust;
         }
+    }
+
+    &.add-rune {
+        width: 100%;
+        padding: $u 0;
     }
 
     svg {

@@ -6,6 +6,9 @@ export default props => {
     return (
         <div className="browser">
             <ul>
+                <li className="add-rune" onClick={props.newRune}>
+                    Add Rune +
+                </li>
                 {props.runes.map(r => (
                     <li
                         key={r.id}
@@ -23,7 +26,6 @@ export default props => {
                         </Button>
                     </li>
                 ))}
-                <li onClick={props.newRune}>+</li>
             </ul>
         </div>
     );

@@ -249,12 +249,32 @@ export default function(string) {
             if (!typeRef) return;
 
             const type = typeDefinitions[typeRef];
+            const idMatches = /=(.+?)[ ,]/.exec(line);
+
+            let id;
+            if (idMatches) {
+                id = idMatches[1];
+                line = line.replace(idMatches[0], '');
+            }
 
             if (/[AaPvL]/.test(typeRef)) {
                 tokens.push({
                     name: 'path',
                     depth,
+                    id,
                 });
+            }
+
+            const refRegEx = /^#(.+?)\s?$/;
+
+            if (refRegEx.test(line)) {
+                const matches = refRegEx.exec(line);
+                tokens.push({
+                    name: '$ref',
+                    depth,
+                    id: matches[1],
+                });
+                return;
             }
 
             const commands = line.split(

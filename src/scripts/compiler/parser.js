@@ -76,7 +76,9 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     var end = polarToCartesian(center, radius, angle);
 
     return {
-        string: `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
+        string: `${start.x} ${
+            start.y
+        } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
         end,
         start,
         radius,
@@ -93,9 +95,7 @@ const elements = {
         const [x = 0, y = 0] = token.args;
         return (
             <g transform={`translate(${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -103,20 +103,18 @@ const elements = {
         const [x = 1, y = 1] = token.args;
         return (
             <g transform={`scale(${x}, ${y})`} transform-origin="center">
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
-
+    $ref: ({ token }) => props => {
+        return <use href={`#${token.id}`} x="0" y="0" />;
+    },
     rotate: ({ token }, children = []) => props => {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -124,9 +122,7 @@ const elements = {
         const [scale] = token.args;
         return (
             <g transform={`scale(${scale} ${scale})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {children.map(Child => <Child />)}
             </g>
         );
     },
@@ -240,10 +236,12 @@ const elements = {
         ];
         return props => (
             <Fragment>
-                <path d={pathString.join(' ') + ' Z'} fillRule="evenodd" />
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
+                <path
+                    id={path.id}
+                    d={pathString.join(' ') + ' Z'}
+                    fillRule="evenodd"
+                />
+                {children.map((Child, i) => <Child key={i} />)}
                 {showHelpers && helpers}
             </Fragment>
         );
@@ -252,9 +250,7 @@ const elements = {
         return (
             <Fragment>
                 {showHelpers && <GridContainer args={token.args} />}
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
+                {children.map((Child, i) => <Child key={i} />)}
             </Fragment>
         );
     },
@@ -273,24 +269,19 @@ const elements = {
                         rings={rings}
                     />
                 )}
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
+                {children.map((Child, i) => <Child key={i} />)}
             </Fragment>
         );
     },
     root: (_, children = []) => props => {
         return (
-            <Fragment>
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
-            </Fragment>
+            <Fragment>{children.map((Child, i) => <Child key={i} />)}</Fragment>
         );
     },
 };
 
 export default function(tokens, showHelpers = true) {
+    let $refs = {};
     let state = Store.getState();
     let parseTree = { children: [], token: { name: 'root' } };
     let node = parseTree;
@@ -306,7 +297,6 @@ export default function(tokens, showHelpers = true) {
             (node.token.name === 'path' && token.name === 'path') ||
             !isDrawCommand(token.name)
         ) {
-            console.log(node.token, currentDepth);
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
                 node = node.parent;
@@ -318,6 +308,9 @@ export default function(tokens, showHelpers = true) {
         } else {
             if (node.token.name === 'path') {
                 node.tokens = [...(node.tokens || []), token];
+                if (node.token.id) {
+                    $refs[node.token.id] = node;
+                }
             } else {
                 node.children = [...(node.children || []), { token }];
             }
@@ -329,20 +322,8 @@ export default function(tokens, showHelpers = true) {
 
     function iterateNodes(node) {
         const opt = { ...node, showHelpers };
-        if (node.token.name === 'grid_DISABLE') {
-            // output.grids.push(elements['grid'](node));
-            return props => (
-                <Fragment>
-                    {(node.children || [])
-                        .map(child => iterateNodes(child))
-                        .map(El => (
-                            <El />
-                        ))}
-                </Fragment>
-            );
-        }
         const elFn = elements[node.token.name];
-        if (!elFn) return '';
+        if (!elFn) return props => null;
         if (node.children) {
             return elFn(opt, node.children.map(child => iterateNodes(child)));
         }
