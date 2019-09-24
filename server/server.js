@@ -34,14 +34,12 @@ app.use(function(req, res, next) {
 app
     .route('/rune/:id?')
     .get((req, res) => {
-        console.log(req.params.id);
         const { id } = req.params;
         // if (fs.
         // if (fs.existsSync(thumbPath)) {
         if (id) {
             const filePath = path.join(storage, `${id}.json`);
             if (fs.existsSync(filePath)) {
-                console.log(filePath);
                 if (req.query.svg) {
                     const rune = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
                     res.send(rune.svg);
@@ -57,7 +55,6 @@ app
     })
     .post((req, res) => {
         const rune = req.body;
-        console.log(rune);
 
         const now = new Date().toJSON();
         rune.modified = now;
