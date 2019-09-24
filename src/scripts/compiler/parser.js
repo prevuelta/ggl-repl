@@ -76,9 +76,7 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     var end = polarToCartesian(center, radius, angle);
 
     return {
-        string: `${start.x} ${
-            start.y
-        } A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
+        string: `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
         end,
         start,
         radius,
@@ -95,7 +93,9 @@ const elements = {
         const [x = 0, y = 0] = token.args;
         return (
             <g transform={`translate(${x} ${y})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -103,7 +103,9 @@ const elements = {
         const [x = 1, y = 1] = token.args;
         return (
             <g transform={`scale(${x}, ${y})`} transform-origin="center">
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -114,7 +116,9 @@ const elements = {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -122,7 +126,9 @@ const elements = {
         const [scale] = token.args;
         return (
             <g transform={`scale(${scale} ${scale})`}>
-                {children.map(Child => <Child />)}
+                {children.map(Child => (
+                    <Child />
+                ))}
             </g>
         );
     },
@@ -241,7 +247,9 @@ const elements = {
                     d={pathString.join(' ') + ' Z'}
                     fillRule="evenodd"
                 />
-                {children.map((Child, i) => <Child key={i} />)}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
                 {showHelpers && helpers}
             </Fragment>
         );
@@ -250,7 +258,9 @@ const elements = {
         return (
             <Fragment>
                 {showHelpers && <GridContainer args={token.args} />}
-                {children.map((Child, i) => <Child key={i} />)}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
             </Fragment>
         );
     },
@@ -269,13 +279,19 @@ const elements = {
                         rings={rings}
                     />
                 )}
-                {children.map((Child, i) => <Child key={i} />)}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
             </Fragment>
         );
     },
     root: (_, children = []) => props => {
         return (
-            <Fragment>{children.map((Child, i) => <Child key={i} />)}</Fragment>
+            <Fragment>
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
         );
     },
 };
