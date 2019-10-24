@@ -74,25 +74,14 @@ class Workspace extends Component {
                             a.height = Math.max(b.args[0] * 2, a.height);
                         } else {
                             a.width = Math.max(b.args[0] * b.args[2], a.width);
-                            a.height = Math.max(
-                                b.args[1] * b.args[2],
-                                a.height
-                            );
+                            a.height = Math.max(b.args[1] * b.args[2], a.height);
                         }
                         return a;
                     },
                     { width: defaultWidth, height: defaultHeight }
                 );
 
-            const svgString = renderToStaticMarkup(
-                <RenderLayer
-                    width={width}
-                    height={height}
-                    stroke={'none'}
-                    fill={'black'}
-                    PathElements={parse(lexed, false).paths}
-                />
-            );
+            const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} stroke={'none'} fill={'black'} PathElements={parse(lexed, false).paths} />);
             rune.svg = svgString;
 
             this.setState({
@@ -145,8 +134,9 @@ class Workspace extends Component {
                 },
             }).then(res => {
                 if (res.status === 200) {
-                    this.getRunes();
-                    this.setRune(this.state.runes[this.state.runes.length - 1]);
+                    this.getRunes().then(() => {
+                        this.setRune(this.state.runes[0]);
+                    });
                 }
             });
         });
@@ -181,47 +171,17 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const {
-            parsed,
-            lexed,
-            source,
-            runes,
-            rune,
-            width,
-            height,
-            message,
-        } = this.state;
+        const { parsed, lexed, source, runes, rune, width, height, message } = this.state;
 
         return (
             <div className="workspace">
-                <StatusBar
-                    mode={state.app.mode}
-                    save={this.saveRune}
-                    message={message}
-                />
-                <Browser
-                    runes={runes}
-                    newRune={this.newRune}
-                    deleteRune={this.deleteRune}
-                    active={rune && rune.id}
-                />
-                <Source
-                    value={source}
-                    parseInput={this.parseInput}
-                    setExample={this.setExample}
-                    handleCursorChange={this.cursorChange}
-                />
+                <StatusBar mode={state.app.mode} save={this.saveRune} message={message} />
+                <Browser runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
+                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
                     <Fragment>
                         <Preview rendered={rune.svg} />
-                        <Renderer
-                            mode={state.app.mode}
-                            width={width}
-                            height={height}
-                            rune={rune}
-                            elements={parsed}
-                            lexed={lexed}
-                        />
+                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
                     </Fragment>
                 )}
             </div>
