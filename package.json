@@ -7,7 +7,7 @@
         "flow": "flow",
         "start": "run-s  build run:client",
         "run:server": "nodemon -r esm ./server/server.js -i stored -i tmp --watch ./dist",
-        "run:client": "browser-sync start --proxy 'http://localhost:7300' --watch './dist' --port  7200",
+        "run:client": "browser-sync start --proxy 'http://localhost:7300' --watch ./dist --port 7200",
         "prewatch": "npm run build:css; npm run copy-statics;",
         "watch": "run-p copy-statics watch:js watch:css build:html run:server run:client",
         "watch:js": "webpack --watch",
