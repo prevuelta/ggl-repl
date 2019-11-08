@@ -20,10 +20,7 @@ app.use(express.json());
 
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', 'http://localhost:5100'); // update to match the domain you will make the request from
-    res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
-    );
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
 
@@ -31,8 +28,7 @@ app.use(function(req, res, next) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
-app
-    .route('/rune/:id?')
+app.route('/rune/:id?')
     .get((req, res) => {
         const { id } = req.params;
         // if (fs.
@@ -136,6 +132,7 @@ app.get('/preview', (req, res) => {
     exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
         if (err) {
             res.sendStatus(500);
+            return;
         }
         res.sendFile(path.resolve(output));
     });

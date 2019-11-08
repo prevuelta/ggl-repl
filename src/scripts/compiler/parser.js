@@ -2,16 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, CircleGrid } from '../workspace/components';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
-import {
-    HALF_PI,
-    PI,
-    TWO_PI,
-    addVector,
-    getAngle,
-    getDistance,
-    polarToCartesian,
-    radToDeg,
-} from '../util/trig';
+import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg } from '../util/trig';
 import { Store } from '../data';
 
 const { Fragment } = React;
@@ -20,36 +11,13 @@ function GridContainer(props) {
     const [xUnits, yUnits, gridUnit, divisions] = props.args;
     const width = xUnits * gridUnit;
     const height = yUnits * gridUnit;
-    return (
-        <Grid
-            width={width}
-            height={height}
-            gridUnit={gridUnit}
-            xUnits={xUnits}
-            yUnits={yUnits}
-            divisions={divisions}
-        />
-    );
+    return <Grid width={width} height={height} gridUnit={gridUnit} xUnits={xUnits} yUnits={yUnits} divisions={divisions} />;
 }
 
 export function tokenToArc(token, isFirst) {
-    const [
-        startX,
-        startY,
-        centerX,
-        centerY,
-        angle,
-        largeArcFlag,
-        sweep,
-    ] = token.args;
+    const [startX, startY, centerX, centerY, angle, largeArcFlag, sweep] = token.args;
 
-    return describeArc(
-        { x: startX, y: startY },
-        { x: centerX, y: centerY },
-        angle,
-        largeArcFlag,
-        sweep
-    );
+    return describeArc({ x: startX, y: startY }, { x: centerX, y: centerY }, angle, largeArcFlag, sweep);
 }
 
 export function tokenToVArc(start, center, token) {
@@ -99,7 +67,7 @@ const elements = {
             </g>
         );
     },
-    flip: ({ token }, children = []) => props => {
+    reflect: ({ token }, children = []) => props => {
         const [x = 1, y = 1] = token.args;
         return (
             <g transform={`scale(${x}, ${y})`} transform-origin="center">
@@ -167,30 +135,6 @@ const elements = {
                 string = `${command} ${i} ${j}`;
                 points.push({ x: currentLocation.x, y: currentLocation.y });
             } else if (name === 'arc') {
-                const arcData = tokenToArc(token);
-                string = `${idx ? 'L' : 'M'} ${arcData.string}`;
-                currentLocation = arcData.end;
-                points.push(
-                    { x: currentLocation.x, y: currentLocation.y },
-                    arcData.start,
-                    arcData.end
-                );
-                helpers.push(
-                    <circle
-                        cx={arcData.center.x}
-                        cy={arcData.center.y}
-                        r={arcData.radius}
-                        fill="none"
-                        stroke="red"
-                        opacity="0.5"
-                    />,
-                    <Cross
-                        x={arcData.center.x}
-                        y={arcData.center.y}
-                        size={10}
-                    />
-                );
-            } else if (name === 'varc') {
                 const center = {
                     x: currentLocation.x + token.args[0],
                     y: currentLocation.y + token.args[1],
@@ -198,25 +142,10 @@ const elements = {
                 const arcData = tokenToVArc(currentLocation, center, token);
                 string = `${idx ? 'L' : 'M'} ${arcData.string}`;
                 currentLocation = arcData.end;
-                points.push(
-                    { x: currentLocation.x, y: currentLocation.y },
-                    arcData.start,
-                    arcData.end
-                );
+                points.push({ x: currentLocation.x, y: currentLocation.y }, arcData.start, arcData.end);
                 helpers.push(
-                    <circle
-                        cx={arcData.center.x}
-                        cy={arcData.center.y}
-                        r={arcData.radius}
-                        fill="none"
-                        stroke="red"
-                        opacity="0.5"
-                    />,
-                    <Cross
-                        x={arcData.center.x}
-                        y={arcData.center.y}
-                        size={10}
-                    />
+                    <circle cx={arcData.center.x} cy={arcData.center.y} r={arcData.radius} fill="none" stroke="red" opacity="0.5" />,
+                    <Cross x={arcData.center.x} y={arcData.center.y} size={10} />
                 );
             } else if (name === 'corner') {
                 // const nextToken = tokenGroup.tokens[idx + 1];
@@ -243,25 +172,15 @@ const elements = {
                     y: y2,
                     color: 'purple',
                 };
-                helpers.push(
-                    <Cross x={p1.x} y={p1.y} color={p1.color} size={10} />,
-                    <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />
-                );
+                helpers.push(<Cross x={p1.x} y={p1.y} color={p1.color} size={10} />, <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />);
             }
 
             pathString.push(string);
         });
-        helpers = [
-            ...points.map(({ x, y }) => <Node x={x} y={y} color="red" />),
-            ...helpers,
-        ];
+        helpers = [...points.map(({ x, y }) => <Node x={x} y={y} color="red" />), ...helpers];
         return props => (
             <Fragment>
-                <path
-                    id={path.id}
-                    d={pathString.join(' ') + (path.closed ? ' Z' : '')}
-                    fillRule="evenodd"
-                />
+                <path id={path.id} d={pathString.join(' ') + (path.closed ? ' Z' : '')} fillRule="evenodd" />
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -269,7 +188,7 @@ const elements = {
             </Fragment>
         );
     },
-    grid: ({ token, showHelpers }, children = []) => props => {
+    squaregrid: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
                 {showHelpers && <GridContainer args={token.args} />}
@@ -285,15 +204,7 @@ const elements = {
         const height = radius * 2;
         return (
             <Fragment>
-                {showHelpers && (
-                    <CircleGrid
-                        width={width}
-                        height={height}
-                        radius={radius}
-                        segments={segments}
-                        rings={rings}
-                    />
-                )}
+                {showHelpers && <CircleGrid width={width} height={height} radius={radius} segments={segments} rings={rings} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -323,11 +234,7 @@ export default function(tokens, showHelpers = true) {
             node.children = [...(node.children || []), newBranch];
             newBranch.parent = node;
             node = newBranch;
-        } else if (
-            token.depth < currentDepth ||
-            (node.token.name === 'path' && token.name === 'path') ||
-            !isDrawCommand(token.name)
-        ) {
+        } else if (token.depth < currentDepth || (node.token.name === 'path' && token.name === 'path') || !isDrawCommand(token.name)) {
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
                 node = node.parent;
@@ -368,7 +275,7 @@ export default function(tokens, showHelpers = true) {
 }
 
 function isDrawCommand(name) {
-    return ['vector', 'point', 'arc', 'varc', 'intersect'].includes(name);
+    return ['vector', 'point', 'arc'].includes(name);
 }
 function isPointOrVector(name) {
     return ['vector', 'point'].includes(name);
