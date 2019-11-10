@@ -28,6 +28,10 @@ app.use(function(req, res, next) {
 //     res.sendFile(`${appDir}/index.html`);
 // });
 
+app.route('/:group').get((req, res) => {
+    console.log(req.params);
+});
+
 app.route('/rune/:id?')
     .get((req, res) => {
         const { id } = req.params;
@@ -138,10 +142,20 @@ app.get('/preview', (req, res) => {
     });
 });
 
-app.get('/runes', (req, res) => {
+app.get('/groups', (req, res) => {
+    const groups = getAllRunes().map(r => r.group);
+    res.send(groups);
+});
+
+function getAllRunes() {
     const runes = glob.sync(`${storage}/*.json`).map(f => {
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
+    return runes;
+}
+
+app.get('/runes', (req, res) => {
+    const runes = getAllRunes();
     runes.sort((a, b) => {
         const dateA = +new Date(a.created);
         const dateB = +new Date(b.created);

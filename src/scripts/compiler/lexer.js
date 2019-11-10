@@ -157,7 +157,6 @@ const singleArgReplacements = [
         name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
         replace(str, matches) {
-            console.log('PI', str, matches);
             const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
@@ -193,7 +192,6 @@ export default function(string) {
         .trim()
         .split('\n');
     let tokens = [];
-    console.log(lines);
     lines
         .filter(line => !(commonRegEx.comment.test(line.trim()) || commonRegEx.emptyLine.test(line)))
         .map(line => {
@@ -201,11 +199,11 @@ export default function(string) {
             line = line.trim().replace(/\r|\n/, '');
 
             if (/^[\d]/.test(line)) {
-                line = `p ${line}`;
+                line = `p:${line}`;
             }
 
             if (/^[v]/.test(line)) {
-                line = `p 0 0,${line}`;
+                line = `p:0 0,${line}`;
             }
 
             const typeRef = line.substr(0, 1);
@@ -213,10 +211,11 @@ export default function(string) {
             if (!typeRef) return;
 
             const type = commandTypes[typeRef];
-            const idMatches = /=(.+?)[ ,]/.exec(line);
+            const idMatches = /=(.+?)(?=:)/.exec(line);
 
             let id;
             if (idMatches) {
+                console.log('ID MATCHES', idMatches);
                 id = idMatches[1];
                 line = line.replace(idMatches[0], '');
             }
@@ -245,7 +244,7 @@ export default function(string) {
             const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}])`));
 
             commandLines.forEach(command => {
-                let [_, ref, argStr] = command.trim().split(/^([a-z]{1,2}|[+])/);
+                let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
                 console.log(_, 'Ref', ref, 'Argstr', argStr, commands[ref]);
 
@@ -261,7 +260,6 @@ export default function(string) {
                 const vars = { ...gridContext };
 
                 tokenArgs = tokenArgs.map(argStr => {
-                    console.log('ARG', argStr);
                     argStr.trim();
                     argStr = pairArgReplacements.reduce((a, b) => {
                         return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
@@ -270,7 +268,6 @@ export default function(string) {
                         return +singleArgReplacements.reduce((a, b) => {
                             if (b.regex.test(a)) {
                                 const matches = b.regex.exec(a);
-                                console.log(b.name, b.regex.toString(), matches, b.replace(a, matches, vars));
                                 return b.replace(a, matches, vars);
                             } else {
                                 return a;

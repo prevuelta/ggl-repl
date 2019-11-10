@@ -20,6 +20,8 @@ class Workspace extends Component {
             parsed: null,
             lexed: null,
             runes: [],
+            groups: [],
+            currentGroup: [],
             rune: null,
             message: '',
         };
@@ -27,17 +29,24 @@ class Workspace extends Component {
 
     componentDidMount() {
         window.addEventListener('hashchange', e => {
-            this.setRune(window.location.hash.substr(1));
+            console.log(window.location.hash);
+            // this.setRune(window.location.hash.substr(1));
         });
-        this.getRunes().then(runes => {
-            if (window.location.hash) {
-                this.setRune(window.location.hash.substr(1));
-            } else {
-                window.location.hash = runes[0].id;
-            }
-            this.setState({ runes });
-            this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
+
+        this.getGroups().then(groups => {
+            console.log('Groups', groups);
+            this.setState({ groups });
         });
+
+        // this.getRunes().then(runes => {
+        //     if (window.location.hash) {
+        //         this.setRune(window.location.hash.substr(1));
+        //     } else {
+        //         window.location.hash = runes[0].id;
+        //     }
+        //     this.setState({ runes });
+        //     this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
+        // });
     }
 
     autosave = () => {
@@ -46,13 +55,12 @@ class Workspace extends Component {
         this.setState({ message: `Autosaved at ${new Date()}` });
     };
 
+    getGroups = () => {
+        return fetch('/groups').then(res => res.json());
+    };
+
     getRunes = () => {
-        return fetch('/runes')
-            .then(res => res.json())
-            .then(json => {
-                this.setState({ runes: json });
-                return json;
-            });
+        return fetch('/runes').then(res => res.json());
     };
 
     parseInput = (source, event) => {
@@ -158,6 +166,10 @@ class Workspace extends Component {
             });
     };
 
+    setGroup = group => {
+        window.location.hash = group;
+    };
+
     setRune = rune => {
         if (typeof rune === 'string') {
             rune = this.state.runes.find(r => r.id === rune);
@@ -171,12 +183,12 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune, width, height, message } = this.state;
+        const { parsed, lexed, source, runes, rune, width, height, message, groups } = this.state;
 
         return (
             <div className="workspace">
                 <StatusBar mode={state.app.mode} save={this.saveRune} message={message} />
-                <Browser runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
+                <Browser groups={groups} setGroup={this.setGroup} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
                 <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
                     <Fragment>
