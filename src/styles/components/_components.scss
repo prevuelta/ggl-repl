@@ -6,7 +6,7 @@
     cursor: pointer;
     border-radius: 2px;
     text-align: center;
-    color: white;
+    color: $cream;
     font-size: $u;
     line-height: $uh;
     box-sizing: border-box;
@@ -14,6 +14,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    background: $dark;
+    text-decoration: none;
+    padding: $u;
+    border: 1px solid $dark;
 
     &.icon {
         width: $uh;
@@ -28,6 +33,8 @@
 
     &:hover {
         background: $cream;
+        color: $dark;
+
         svg {
             fill: $dark;
         }

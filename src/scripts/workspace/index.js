@@ -20,7 +20,7 @@ class Workspace extends Component {
             parsed: null,
             lexed: null,
             runes: [],
-            groups: [],
+            isGroupView: true,
             currentGroup: [],
             rune: null,
             message: '',
@@ -29,34 +29,24 @@ class Workspace extends Component {
 
     componentDidMount() {
         window.addEventListener('hashchange', e => {
-            console.log(window.location.hash);
-            // this.setRune(window.location.hash.substr(1));
+            this.setRune(window.location.hash.substr(1));
         });
 
-        this.getGroups().then(groups => {
-            console.log('Groups', groups);
-            this.setState({ groups });
+        this.getRunes().then(runes => {
+            if (window.location.hash) {
+                this.setRune(window.location.hash.substr(1));
+            } else {
+                window.location.hash = runes[0].id;
+            }
+            this.setState({ runes });
+            this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
         });
-
-        // this.getRunes().then(runes => {
-        //     if (window.location.hash) {
-        //         this.setRune(window.location.hash.substr(1));
-        //     } else {
-        //         window.location.hash = runes[0].id;
-        //     }
-        //     this.setState({ runes });
-        //     this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
-        // });
     }
 
     autosave = () => {
         clearTimeout(this.timer);
         this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
         this.setState({ message: `Autosaved at ${new Date()}` });
-    };
-
-    getGroups = () => {
-        return fetch('/groups').then(res => res.json());
     };
 
     getRunes = () => {
@@ -132,14 +122,13 @@ class Workspace extends Component {
     };
 
     newRune = () => {
-        console.log('Creating rune...');
-
         this.saveRune().then(() => {
             fetch('/rune', {
                 method: 'put',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringiyf({ group }),
             }).then(res => {
                 if (res.status === 200) {
                     this.getRunes().then(() => {
@@ -166,10 +155,6 @@ class Workspace extends Component {
             });
     };
 
-    setGroup = group => {
-        window.location.hash = group;
-    };
-
     setRune = rune => {
         if (typeof rune === 'string') {
             rune = this.state.runes.find(r => r.id === rune);
@@ -183,12 +168,12 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune, width, height, message, groups } = this.state;
+        const { parsed, lexed, source, runes, rune, width, height, message, isGroupView } = this.state;
 
         return (
             <div className="workspace">
                 <StatusBar mode={state.app.mode} save={this.saveRune} message={message} />
-                <Browser groups={groups} setGroup={this.setGroup} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
+                <Browser setGroup={this.setGroup} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
                 <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
                     <Fragment>

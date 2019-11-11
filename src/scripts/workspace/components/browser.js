@@ -6,23 +6,11 @@ export default props => {
     const { isGroupView } = props;
     return (
         <div className="browser">
+            <header className="flex-row">
+                <Button onClick={props.newGroup}>New Group +</Button>
+                <Button onClick={props.newRune}>New Rune +</Button>
+            </header>
             <ul>
-                {isGroupView && (
-                    <li className="add-group" onClick={props.newRune}>
-                        Add Group +
-                    </li>
-                )}
-                {!isGroupView && (
-                    <li className="add-rune" onClick={props.newRune}>
-                        Add Rune +
-                    </li>
-                )}
-                {props.groups.map(g => (
-                    <li>
-                        {g}
-                        <a href={`/${g}`}>{g}</a>
-                    </li>
-                ))}
                 {props.runes.map(r => (
                     <li key={r.id} onClick={() => (window.location.hash = r.id)} className={r.id === props.active ? 'active' : ''}>
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />

@@ -24,19 +24,9 @@ app.use(function(req, res, next) {
     next();
 });
 
-// app.get('/', function(req, res) {
-//     res.sendFile(`${appDir}/index.html`);
-// });
-
-app.route('/:group').get((req, res) => {
-    console.log(req.params);
-});
-
 app.route('/rune/:id?')
     .get((req, res) => {
         const { id } = req.params;
-        // if (fs.
-        // if (fs.existsSync(thumbPath)) {
         if (id) {
             const filePath = path.join(storage, `${id}.json`);
             if (fs.existsSync(filePath)) {
@@ -87,6 +77,7 @@ app.route('/rune/:id?')
             script: '',
             svg: '<svg></svg>',
             name: generateName(),
+            group,
             modified: now,
             created: now,
         };
@@ -142,12 +133,7 @@ app.get('/preview', (req, res) => {
     });
 });
 
-app.get('/groups', (req, res) => {
-    const groups = getAllRunes().map(r => r.group);
-    res.send(groups);
-});
-
-function getAllRunes() {
+function getRunes() {
     const runes = glob.sync(`${storage}/*.json`).map(f => {
         return JSON.parse(fs.readFileSync(f, 'utf-8'));
     });
@@ -155,7 +141,7 @@ function getAllRunes() {
 }
 
 app.get('/runes', (req, res) => {
-    const runes = getAllRunes();
+    const runes = getRunes();
     runes.sort((a, b) => {
         const dateA = +new Date(a.created);
         const dateB = +new Date(b.created);

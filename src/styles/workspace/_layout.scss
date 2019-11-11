@@ -1,5 +1,5 @@
 $panel-width: 20%;
-$statusbar-height: 18px;
+$statusbar-height: 24px;
 $browser-height: $u4;
 $browser-width: $u * 20;
 $header-height: $statusbar-height; //+ $browser-height;
@@ -27,6 +27,7 @@ body {
 
 .statusbar {
     background: $cream-dark;
+    padding: 2px;
     height: auto;
     font-size: 12px;
     position: fixed;
@@ -34,8 +35,13 @@ body {
     right: 0;
     color: $cream;
     display: flex;
+    align-items: center;
     left: 0;
     height: $statusbar-height;
+
+    > * {
+        margin-right: $qu;
+    }
 }
 
 .tag {
@@ -83,9 +89,13 @@ body {
     left: 0;
     bottom: 0;
     width: $browser-width;
-    background: $dark;
+    background: $cream-dark;
     overflow-y: scroll;
     border-bottom: 2px solid red;
+
+    header {
+        padding: $qu;
+    }
 
     .thumbnail {
         width: $u2;
@@ -101,7 +111,6 @@ body {
 }
 
 .browser ul li {
-    margin: 0 $u 0 0;
     cursor: pointer;
     display: flex;
     align-items: center;
