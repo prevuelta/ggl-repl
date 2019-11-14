@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Cross } from '../icons';
+import { X, Cross, Pencil } from '../icons';
 import Button from './button';
 
 export default props => {
@@ -7,22 +7,34 @@ export default props => {
     return (
         <div className="browser">
             <header className="flex-row">
-                <Button onClick={props.newGroup}>New Group +</Button>
                 <Button onClick={props.newRune}>New Rune +</Button>
             </header>
             <ul>
                 {props.runes.map(r => (
-                    <li key={r.id} onClick={() => (window.location.hash = r.id)} className={r.id === props.active ? 'active' : ''}>
+                    <li
+                        key={r.id}
+                        onClick={() => (window.location.hash = r.id)}
+                        className={r.id === props.active ? 'active' : ''}>
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                         {r.name}
-                        <Button
-                            icon="true"
-                            onClick={e => {
-                                e.preventDefault();
-                                props.deleteRune(r.id);
-                            }}>
-                            <X />
-                        </Button>
+                        <div className="actions">
+                            <Button
+                                icon="true"
+                                onClick={e => {
+                                    console.log('Edit group');
+                                }}>
+                                <Pencil />
+                            </Button>
+                            <Button
+                                icon="true"
+                                className="red"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    props.deleteRune(r.id);
+                                }}>
+                                <X />
+                            </Button>
+                        </div>
                     </li>
                 ))}
             </ul>

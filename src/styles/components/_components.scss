@@ -8,7 +8,8 @@
     text-align: center;
     color: $cream;
     font-size: $u;
-    line-height: $uh;
+    // line-height: $uh;
+    line-height: 1em;
     box-sizing: border-box;
     font-family: 'Courier New';
     display: flex;
@@ -17,7 +18,7 @@
 
     background: $dark;
     text-decoration: none;
-    padding: $u;
+    padding: $qu $hu;
     border: 1px solid $dark;
 
     &.icon {

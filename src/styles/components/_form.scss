@@ -8,6 +8,12 @@ button {
         background: white;
         color: black;
     }
+
+    &.red {
+        svg {
+            fill: $rust;
+        }
+    }
 }
 
 label {

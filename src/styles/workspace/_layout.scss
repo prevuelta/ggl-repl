@@ -118,8 +118,13 @@ body {
     background: $sky-dark;
     color: $sky;
 
-    .button {
+    .actions {
         margin-left: auto;
+        display: flex;
+
+        .button {
+            margin-right: $qu;
+        }
     }
 
     &:hover {
@@ -131,7 +136,7 @@ body {
         // pointer-events: none;
 
         .button svg {
-            fill: $rust;
+            // fill: $rust;
         }
     }
 
