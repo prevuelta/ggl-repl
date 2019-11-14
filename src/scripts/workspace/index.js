@@ -11,7 +11,8 @@ const { Fragment } = React;
 const defaultHeight = 50;
 const defaultWidth = 50;
 
-const AUTO_SAVE_TIMEOUT = 10000;
+const AUTOSAVE_TIMEOUT = 10000;
+const AUTOSAVE_ON = false;
 
 class Workspace extends Component {
     constructor(props) {
@@ -20,7 +21,6 @@ class Workspace extends Component {
             parsed: null,
             lexed: null,
             runes: [],
-            isGroupView: true,
             currentGroup: [],
             rune: null,
             message: '',
@@ -38,19 +38,24 @@ class Workspace extends Component {
             } else {
                 window.location.hash = runes[0].id;
             }
-            this.setState({ runes });
-            this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
+            if (AUTOSAVE_ON) {
+                this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
+            }
         });
     }
 
     autosave = () => {
         clearTimeout(this.timer);
-        this.timer = setTimeout(() => this.autosave(), AUTO_SAVE_TIMEOUT);
+        this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
         this.setState({ message: `Autosaved at ${new Date()}` });
     };
 
     getRunes = () => {
-        return fetch('/runes').then(res => res.json());
+        return fetch('/runes')
+            .then(res => res.json())
+            .then(runes => {
+                return this.setState({ runes });
+            });
     };
 
     parseInput = (source, event) => {
@@ -128,8 +133,9 @@ class Workspace extends Component {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringiyf({ group }),
+                body: JSON.stringify({ group: this.state.rune.group }),
             }).then(res => {
+                console.log(res.status);
                 if (res.status === 200) {
                     this.getRunes().then(() => {
                         this.setRune(this.state.runes[0]);
@@ -160,8 +166,10 @@ class Workspace extends Component {
             rune = this.state.runes.find(r => r.id === rune);
         }
         if (rune) {
-            this.setState({ rune });
-            this.parseInput(rune.script);
+            this.setState({ rune }, () => {
+                console.log(rune.script);
+                this.parseInput(rune.script);
+            });
         }
     };
 
