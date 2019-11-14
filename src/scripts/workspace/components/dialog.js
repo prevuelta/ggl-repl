@@ -2,20 +2,20 @@ import React from 'react';
 import { Button } from '.';
 import { X } from '../icons';
 
-function Dialogue(props) {
+function Dialog(props) {
     return (
         <div className="overlay">
             <div className="dialogue">
                 <header>
-                    {this.props.title}
-                    <Button handler={this.hide.bind(this)}>
+                    {props.title}
+                    <Button onClick={props.hide}>
                         <X />
                     </Button>
                 </header>
-                {this.props.children}
+                {props.children}
             </div>
         </div>
     );
 }
 
-export default Dialogue;
+export default Dialog;
