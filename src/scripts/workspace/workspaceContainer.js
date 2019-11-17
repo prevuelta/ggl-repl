@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Source, Renderer, Browser, Preview, StatusBar, Dialog } from './components';
+import {
+    Button,
+    Source,
+    Renderer,
+    Browser,
+    Preview,
+    StatusBar,
+    Dialog,
+    EditRuneDialog,
+} from './components';
 import example from '../example.rs';
 import { generateName, guid } from '../util';
 import { lex, parse } from '../compiler';
@@ -21,8 +30,8 @@ class Workspace extends Component {
             parsed: null,
             lexed: null,
             runes: [],
-            currentGroup: [],
-            rune: null,
+            runeId: null,
+            showEditGroup: true,
             message: '',
         };
     }
@@ -39,7 +48,10 @@ class Workspace extends Component {
                 window.location.hash = runes[0].id;
             }
             if (AUTOSAVE_ON) {
-                this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
+                this.timer = setTimeout(
+                    () => this.autosave(),
+                    AUTOSAVE_TIMEOUT
+                );
             }
         });
     }
@@ -50,6 +62,8 @@ class Workspace extends Component {
         this.setState({ message: `Autosaved at ${new Date()}` });
     };
 
+    updateRune = rune => {};
+
     getRunes = () => {
         return fetch('/runes')
             .then(res => res.json())
@@ -58,57 +72,13 @@ class Workspace extends Component {
             });
     };
 
-    parseInput = (source, event) => {
-        const { rune } = this.state;
-        if (rune) {
-            // Create token list
-            const lexed = lex(source);
-            // Create
-            console.log('TOKENS', lexed);
-            const parsed = parse(lexed);
-            // Create render tree
-            console.log('PARSED', parsed);
-            const { width, height } = lexed
-                .filter(t => t.name.includes('grid'))
-                .reduce(
-                    (a, b) => {
-                        if (b.name === 'circlegrid') {
-                            a.width = Math.max(b.args[0] * 2, a.width);
-                            a.height = Math.max(b.args[0] * 2, a.height);
-                        } else {
-                            a.width = Math.max(b.args[0] * b.args[2], a.width);
-                            a.height = Math.max(b.args[1] * b.args[2], a.height);
-                        }
-                        return a;
-                    },
-                    { width: defaultWidth, height: defaultHeight }
-                );
-
-            const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} stroke={'none'} fill={'black'} PathElements={parse(lexed, false).paths} />);
-            rune.svg = svgString;
-
-            this.setState({
-                source,
-                parsed,
-                lexed,
-                width,
-                height,
-                rune,
-            });
-        }
-        // Store.updateRune('source', parsedInput);
-    };
-
-    cursorChange = selection => {
-        // console.log('Cursor change', selection.lead.row, selection);
-    };
-
-    setExample = source => {
-        this.parseInput(source);
+    getRune = id => {
+        return this.state.runes.find(r => r.id === id);
     };
 
     saveRune = () => {
-        const { rune, source } = this.state;
+        const { source, runes, runeId } = this.state;
+        const rune = runes.find(r => r.id === runeId);
 
         if (!rune) {
             return Promise.resolve();
@@ -130,6 +100,12 @@ class Workspace extends Component {
         });
     };
 
+    updateRune = rune => {
+        console.log('Update rune', rune);
+        this.setState({ runes: [...this.state.runes] });
+        this.hideEditDialog();
+    };
+
     newRune = () => {
         this.saveRune().then(() => {
             fetch('/rune', {
@@ -142,7 +118,7 @@ class Workspace extends Component {
                 console.log(res.status);
                 if (res.status === 200) {
                     this.getRunes().then(() => {
-                        this.setRune(this.state.runes[0]);
+                        this.setRune(this.state.runes[0].id);
                     });
                 }
             });
@@ -165,38 +141,129 @@ class Workspace extends Component {
             });
     };
 
+    setRune = runeId => {
+        const rune = this.getRune(runeId);
+        if (rune) {
+            this.parseInput(rune.script);
+        }
+    };
+
+    editRune = id => {
+        this.setState({ showEditDialog: true });
+    };
+
+    parseInput = (source, event) => {
+        // Create token list
+        const lexed = lex(source);
+        // Create
+        console.log('TOKENS', lexed);
+        const parsed = parse(lexed);
+        // Create render tree
+        console.log('PARSED', parsed);
+        const { width, height } = lexed
+            .filter(t => t.name.includes('grid'))
+            .reduce(
+                (a, b) => {
+                    if (b.name === 'circlegrid') {
+                        a.width = Math.max(b.args[0] * 2, a.width);
+                        a.height = Math.max(b.args[0] * 2, a.height);
+                    } else {
+                        a.width = Math.max(b.args[0] * b.args[2], a.width);
+                        a.height = Math.max(b.args[1] * b.args[2], a.height);
+                    }
+                    return a;
+                },
+                { width: defaultWidth, height: defaultHeight }
+            );
+
+        const svgString = renderToStaticMarkup(
+            <RenderLayer
+                width={width}
+                height={height}
+                stroke={'none'}
+                fill={'black'}
+                PathElements={parse(lexed, false).paths}
+            />
+        );
+
+        this.setState({
+            source,
+            parsed,
+            lexed,
+            width,
+            height,
+        });
+
+        this.updateRune('svg', svgString);
+    };
+
+    cursorChange = selection => {
+        // console.log('Cursor change', selection.lead.row, selection);
+    };
+
+    setExample = source => {
+        this.parseInput(source);
+    };
+
     editGroup = () => {};
 
-    setRune = rune => {
-        if (typeof rune === 'string') {
-            rune = this.state.runes.find(r => r.id === rune);
-        }
-        if (rune) {
-            this.setState({ rune }, () => {
-                this.parseInput(rune.script);
-            });
-        }
+    hideEditDialog = () => {
+        this.setState({ showEditDialog: false });
     };
 
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune, width, height, message, isGroupView } = this.state;
+        const {
+            parsed,
+            lexed,
+            source,
+            runes,
+            runeId,
+            width,
+            height,
+            message,
+            showEditDialog,
+        } = this.state;
 
         return (
             <div className="workspace">
-                <Dialog>
-                    <label>Group name</label>
-                    <input type="text" />
-                    <button>Save</button>
-                </Dialog>
-                <StatusBar mode={state.app.mode} save={this.saveRune} message={message} />
-                <Browser setGroup={this.setGroup} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
-                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
+                {showEditDialog && (
+                    <EditRuneDialog
+                        rune={rune}
+                        updateRune={this.updateRune}
+                        close={this.hideEditDialog}
+                    />
+                )}
+                <StatusBar
+                    mode={state.app.mode}
+                    save={this.saveRune}
+                    message={message}
+                />
+                <Browser
+                    editRune={this.editRune}
+                    runes={runes}
+                    newRune={this.newRune}
+                    deleteRune={this.deleteRune}
+                    active={rune && rune.id}
+                />
+                <Source
+                    value={source}
+                    parseInput={this.parseInput}
+                    setExample={this.setExample}
+                    handleCursorChange={this.cursorChange}
+                />
                 {parsed && rune && (
                     <Fragment>
                         <Preview rendered={rune.svg} />
-                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                        <Renderer
+                            mode={state.app.mode}
+                            width={width}
+                            height={height}
+                            rune={rune}
+                            elements={parsed}
+                            lexed={lexed}
+                        />
                     </Fragment>
                 )}
             </div>

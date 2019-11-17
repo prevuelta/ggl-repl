@@ -1,0 +1,23 @@
+.dialog {
+    min-width: 30%;
+    padding: $u;
+    background: #fff;
+    background: $sky-dark;
+    border-radius: $hu;
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        margin: 0 0 $u 0;
+
+        h2 {
+            color: $cream;
+            margin: 0;
+        }
+    }
+
+    textarea {
+        width: 100%;
+        min-height: $u6;
+    }
+}

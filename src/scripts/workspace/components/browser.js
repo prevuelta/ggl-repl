@@ -3,11 +3,12 @@ import { X, Cross, Pencil } from '../icons';
 import Button from './button';
 
 export default props => {
-    const { isGroupView } = props;
+    const { isGroupView, rune } = props;
     return (
         <div className="browser">
             <header className="flex-row">
                 <Button onClick={props.newRune}>New Rune +</Button>
+                {rune && <Button onClick={props.editRune}>Edit Rune +</Button>}
             </header>
             <ul>
                 {props.runes.map(r => (
@@ -16,15 +17,8 @@ export default props => {
                         onClick={() => (window.location.hash = r.id)}
                         className={r.id === props.active ? 'active' : ''}>
                         <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
-                        {r.name}
+                        {r.name} {r.group}
                         <div className="actions">
-                            <Button
-                                icon="true"
-                                onClick={e => {
-                                    console.log('Edit group');
-                                }}>
-                                <Pencil />
-                            </Button>
                             <Button
                                 icon="true"
                                 className="red"

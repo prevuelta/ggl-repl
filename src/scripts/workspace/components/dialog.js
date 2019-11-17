@@ -5,10 +5,10 @@ import { X } from '../icons';
 function Dialog(props) {
     return (
         <div className="overlay">
-            <div className="dialogue">
+            <div className="dialog">
                 <header>
-                    {props.title}
-                    <Button onClick={props.hide}>
+                    <h2>{props.title}</h2>
+                    <Button onClick={props.hide} icon="true">
                         <X />
                     </Button>
                 </header>

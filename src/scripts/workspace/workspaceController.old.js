@@ -6,37 +6,34 @@ let ToolsController = require('./tools/ToolsController.jsx');
 let Events = require('../global/Events');
 
 let React = require('react');
-const ReactDOM = require('react-dom')
+const ReactDOM = require('react-dom');
 
 // Components:
 let Dialogue = require('../components/Dialogue.jsx');
 
-
-function WorkSpaceController () {
-
+function WorkSpaceController() {
     Events.showSvg.add(this.showSvg.bind(this));
 
     return {
-        loadApp (app) {
-
+        loadApp(app) {
             this.app = app;
 
             // TODO: refactor with service pattern
             PanelController.loadApp(app);
         },
-        showSvg () {
+        showSvg() {
             let element = document.getElementById('rune-overlay');
 
-            let dialogue = ReactDOM.render(
-                <Dialogue
-                    element={element}
-                    title="Copy SVG code">
-                    <textarea>{ this.app.data.tablet.activeRune.renderedSVG }</textarea>
-                </Dialogue>,
+            let dialog = ReactDOM.render(
+                <Dialog element={element} title="Copy SVG code">
+                    <textarea>
+                        {this.app.data.tablet.activeRune.renderedSVG}
+                    </textarea>
+                </Dialog>,
                 element
             );
-        }
-    }
+        },
+    };
 }
 
-module.exports = new WorkSpaceController();
+module.exports = new WorkSpaceController();

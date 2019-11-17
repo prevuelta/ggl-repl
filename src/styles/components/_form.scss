@@ -19,9 +19,10 @@ button {
 label {
     display: block;
     color: $sky;
-    font-size: $pu;
-    font-weight: bold;
-    padding: 0 $hu;
+    font-size: $qqqpu;
+    // font-weight: bold;
+    // padding: 0 $hu;
+    margin: 0 0 $hu 0;
 }
 
 input,
@@ -34,6 +35,10 @@ textarea {
     display: inline-block;
     font-size: $qqqpu;
     display: block;
+    margin: 0 0 $u2 0;
+    border-radius: 2px;
+    background: $dark;
+    color: $cream;
 
     &:focus {
         outline: none;
