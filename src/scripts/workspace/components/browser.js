@@ -2,35 +2,48 @@ import React, { useState } from 'react';
 import { X, Cross, Pencil } from '../icons';
 import Button from './button';
 
-export default props => {
-    const { isGroupView, rune } = props;
+export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
+    let currentGroup;
+
+    const sortedRunes = runes.reduce((a, b) => {
+        if (b.group !== currentGroup) {
+            currentGroup = b.group;
+            return [...a, { heading: true, group: currentGroup }, b];
+        }
+        return [...a, b];
+    }, []);
+
+    console.log(sortedRunes);
+
     return (
         <div className="browser">
             <header className="flex-row">
-                <Button onClick={props.newRune}>New Rune +</Button>
-                {rune && <Button onClick={props.editRune}>Edit Rune +</Button>}
+                <Button onClick={newRune}>New Rune +</Button>
             </header>
             <ul>
-                {props.runes.map(r => (
-                    <li
-                        key={r.id}
-                        onClick={() => (window.location.hash = r.id)}
-                        className={r.id === props.active ? 'active' : ''}>
-                        <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
-                        {r.name} {r.group}
-                        <div className="actions">
-                            <Button
-                                icon="true"
-                                className="red"
-                                onClick={e => {
-                                    e.preventDefault();
-                                    props.deleteRune(r.id);
-                                }}>
-                                <X />
-                            </Button>
-                        </div>
-                    </li>
-                ))}
+                {sortedRunes.map(r => {
+                    if (r.heading) {
+                        return <li className="heading">{r.group}</li>;
+                    } else {
+                        return (
+                            <li key={r.id} onClick={() => (window.location.hash = r.id)} className={r.id === active ? 'active' : ''}>
+                                <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
+                                {r.name} {r.group}
+                                <div className="actions">
+                                    <Button
+                                        icon="true"
+                                        className="red"
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            deleteRune(r.id);
+                                        }}>
+                                        <X />
+                                    </Button>
+                                </div>
+                            </li>
+                        );
+                    }
+                })}
             </ul>
         </div>
     );

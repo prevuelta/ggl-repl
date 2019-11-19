@@ -68,13 +68,18 @@ const elements = {
         );
     },
     reflect: ({ token }, children = []) => props => {
-        const [x = 1, y = 1] = token.args;
+        const [x = 1, y = 1, posX, posY] = token.args;
         return (
-            <g transform={`scale(${x}, ${y})`} transform-origin="center">
+            <>
+                <g transform={`scale(${x}, ${y})`} transform-origin={`${posX}px ${posY}px`}>
+                    {children.map(Child => (
+                        <Child />
+                    ))}
+                </g>
                 {children.map(Child => (
                     <Child />
                 ))}
-            </g>
+            </>
         );
     },
     $ref: ({ token }) => props => {

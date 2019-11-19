@@ -8,6 +8,8 @@ const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
 const singleArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+)\s?$/g;
 const singleOrPairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s?[-|\d|\.|a-z|\*|\/]+)?\s?/g;
 
+const fourArgRegEx = /\s?(([-|\d|\.|a-z|\*|\/|\s]+?),?){4}$/;
+
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
 };
@@ -28,10 +30,10 @@ const commands = {
         type: 'transform',
         argsRegEx: multiArgRegEx,
     },
-    f: {
+    re: {
         name: 'reflect',
         type: 'transform',
-        argsRegEx: pairArgRegEx,
+        argsRegEx: fourArgRegEx,
     },
     s: {
         name: 'scale',

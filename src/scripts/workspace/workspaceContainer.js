@@ -1,21 +1,10 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import {
-    Button,
-    Source,
-    Renderer,
-    Browser,
-    Preview,
-    StatusBar,
-    Dialog,
-    EditRuneDialog,
-} from './components';
+import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
 import example from '../example.rs';
 import { generateName, guid } from '../util';
 import { lex, parse } from '../compiler';
 import { RenderLayer } from './components/layers';
-
-const { Fragment } = React;
 
 const defaultHeight = 50;
 const defaultWidth = 50;
@@ -30,7 +19,7 @@ class Workspace extends Component {
             parsed: null,
             lexed: null,
             runes: [],
-            runeId: null,
+            rune: null,
             showEditGroup: true,
             message: '',
         };
@@ -48,10 +37,7 @@ class Workspace extends Component {
                 window.location.hash = runes[0].id;
             }
             if (AUTOSAVE_ON) {
-                this.timer = setTimeout(
-                    () => this.autosave(),
-                    AUTOSAVE_TIMEOUT
-                );
+                this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
             }
         });
     }
@@ -62,7 +48,21 @@ class Workspace extends Component {
         this.setState({ message: `Autosaved at ${new Date()}` });
     };
 
-    updateRune = rune => {};
+    updateRune = rune => {
+        const index = this.state.runes.findIndex(r => r.id === rune.id);
+        if (index === -1) {
+            console.warn('Error updating rune: rune not found');
+            return;
+        }
+        const { runes } = this.state;
+        this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) });
+    };
+
+    updateAndSaveRune = rune => {
+        this.updateRune(rune);
+        this.hideEditDialog();
+        this.saveRune();
+    };
 
     getRunes = () => {
         return fetch('/runes')
@@ -77,8 +77,7 @@ class Workspace extends Component {
     };
 
     saveRune = () => {
-        const { source, runes, runeId } = this.state;
-        const rune = runes.find(r => r.id === runeId);
+        const { source, runes, rune } = this.state;
 
         if (!rune) {
             return Promise.resolve();
@@ -88,6 +87,7 @@ class Workspace extends Component {
             ...rune,
             script: source,
         };
+        this.setState({ message: 'Saving...' });
 
         return fetch('/rune', {
             method: 'post',
@@ -96,14 +96,9 @@ class Workspace extends Component {
             },
             body: JSON.stringify(payload),
         }).then(res => {
+            this.setState({ message: 'Rune saved.' });
             this.getRunes();
         });
-    };
-
-    updateRune = rune => {
-        console.log('Update rune', rune);
-        this.setState({ runes: [...this.state.runes] });
-        this.hideEditDialog();
     };
 
     newRune = () => {
@@ -118,7 +113,7 @@ class Workspace extends Component {
                 console.log(res.status);
                 if (res.status === 200) {
                     this.getRunes().then(() => {
-                        this.setRune(this.state.runes[0].id);
+                        this.setRune(this.state.runes[0]);
                     });
                 }
             });
@@ -141,10 +136,15 @@ class Workspace extends Component {
             });
     };
 
-    setRune = runeId => {
-        const rune = this.getRune(runeId);
+    setRune = rune => {
+        if (typeof rune === 'string') {
+            rune = this.getRune(rune);
+        }
+        console.log('Setting rune', rune);
         if (rune) {
-            this.parseInput(rune.script);
+            this.setState({ rune }, () => {
+                this.parseInput(rune.script);
+            });
         }
     };
 
@@ -176,15 +176,7 @@ class Workspace extends Component {
                 { width: defaultWidth, height: defaultHeight }
             );
 
-        const svgString = renderToStaticMarkup(
-            <RenderLayer
-                width={width}
-                height={height}
-                stroke={'none'}
-                fill={'black'}
-                PathElements={parse(lexed, false).paths}
-            />
-        );
+        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} stroke={'none'} fill={'black'} PathElements={parse(lexed, false).paths} />);
 
         this.setState({
             source,
@@ -194,7 +186,9 @@ class Workspace extends Component {
             height,
         });
 
-        this.updateRune('svg', svgString);
+        const { rune } = this.state;
+        rune.svg = svgString;
+        this.updateRune(rune);
     };
 
     cursorChange = selection => {
@@ -205,8 +199,6 @@ class Workspace extends Component {
         this.parseInput(source);
     };
 
-    editGroup = () => {};
-
     hideEditDialog = () => {
         this.setState({ showEditDialog: false });
     };
@@ -214,57 +206,19 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const {
-            parsed,
-            lexed,
-            source,
-            runes,
-            runeId,
-            width,
-            height,
-            message,
-            showEditDialog,
-        } = this.state;
+        const { parsed, lexed, source, runes, rune, width, height, message, showEditDialog } = this.state;
 
         return (
             <div className="workspace">
-                {showEditDialog && (
-                    <EditRuneDialog
-                        rune={rune}
-                        updateRune={this.updateRune}
-                        close={this.hideEditDialog}
-                    />
-                )}
-                <StatusBar
-                    mode={state.app.mode}
-                    save={this.saveRune}
-                    message={message}
-                />
-                <Browser
-                    editRune={this.editRune}
-                    runes={runes}
-                    newRune={this.newRune}
-                    deleteRune={this.deleteRune}
-                    active={rune && rune.id}
-                />
-                <Source
-                    value={source}
-                    parseInput={this.parseInput}
-                    setExample={this.setExample}
-                    handleCursorChange={this.cursorChange}
-                />
+                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.updateAndSaveRune} close={this.hideEditDialog} />}
+                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.editRune} />
+                <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
+                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
-                    <Fragment>
+                    <>
                         <Preview rendered={rune.svg} />
-                        <Renderer
-                            mode={state.app.mode}
-                            width={width}
-                            height={height}
-                            rune={rune}
-                            elements={parsed}
-                            lexed={lexed}
-                        />
-                    </Fragment>
+                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                    </>
                 )}
             </div>
         );
