@@ -176,7 +176,7 @@ class Workspace extends Component {
                 { width: defaultWidth, height: defaultHeight }
             );
 
-        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} stroke={'none'} fill={'black'} PathElements={parse(lexed, false).paths} />);
+        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
 
         this.setState({
             source,

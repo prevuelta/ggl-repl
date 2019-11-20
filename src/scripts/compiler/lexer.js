@@ -8,8 +8,6 @@ const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
 const singleArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+)\s?$/g;
 const singleOrPairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s?[-|\d|\.|a-z|\*|\/]+)?\s?/g;
 
-const fourArgRegEx = /\s?(([-|\d|\.|a-z|\*|\/|\s]+?),?){4}$/;
-
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
 };
@@ -30,20 +28,37 @@ const commands = {
         type: 'transform',
         argsRegEx: multiArgRegEx,
     },
-    re: {
+    ry: {
         name: 'reflect',
+        data: 'y',
         type: 'transform',
-        argsRegEx: fourArgRegEx,
+        argsRegEx: singleArgRegEx,
     },
-    s: {
+    rx: {
+        name: 'reflect',
+        data: 'x',
+        type: 'transform',
+        argsRegEx: singleArgRegEx,
+    },
+    sc: {
         name: 'scale',
         type: 'transform',
         argsRegEx: singleOrPairArgRegEx,
     },
-    t: {
+    tr: {
         name: 'translate',
         type: 'transform',
         argsRegEx: pairArgRegEx,
+    },
+    s: {
+        name: 'stroke',
+        type: 'style',
+        argsRegEx: multiArgRegEx,
+    },
+    f: {
+        name: 'fill',
+        type: 'style',
+        argsRegEx: multiArgRegEx,
     },
     p: {
         name: 'point',
@@ -227,7 +242,7 @@ export default function(string) {
                     name: 'path',
                     depth,
                     id,
-                    closed: true,
+                    closed: false,
                 });
             }
 
@@ -245,12 +260,17 @@ export default function(string) {
 
             const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}])`));
 
+            console.log('Commandlines', commandLines);
+
             commandLines.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
                 console.log(_, 'Ref', ref, 'Argstr', argStr, commands[ref]);
 
-                if (!commands[ref]) return;
+                if (!commands[ref]) {
+                    console.warn(`Command not recognised - ${ref}`);
+                    return;
+                }
 
                 const commandRef = commands[ref];
                 const { name = '', argsRegEx } = commandRef;
@@ -310,6 +330,7 @@ export default function(string) {
                     ...tokens,
                     ...tokenArgs.map(args => ({
                         name,
+                        data: commandRef.data,
                         args,
                         depth,
                     })),

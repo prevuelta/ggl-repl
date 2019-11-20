@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, CircleGrid } from '../workspace/components';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
-import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg } from '../util/trig';
+import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg, RED } from '../util';
 import { Store } from '../data';
 
 const { Fragment } = React;
@@ -68,10 +68,15 @@ const elements = {
         );
     },
     reflect: ({ token }, children = []) => props => {
-        const [x = 1, y = 1, posX, posY] = token.args;
+        const [distance] = token.args;
+        const axis = token.data;
+        const scale = { x: '1, -1', y: '-1, 1' }[axis];
+        const distancePx = `${distance}px`;
+        const origin = `${axis === 'y' ? distancePx : '0'} ${axis === 'x' ? distancePx : '0'}`;
+
         return (
             <>
-                <g transform={`scale(${x}, ${y})`} transform-origin={`${posX}px ${posY}px`}>
+                <g transform={`scale(${scale})`} transform-origin={origin}>
                     {children.map(Child => (
                         <Child />
                     ))}
@@ -80,6 +85,16 @@ const elements = {
                     <Child />
                 ))}
             </>
+        );
+    },
+    stroke: ({ token }, children = []) => props => {
+        const [color = RED, strokeWidth = 1, strokeOpacity = 0.4] = token.args;
+        return (
+            <g stroke={color} strokeWidth={strokeWidth} strokeOpacity={strokeOpacity}>
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </g>
         );
     },
     $ref: ({ token }) => props => {
