@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, CircleGrid } from '../workspace/components';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
-import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg, RED } from '../util';
+import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg, BLACK } from '../util';
 import { Store } from '../data';
 
 const { Fragment } = React;
@@ -13,6 +13,14 @@ function GridContainer(props) {
     const height = yUnits * gridUnit;
     return <Grid width={width} height={height} gridUnit={gridUnit} xUnits={xUnits} yUnits={yUnits} divisions={divisions} />;
 }
+
+const Helpers = ({ children, fill, stroke }) => {
+    return (
+        <g fill={fill || 'none'} stroke={stroke || 'red'} strokeWidth="1">
+            {children}
+        </g>
+    );
+};
 
 export function tokenToArc(token, isFirst) {
     const [startX, startY, centerX, centerY, angle, largeArcFlag, sweep] = token.args;
@@ -85,6 +93,16 @@ const elements = {
                     <Child />
                 ))}
             </>
+        );
+    },
+    fill: ({ token }, children = []) => props => {
+        const [color = BLACK] = token.args;
+        return (
+            <g fill={color}>
+                {children.map(Child => (
+                    <Child />
+                ))}
+            </g>
         );
     },
     stroke: ({ token }, children = []) => props => {
@@ -164,7 +182,7 @@ const elements = {
                 currentLocation = arcData.end;
                 points.push({ x: currentLocation.x, y: currentLocation.y }, arcData.start, arcData.end);
                 helpers.push(
-                    <circle cx={arcData.center.x} cy={arcData.center.y} r={arcData.radius} fill="none" stroke="red" opacity="0.5" />,
+                    <circle cx={arcData.center.x} cy={arcData.center.y} r={arcData.radius} fill="none" stroke="red" strokeWidth="1" opacity="0.5" />,
                     <Cross x={arcData.center.x} y={arcData.center.y} size={10} />
                 );
             } else if (name === 'corner') {
@@ -204,7 +222,7 @@ const elements = {
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
-                {showHelpers && helpers}
+                {showHelpers && <Helpers children={helpers} />}
             </Fragment>
         );
     },

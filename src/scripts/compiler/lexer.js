@@ -3,10 +3,10 @@ const commonRegEx = {
     emptyLine: /^(\t| |\r)*$/,
 };
 
-const multiArgRegEx = /\s?([-|\d|\.|a-z|\*|\/|\s]+?),?$/;
-const pairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s[-|\d|\.|a-z|\*|\/]+)\s?/g;
-const singleArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+)\s?$/g;
-const singleOrPairArgRegEx = /\s?([-|\d|\.|a-z|\*|\/]+\s?[-|\d|\.|a-z|\*|\/]+)?\s?/g;
+const multiArgRegEx = /\s?([#|-|\d|\.|a-z|\*|\/|\s]+?),?$/;
+const pairArgRegEx = /\s?([#|-|\d|\.|a-z|\*|\/]+\s[#|-|\d|\.|a-z|\*|\/]+)\s?/g;
+const singleArgRegEx = /\s?([#|-|\d|\.|a-z|\*|\/]+)\s?$/g;
+const singleOrPairArgRegEx = /\s?([#|-|\d|\.|a-z|\*|\/]+\s?[#|-|\d|\.|a-z|\*|\/]+)?\s?/g;
 
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
@@ -58,7 +58,7 @@ const commands = {
     f: {
         name: 'fill',
         type: 'style',
-        argsRegEx: multiArgRegEx,
+        argsRegEx: singleArgRegEx,
     },
     p: {
         name: 'point',
@@ -277,6 +277,7 @@ export default function(string) {
                 let tokenArgs = [],
                     matches;
 
+                console.log('ArgString', argStr);
                 tokenArgs = [...argStr.matchAll(argsRegEx)].map(match => match[1]).filter(match => match !== undefined);
 
                 const vars = { ...gridContext };
@@ -287,7 +288,7 @@ export default function(string) {
                         return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
                     }, argStr);
                     return argStr.split(' ').map(str => {
-                        return +singleArgReplacements.reduce((a, b) => {
+                        const arg = singleArgReplacements.reduce((a, b) => {
                             if (b.regex.test(a)) {
                                 const matches = b.regex.exec(a);
                                 return b.replace(a, matches, vars);
@@ -295,6 +296,10 @@ export default function(string) {
                                 return a;
                             }
                         }, str);
+
+                        console.log('Arg', arg, isNaN(arg));
+
+                        return isNaN(arg) ? arg : +arg;
                     });
                 });
                 if (name === 'circlegrid') {
