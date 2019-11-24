@@ -35,3 +35,4 @@ export function guid(a) {
 
 export * from './constants';
 export * from './trig';
+export { default as globals } from './globals';

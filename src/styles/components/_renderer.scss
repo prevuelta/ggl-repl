@@ -2,7 +2,7 @@
     box-sizing: content-box;
     padding: $hu;
     // border-radius: $hu;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 10px $faintBlack;
     background: white;
     // border: 1px solid red;
     position: absolute;
@@ -38,11 +38,11 @@
     width: $u10;
     height: $u10;
     background: white;
-    padding: $u2;
+    padding: $u;
 
     svg {
         max-width: 100%;
         height: auto;
-        background: pink;
+        border: 1px solid $faintBlack;
     }
 }

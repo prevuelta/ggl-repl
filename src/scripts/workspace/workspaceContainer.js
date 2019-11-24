@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
 import example from '../example.rs';
-import { generateName, guid } from '../util';
+import { generateName, guid, globals } from '../util';
 import { lex, parse } from '../compiler';
 import { RenderLayer } from './components/layers';
 
@@ -96,7 +96,13 @@ class Workspace extends Component {
             },
             body: JSON.stringify(payload),
         }).then(res => {
-            this.setState({ message: 'Rune saved.' });
+            let message;
+            if (res.status === 200) {
+                message = '~> Rune saved. <~';
+            } else {
+                message = '!!Problem saving Rune!!';
+            }
+            this.setState({ message });
             this.getRunes();
         });
     };
@@ -142,6 +148,7 @@ class Workspace extends Component {
         }
         console.log('Setting rune', rune);
         if (rune) {
+            globals.rune = rune;
             this.setState({ rune }, () => {
                 this.parseInput(rune.script);
             });
@@ -153,6 +160,7 @@ class Workspace extends Component {
     };
 
     parseInput = (source, event) => {
+        const { rune } = this.state;
         // Create token list
         const lexed = lex(source);
         // Create
@@ -160,23 +168,24 @@ class Workspace extends Component {
         const parsed = parse(lexed);
         // Create render tree
         console.log('PARSED', parsed);
+        const padding = +rune.padding;
         const { width, height } = lexed
             .filter(t => t.name.includes('grid'))
             .reduce(
                 (a, b) => {
                     if (b.name === 'circlegrid') {
-                        a.width = Math.max(b.args[0] * 2, a.width);
-                        a.height = Math.max(b.args[0] * 2, a.height);
+                        a.width = Math.max(b.args[0] * 2, a.width) + padding;
+                        a.height = Math.max(b.args[0] * 2, a.height) + padding;
                     } else {
-                        a.width = Math.max(b.args[0] * b.args[2], a.width);
-                        a.height = Math.max(b.args[1] * b.args[2], a.height);
+                        a.width = Math.max(b.args[0] * b.args[2], a.width) + padding;
+                        a.height = Math.max(b.args[1] * b.args[2], a.height) + padding;
                     }
                     return a;
                 },
                 { width: defaultWidth, height: defaultHeight }
             );
 
-        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
+        const svgString = renderToStaticMarkup(<RenderLayer padding={padding} width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
 
         this.setState({
             source,
@@ -186,7 +195,6 @@ class Workspace extends Component {
             height,
         });
 
-        const { rune } = this.state;
         rune.svg = svgString;
         this.updateRune(rune);
     };
@@ -217,7 +225,7 @@ class Workspace extends Component {
                 {parsed && rune && (
                     <>
                         <Preview rendered={rune.svg} />
-                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                        <Renderer padding={rune.padding} mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
                     </>
                 )}
             </div>

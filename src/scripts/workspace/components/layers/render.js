@@ -3,7 +3,8 @@ import { Store } from '../../../data';
 import { modes } from '../../../util/constants';
 
 export default function RenderLayer(props) {
-    const { height, width, grids, PathElements } = props;
+    const { height, width, grids, PathElements, padding } = props;
+    console.log('Padding', padding);
     const viewBox = `0 0 ${width} ${height}`;
 
     let state = Store.getState();
@@ -15,7 +16,7 @@ export default function RenderLayer(props) {
 
     return (
         <svg xmlns="http://www.w3.org/2000/svg" className="renderer-svg" height={height} width={width} viewBox={viewBox}>
-            <g id="style" fill={fill} stroke={stroke}>
+            <g id="style" fill={fill} stroke={stroke} transform={`translate(${padding} ${padding})`}>
                 {PathElements && <PathElements />}
             </g>
         </svg>

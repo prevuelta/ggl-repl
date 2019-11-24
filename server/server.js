@@ -62,12 +62,19 @@ app.route('/rune/:id?')
         console.log('Writing file');
 
         fs.writeFile(filePath, JSON.stringify(rune), err => {
-            saveThumbnail(rune.svg, thumbPath, () => {
-                if (err) {
-                    res.status(500).send("Couldn't save file");
+            if (rune.svg !== '') {
+                try {
+                    saveThumbnail(rune.svg, thumbPath, () => {
+                        if (err) {
+                            res.status(500).send("Couldn't save file");
+                        }
+                        res.sendStatus(200);
+                    });
+                } catch (err) {
+                    console.log(err);
+                    res.status(500).send('Failure creating thumbnail');
                 }
-                res.sendStatus(200);
-            });
+            }
         });
     })
     .put((req, res) => {
@@ -81,6 +88,7 @@ app.route('/rune/:id?')
             group,
             modified: now,
             created: now,
+            padding: 0,
         };
         const filePath = `${storage}/${rune.id}.json`;
 

@@ -35,12 +35,10 @@
         align-items: center;
         color: $sky;
 
-        &:hover {
-            background: white;
-        }
-
+        &:hover,
         &.active {
-            background: white;
+            text-decoration: underline;
+            background: $dark;
         }
     }
 

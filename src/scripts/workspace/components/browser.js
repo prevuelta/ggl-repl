@@ -13,8 +13,6 @@ export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
         return [...a, b];
     }, []);
 
-    console.log(sortedRunes);
-
     return (
         <div className="browser">
             <header className="flex-row">
@@ -28,7 +26,7 @@ export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
                         return (
                             <li key={r.id} onClick={() => (window.location.hash = r.id)} className={r.id === active ? 'active' : ''}>
                                 <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
-                                {r.name} {r.group}
+                                {r.name}
                                 <div className="actions">
                                     <Button
                                         icon="true"
