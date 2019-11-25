@@ -55,7 +55,9 @@ class Workspace extends Component {
             return;
         }
         const { runes } = this.state;
-        this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) });
+        return new Promise((res, rej) => {
+            this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) }, res);
+        });
     };
 
     updateAndSaveRune = rune => {
