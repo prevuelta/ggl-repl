@@ -40,6 +40,10 @@ class Workspace extends Component {
                 this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
             }
         });
+
+        globals.onUpdate = () => {
+            this.parseInput();
+        };
     }
 
     autosave = () => {
@@ -49,6 +53,7 @@ class Workspace extends Component {
     };
 
     updateRune = rune => {
+        globals.rune = rune;
         const index = this.state.runes.findIndex(r => r.id === rune.id);
         if (index === -1) {
             console.warn('Error updating rune: rune not found');
@@ -61,9 +66,10 @@ class Workspace extends Component {
     };
 
     updateAndSaveRune = rune => {
-        this.updateRune(rune);
-        this.hideEditDialog();
-        this.saveRune();
+        this.updateRune(rune).then(() => {
+            this.hideEditDialog();
+            this.saveRune();
+        });
     };
 
     getRunes = () => {
@@ -161,7 +167,11 @@ class Workspace extends Component {
         this.setState({ showEditDialog: true });
     };
 
-    parseInput = (source, event) => {
+    parseInput = source => {
+        if (!source && this.state.rune) {
+            source = this.state.rune.script;
+        }
+
         const { rune } = this.state;
         // Create token list
         const lexed = lex(source);
@@ -179,15 +189,15 @@ class Workspace extends Component {
                         a.width = Math.max(b.args[0] * 2, a.width) + padding;
                         a.height = Math.max(b.args[0] * 2, a.height) + padding;
                     } else {
-                        a.width = Math.max(b.args[0] * b.args[2], a.width) + padding;
-                        a.height = Math.max(b.args[1] * b.args[2], a.height) + padding;
+                        a.width = Math.max(b.args[0] * b.args[2], a.width) + padding * 2;
+                        a.height = Math.max(b.args[1] * b.args[2], a.height) + padding * 2;
                     }
                     return a;
                 },
                 { width: defaultWidth, height: defaultHeight }
             );
 
-        const svgString = renderToStaticMarkup(<RenderLayer padding={padding} width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
+        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
 
         this.setState({
             source,
@@ -227,7 +237,7 @@ class Workspace extends Component {
                 {parsed && rune && (
                     <>
                         <Preview rendered={rune.svg} />
-                        <Renderer padding={rune.padding} mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
                     </>
                 )}
             </div>

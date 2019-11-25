@@ -296,8 +296,6 @@ export default function(string) {
                             }
                         }, str);
 
-                        console.log('Arg', arg, isNaN(arg));
-
                         return isNaN(arg) ? arg : +arg;
                     });
                 });

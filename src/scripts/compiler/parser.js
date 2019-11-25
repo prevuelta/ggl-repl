@@ -53,7 +53,9 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     };
 }
 
-function createSVGElement(type, token, childTokens, children) {}
+function mapChildren(children) {
+    return children.map((Child, i) => <Child key={i} />);
+}
 
 // TODO: generic transform element factory
 
@@ -82,9 +84,7 @@ const elements = {
                         <Child />
                     ))}
                 </g>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {mapChildren(children)}
             </>
         );
     },
@@ -103,9 +103,7 @@ const elements = {
         // const strokeAlignment = { c: 'center', i: 'inner', o: 'outer' }[rawStrokeAlignment];
         return (
             <g stroke={color} strokeWidth={strokeWidth} strokeOpacity={strokeOpacity}>
-                {children.map(Child => (
-                    <Child />
-                ))}
+                {mapChildren(children)}
             </g>
         );
     },

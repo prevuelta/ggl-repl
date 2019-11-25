@@ -1,10 +1,12 @@
 import React from 'react';
 import { Store } from '../../../data';
 import { modes } from '../../../util/constants';
+import { withRune } from '../../../hocs';
 
-export default function RenderLayer(props) {
-    const { height, width, grids, PathElements, padding } = props;
-    console.log('Padding', padding);
+function RenderLayer(props) {
+    const { height, width, grids, PathElements, rune } = props;
+    const padding = +rune.padding;
+
     const viewBox = `0 0 ${width} ${height}`;
 
     let state = Store.getState();
@@ -16,9 +18,12 @@ export default function RenderLayer(props) {
 
     return (
         <svg xmlns="http://www.w3.org/2000/svg" className="renderer-svg" height={height} width={width} viewBox={viewBox}>
+            {padding && <rect stroke="#ff00ff" x={0} y={0} width={width} height={height} />}
             <g id="style" fill={fill} stroke={stroke} transform={`translate(${padding} ${padding})`}>
                 {PathElements && <PathElements />}
             </g>
         </svg>
     );
 }
+
+export default withRune(RenderLayer);

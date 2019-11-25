@@ -4,7 +4,7 @@ import { OverlayLayer, GridLayer, RenderLayer } from './layers';
 import { Data } from '../../data';
 
 function Renderer(props) {
-    const { lexed, mode, elements, rune, width, height, padding } = props;
+    const { lexed, mode, elements, rune, width, height } = props;
     const verticalPadding = 40;
     const horizontalPadding = 40;
 
@@ -23,7 +23,7 @@ function Renderer(props) {
                         ({width}x{height})
                     </span>
                 </p>
-                <RenderLayer padding={padding} width={width} height={height} PathElements={props.elements.paths} grids={props.elements.grids} />
+                <RenderLayer width={width} height={height} PathElements={props.elements.paths} grids={props.elements.grids} />
             </div>
         </div>
     );

@@ -22,21 +22,17 @@ export function GridLines(props) {
 }
 
 export default function Grid(props) {
-    const { height, width, rune } = props;
-    const padding = rune ? rune.padding : 0;
+    const { height, width } = props;
     return (
         <svg className="background-svg" height={height} width={width}>
             <GridLines {...props} />
-            <rect stroke="#ff0000" fill="blue" opacity="0.2" x={0} y={0} width={width + padding * 2} height={height + padding * 2} />
         </svg>
     );
 }
-
-const GridWithRune = withRune(Grid);
 
 export function GridContainer(props) {
     const [xUnits, yUnits, gridUnit = 20, divisions = 1] = props.args;
     const width = xUnits * gridUnit;
     const height = yUnits * gridUnit;
-    return <GridWithRune width={width} height={height} gridUnit={gridUnit} xUnits={xUnits} yUnits={yUnits} divisions={divisions} />;
+    return <Grid width={width} height={height} gridUnit={gridUnit} xUnits={xUnits} yUnits={yUnits} divisions={divisions} />;
 }
