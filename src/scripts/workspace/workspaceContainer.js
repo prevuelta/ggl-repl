@@ -25,21 +25,21 @@ class Workspace extends Component {
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        const runes = await this.getRunes();
+
         window.addEventListener('hashchange', e => {
             this.setRune(window.location.hash.substr(1));
         });
 
-        this.getRunes().then(runes => {
-            if (window.location.hash) {
-                this.setRune(window.location.hash.substr(1));
-            } else {
-                window.location.hash = runes[0].id;
-            }
-            if (AUTOSAVE_ON) {
-                this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
-            }
-        });
+        if (window.location.hash) {
+            this.setRune(window.location.hash.substr(1));
+        } else {
+            window.location.hash = runes[0].id;
+        }
+        if (AUTOSAVE_ON) {
+            this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
+        }
 
         globals.onUpdate = () => {
             this.parseInput();
@@ -65,9 +65,12 @@ class Workspace extends Component {
         // });
     };
 
-    getRunes = () => {
-        return runeData.get().then(runes => {
-            this.setState({ runes });
+    getRunes = async () => {
+        const runes = await runeData.get();
+        return new Promise((res, rej) => {
+            this.setState({ runes }, () => {
+                res(runes);
+            });
         });
     };
 
@@ -118,6 +121,7 @@ class Workspace extends Component {
             rune = this.getRune(rune);
         }
         if (rune) {
+            console.log(rune);
             globals.rune = rune;
             this.setState({ rune }, () => {
                 this.parseInput(rune.script);
@@ -156,11 +160,11 @@ class Workspace extends Component {
             .reduce(
                 (a, b) => {
                     if (b.name === 'circlegrid') {
-                        a.width = Math.max(b.args[0] * 2, a.width) + padding;
-                        a.height = Math.max(b.args[0] * 2, a.height) + padding;
+                        a.width = Math.max(b.args[0] * 2, a.width);
+                        a.height = Math.max(b.args[0] * 2, a.height);
                     } else {
-                        a.width = Math.max(b.args[0] * b.args[2], a.width) + padding * 2;
-                        a.height = Math.max(b.args[1] * b.args[2], a.height) + padding * 2;
+                        a.width = Math.max(b.args[0] * b.args[2], a.width);
+                        a.height = Math.max(b.args[1] * b.args[2], a.height);
                     }
                     return a;
                 },
@@ -169,16 +173,16 @@ class Workspace extends Component {
 
         const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
 
+        rune.svg = svgString;
+
         this.setState({
             source,
             parsed,
             lexed,
             width,
             height,
+            rune,
         });
-
-        rune.svg = svgString;
-        // this.updateRune(rune);
     };
 
     cursorChange = selection => {
@@ -200,7 +204,7 @@ class Workspace extends Component {
 
         return (
             <div className="workspace">
-                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.updateAndSaveRune} close={this.finishEditing} />}
+                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.finishEditing} close={this.hideEditDialog} />}
                 <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.startEditing} />
                 <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
                 <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />

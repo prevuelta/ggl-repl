@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, Button } from '.';
 
-const values = ['name', 'group', '#padding'];
+const values = ['name', 'group'];
 
 export default ({ updateRune = () => {}, rune, close }) => {
     const [newRune, setRune] = useState(rune);
