@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
 import example from '../example.rs';
-import { generateName, guid, globals } from '../util';
+import { generateName, guid, globals, runeData } from '../util';
 import { lex, parse } from '../compiler';
 import { RenderLayer } from './components/layers';
 
@@ -53,38 +53,29 @@ class Workspace extends Component {
     };
 
     updateRune = rune => {
-        globals.rune = rune;
-        const index = this.state.runes.findIndex(r => r.id === rune.id);
-        if (index === -1) {
-            console.warn('Error updating rune: rune not found');
-            return;
-        }
-        const { runes } = this.state;
-        return new Promise((res, rej) => {
-            this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) }, res);
-        });
-    };
-
-    updateAndSaveRune = rune => {
-        this.updateRune(rune).then(() => {
-            this.hideEditDialog();
-            this.saveRune();
-        });
+        // globals.rune = rune;
+        // const index = this.state.runes.findIndex(r => r.id === rune.id);
+        // if (index === -1) {
+        // console.warn('Error updating rune: rune not found');
+        // return;
+        // }
+        // const { runes } = this.state;
+        // return new Promise((res, rej) => {
+        //     this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) }, res);
+        // });
     };
 
     getRunes = () => {
-        return fetch('/runes')
-            .then(res => res.json())
-            .then(runes => {
-                return this.setState({ runes });
-            });
+        return runeData.get().then(runes => {
+            this.setState({ runes });
+        });
     };
 
     getRune = id => {
         return this.state.runes.find(r => r.id === id);
     };
 
-    saveRune = () => {
+    saveRune = async () => {
         const { source, runes, rune } = this.state;
 
         if (!rune) {
@@ -97,64 +88,35 @@ class Workspace extends Component {
         };
         this.setState({ message: 'Saving...' });
 
-        return fetch('/rune', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        }).then(res => {
-            let message;
-            if (res.status === 200) {
-                message = '~> Rune saved. <~';
-            } else {
-                message = '!!Problem saving Rune!!';
-            }
-            this.setState({ message });
-            this.getRunes();
-        });
+        const res = await runeData.save(payload);
+        let message;
+        if (res.status === 200) {
+            message = '~> Rune saved. <~';
+        } else {
+            message = '!!Problem saving Rune!!';
+        }
+        this.setState({ message });
+        await this.getRunes();
     };
 
-    newRune = () => {
-        this.saveRune().then(() => {
-            fetch('/rune', {
-                method: 'put',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ group: 'ungrouped' }),
-            }).then(res => {
-                console.log(res.status);
-                if (res.status === 200) {
-                    this.getRunes().then(() => {
-                        this.setRune(this.state.runes[0]);
-                    });
-                }
-            });
-        });
+    newRune = async () => {
+        await this.saveRune();
+        const res = await runeData.new();
+        await this.getRunes();
+        if (res.status === 200) {
+            this.setRune(this.state.runes[0]);
+        }
     };
 
-    deleteRune = id => {
-        fetch('/rune', {
-            method: 'delete',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id }),
-        })
-            .then(res => {
-                this.getRunes();
-            })
-            .catch(err => {
-                console.log(err);
-            });
+    deleteRune = async id => {
+        await runeData.delete(id);
+        this.getRunes();
     };
 
     setRune = rune => {
         if (typeof rune === 'string') {
             rune = this.getRune(rune);
         }
-        console.log('Setting rune', rune);
         if (rune) {
             globals.rune = rune;
             this.setState({ rune }, () => {
@@ -163,8 +125,16 @@ class Workspace extends Component {
         }
     };
 
-    editRune = id => {
+    startEditing = id => {
         this.setState({ showEditDialog: true });
+    };
+
+    finishEditing = rune => {
+        console.log(this.state.runes, rune);
+        // this.updateRune(rune).then(() => {
+        //     this.hideEditDialog();
+        // this.saveRune();
+        // });
     };
 
     parseInput = source => {
@@ -208,7 +178,7 @@ class Workspace extends Component {
         });
 
         rune.svg = svgString;
-        this.updateRune(rune);
+        // this.updateRune(rune);
     };
 
     cursorChange = selection => {
@@ -230,8 +200,8 @@ class Workspace extends Component {
 
         return (
             <div className="workspace">
-                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.updateAndSaveRune} close={this.hideEditDialog} />}
-                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.editRune} />
+                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.updateAndSaveRune} close={this.finishEditing} />}
+                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.startEditing} />
                 <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
                 <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
