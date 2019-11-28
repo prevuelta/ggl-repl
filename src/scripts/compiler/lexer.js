@@ -147,8 +147,9 @@ const singleArgReplacements = [
     {
         name: 'Grid Units',
         regex: /((?:^-)?[\d|\.]*)u([\d|\.]*)/,
-        replace(str, matches, { gridUnit, gridDivisions }) {
-            return str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
+        replace(str, matches, { gridUnit, gridDivisions, gridPadding }) {
+            console.log('Grid padding', gridPadding);
+            return str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions) + gridPadding);
         },
     },
     {
@@ -206,7 +207,8 @@ export default function(string) {
         gridUnit: 10,
         x: 10,
         y: 10,
-        divisions: 1,
+        gridDivisions: 1,
+        gridPadding: 0,
     };
 
     const lines = string
@@ -315,7 +317,7 @@ export default function(string) {
                 }
                 if (name === 'squaregrid') {
                     if (!tokenArgs.length) return;
-                    const [xUnits, yUnits, gridUnit, gridDivisions, offsetX = 0, offsetY = 0] = tokenArgs[0];
+                    const [xUnits, yUnits, gridUnit, gridDivisions, gridPadding, offsetX = 0, offsetY = 0] = tokenArgs[0];
 
                     gridContext = {
                         width: xUnits * gridUnit,
@@ -324,6 +326,7 @@ export default function(string) {
                         yUnits,
                         gridUnit,
                         gridDivisions,
+                        gridPadding,
                         offsetX,
                         offsetY,
                     };

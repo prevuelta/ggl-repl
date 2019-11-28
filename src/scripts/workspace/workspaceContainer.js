@@ -163,8 +163,10 @@ class Workspace extends Component {
                         a.width = Math.max(b.args[0] * 2, a.width);
                         a.height = Math.max(b.args[0] * 2, a.height);
                     } else {
-                        a.width = Math.max(b.args[0] * b.args[2], a.width);
-                        a.height = Math.max(b.args[1] * b.args[2], a.height);
+                        const gridWidth = b.args[0] * b.args[2] + b.args[4] * 2;
+                        const gridHeight = b.args[1] * b.args[2] + b.args[4] * 2;
+                        a.width = Math.max(gridWidth, a.width);
+                        a.height = Math.max(gridHeight, a.height);
                     }
                     return a;
                 },

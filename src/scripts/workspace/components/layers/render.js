@@ -18,7 +18,6 @@ function RenderLayer(props) {
 
     return (
         <svg xmlns="http://www.w3.org/2000/svg" className="renderer-svg" height={height} width={width} viewBox={viewBox}>
-            {padding && <rect stroke="#ff00ff" fill="none" x={0} y={0} width={width} height={height} strokeDasharray="2 2" />}
             {PathElements && <PathElements />}
         </svg>
     );
