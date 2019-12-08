@@ -30,15 +30,3 @@ function Renderer(props) {
 }
 
 export default Renderer;
-// {false && mode !== modes.PREVIEW && (
-//     <OverlayLayer width={width} height={height} lexed={lexed} />
-// )}
-// csvg id="overlay" height={height} width={width}></svg>
-// <GridLayer
-//     width={width}
-//     height={height}
-//     gridUnit={rune.gridUnit}
-//     xUnits={rune.x}
-//     yUnits={rune.y}
-//     divisions={rune.divisions}
-// />

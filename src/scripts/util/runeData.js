@@ -3,6 +3,7 @@ export default {
         return fetch('/runes').then(res => res.json());
     },
     new: () => {
+        console.log('Creating new rune');
         return fetch('/rune', {
             method: 'put',
             headers: {

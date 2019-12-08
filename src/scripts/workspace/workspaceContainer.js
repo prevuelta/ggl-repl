@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import {
-    Button,
-    Source,
-    Renderer,
-    Browser,
-    Preview,
-    StatusBar,
-    Dialog,
-    EditRuneDialog,
-} from './components';
+import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
 import example from '../example.rs';
 import { generateName, guid, globals, runeData } from '../util';
 import { lex, parse } from '../compiler';
@@ -162,42 +153,45 @@ class Workspace extends Component {
         console.log('TOKENS', lexed);
         const parsed = parse(lexed);
         // Create render tree
-        console.log('PARSED', parsed);
-        const padding = +rune.padding;
-        const { width, height } = lexed
-            .filter(t => t.name.includes('grid'))
-            .reduce(
-                (a, b) => {
-                    if (b.name === 'circlegrid') {
-                        a.width = Math.max(b.args[0] * 2, a.width);
-                        a.height = Math.max(b.args[0] * 2, a.height);
-                    } else {
-                        const gridWidth =
-                            b.args[0] * b.args[2] +
-                            // b.args[4] * 2 +
-                            (b.args[5] || 0);
-                        const gridHeight =
-                            b.args[1] * b.args[2] +
-                            // b.args[4] * 2 +
-                            (b.args[6] || 0);
-                        a.width = Math.max(gridWidth, a.width);
-                        a.height = Math.max(gridHeight, a.height);
-                    }
-                    return a;
-                },
-                { width: defaultWidth, height: defaultHeight }
-            );
-
-        const svgString = renderToStaticMarkup(
-            <RenderLayer
-                width={width}
-                height={height}
-                fill={'black'}
-                PathElements={parse(lexed, false).paths}
-            />
-        );
+        const svgString = renderToStaticMarkup(<RenderLayer PathElements={parse(lexed, false).paths} />);
 
         rune.svg = svgString;
+
+        let width, height;
+
+        if (lexed.length && lexed[0].name === 'document') {
+            console.log(lexed[0]);
+            width = lexed[0].args[0] + lexed[0].args[2] * 2;
+            height = lexed[0].args[1] + lexed[0].args[2] * 2;
+        } else {
+            const size = lexed
+                .filter(t => t.name.includes('grid'))
+                .reduce(
+                    (a, b) => {
+                        if (b.name === 'circlegrid') {
+                            a.width = Math.max(b.args[0] * 2, a.width);
+                            a.height = Math.max(b.args[0] * 2, a.height);
+                        } else {
+                            const gridWidth =
+                                b.args[0] * b.args[2] +
+                                // b.args[4] * 2 +
+                                (b.args[5] || 0);
+                            const gridHeight =
+                                b.args[1] * b.args[2] +
+                                // b.args[4] * 2 +
+                                (b.args[6] || 0);
+                            a.width = Math.max(gridWidth, a.width);
+                            a.height = Math.max(gridHeight, a.height);
+                        }
+                        return a;
+                    },
+                    { width: defaultWidth, height: defaultHeight }
+                );
+            width = size.width;
+            height = size.height;
+        }
+
+        console.log('Width', width, 'Height', height);
 
         this.setState({
             source,
@@ -224,58 +218,18 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const {
-            parsed,
-            lexed,
-            source,
-            runes,
-            rune,
-            width,
-            height,
-            message,
-            showEditDialog,
-        } = this.state;
+        const { parsed, lexed, source, runes, rune, width, height, message, showEditDialog } = this.state;
 
         return (
             <div className="workspace">
-                {showEditDialog && (
-                    <EditRuneDialog
-                        rune={rune}
-                        updateRune={this.finishEditing}
-                        close={this.hideEditDialog}
-                    />
-                )}
-                <StatusBar
-                    mode={state.app.mode}
-                    rune={rune}
-                    save={this.saveRune}
-                    message={message}
-                    edit={this.startEditing}
-                />
-                <Browser
-                    rune={rune}
-                    runes={runes}
-                    newRune={this.newRune}
-                    deleteRune={this.deleteRune}
-                    active={rune && rune.id}
-                />
-                <Source
-                    value={source}
-                    parseInput={this.parseInput}
-                    setExample={this.setExample}
-                    handleCursorChange={this.cursorChange}
-                />
+                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.finishEditing} close={this.hideEditDialog} />}
+                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.startEditing} />
+                <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
+                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
                 {parsed && rune && (
                     <>
                         <Preview rendered={rune.svg} />
-                        <Renderer
-                            mode={state.app.mode}
-                            width={width}
-                            height={height}
-                            rune={rune}
-                            elements={parsed}
-                            lexed={lexed}
-                        />
+                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
                     </>
                 )}
             </div>

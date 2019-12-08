@@ -80,6 +80,7 @@ app.route('/rune/:id?')
     .put((req, res) => {
         const now = new Date().toJSON();
         const { group } = req.body;
+        console.log('New rune', req.body);
         const rune = {
             id: guid(),
             script: '',

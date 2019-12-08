@@ -1,12 +1,7 @@
-import {  modes } from '../util/constants';
+import { modes } from '../util/constants';
 
 function Rune() {
-    return {
-        x: 8,
-        y: 10,
-        gridUnit: 30,
-        divisions: 5,
-    };
+    return {};
 }
 
 export default {

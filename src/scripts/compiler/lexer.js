@@ -3,92 +3,75 @@ const commonRegEx = {
     emptyLine: /^(\t| |\r)*$/,
 };
 
-const multiArgRegEx = /\s?([#|\-|\d|\.|a-z|\*|\/|\s]+?),?$/;
-const pairArgRegEx = /\s?([#|\-|\d|\.|a-z|\*|\/]+\s[#|\-|\d|\.|a-z|\*|\/]+)\s?/g;
-const singleArgRegEx = /\s?([#|\-|\d|\.|a-z|\*|\/]+)\s?$/g;
-const singleOrPairArgRegEx = /\s?([#|\-|\d|\.|a-z|\*|\/]+\s?[#|\-|\d|\.|a-z|\*|\/]+)?\s?/g;
-
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
 };
 
 const commands = {
+    d: {
+        name: 'document',
+    },
     sg: {
         name: 'squaregrid',
         type: 'grid',
-        argsRegEx: /\s?(\d+\s\d+\s[\d|u|\.|w|h]+\s\d+(\s\d+)?)/,
     },
     cg: {
         name: 'circlegrid',
         type: 'grid',
-        argsRegEx: multiArgRegEx,
     },
     r: {
         name: 'rotate',
         type: 'transform',
-        argsRegEx: multiArgRegEx,
     },
     ry: {
         name: 'reflect',
         data: 'y',
         type: 'transform',
-        argsRegEx: singleArgRegEx,
     },
     rx: {
         name: 'reflect',
         data: 'x',
         type: 'transform',
-        argsRegEx: singleArgRegEx,
     },
     sc: {
         name: 'scale',
         type: 'transform',
-        argsRegEx: singleOrPairArgRegEx,
     },
     tr: {
         name: 'translate',
         type: 'transform',
-        argsRegEx: pairArgRegEx,
     },
     s: {
         name: 'stroke',
         type: 'style',
-        argsRegEx: multiArgRegEx,
     },
     f: {
         name: 'fill',
         type: 'style',
-        argsRegEx: singleArgRegEx,
     },
     p: {
         name: 'point',
         type: 'path',
-        argsRegEx: singleOrPairArgRegEx,
     },
     '+': {
         name: 'vector',
         type: 'path',
-        argsRegEx: singleOrPairArgRegEx,
     },
     l: {
         name: 'corner',
         type: 'path',
-        argsRegEx: multiArgRegEx,
     },
     a: {
         name: 'arc',
         type: 'path',
-        argsRegEx: multiArgRegEx,
     },
     ci: {
         name: 'circle',
         type: 'shape',
-        argsRegEx: multiArgRegEx,
     },
     sq: {
         name: 'square',
         type: 'shape',
-        argsRegEx: multiArgRegEx,
     },
 };
 
@@ -149,31 +132,21 @@ const singleArgReplacements = [
         regex: /((?:^-)?[\d|\.]*)u([\d|\.]*)/,
         replace(str, matches, { gridUnit, gridDivisions, gridPadding }) {
             console.log('Grid padding', gridPadding);
-            return str.replace(
-                matches[0],
-                +matches[1] * gridUnit +
-                    +matches[2] * (gridUnit / gridDivisions)
-            );
+            return str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
         },
     },
     {
         name: 'Center',
         regex: /^c([x|y])$/,
         replace(str, matches, { width, height, gridUnit }) {
-            return str.replace(
-                matches[0],
-                { x: width, y: height }[matches[1]] / 2
-            );
+            return str.replace(matches[0], { x: width, y: height }[matches[1]] / 2);
         },
     },
     {
         name: 'Parts of PI',
         regex: /-?([h|q])pi/,
         replace(str, matches) {
-            const result = str.replace(
-                /.pi/,
-                { h: HALF_PI, q: QUARTER_PI }[matches[1]]
-            );
+            const result = str.replace(/.pi/, { h: HALF_PI, q: QUARTER_PI }[matches[1]]);
             return result;
         },
     },
@@ -181,13 +154,8 @@ const singleArgReplacements = [
         name: 'Width & Height',
         regex: /(-?[\d|\.]*)([w|h])/,
         replace(str, matches, { width, height }) {
-            const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
-                : 1;
-            const replacement =
-                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
+            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
+            const replacement = clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
             return str.replace(matches[0], replacement);
         },
     },
@@ -195,11 +163,7 @@ const singleArgReplacements = [
         name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
         replace(str, matches) {
-            const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
-                : 1;
+            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
             });
@@ -236,13 +200,7 @@ export default function(string) {
         .split('\n');
     let tokens = [];
     lines
-        .filter(
-            line =>
-                !(
-                    commonRegEx.comment.test(line.trim()) ||
-                    commonRegEx.emptyLine.test(line)
-                )
-        )
+        .filter(line => !(commonRegEx.comment.test(line.trim()) || commonRegEx.emptyLine.test(line)))
         .map(line => {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
@@ -289,9 +247,7 @@ export default function(string) {
                 return;
             }
 
-            const commandLines = line.split(
-                new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`)
-            );
+            const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`));
 
             commandLines.forEach(command => {
                 let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
@@ -306,18 +262,14 @@ export default function(string) {
                 let tokenArgs = [],
                     matches;
 
-                tokenArgs = [...argStr.matchAll(argsRegEx)]
-                    .map(match => match[1])
-                    .filter(match => match !== undefined);
+                tokenArgs = argStr.trim().split(',');
 
                 const vars = { ...gridContext };
 
                 tokenArgs = tokenArgs.map(argStr => {
                     argStr.trim();
                     argStr = pairArgReplacements.reduce((a, b) => {
-                        return b.regex.test(a)
-                            ? b.replace(a, b.regex.exec(a), vars)
-                            : a;
+                        return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
                     }, argStr);
                     return argStr.split(' ').map(str => {
                         const arg = singleArgReplacements.reduce((a, b) => {
@@ -348,15 +300,7 @@ export default function(string) {
                 }
                 if (name === 'squaregrid') {
                     if (!tokenArgs.length) return;
-                    const [
-                        xUnits,
-                        yUnits,
-                        gridUnit,
-                        gridDivisions,
-                        gridPadding,
-                        offsetX = 0,
-                        offsetY = 0,
-                    ] = tokenArgs[0];
+                    const [xUnits, yUnits, gridUnit, gridDivisions, gridPadding, offsetX = 0, offsetY = 0] = tokenArgs[0];
 
                     gridContext = {
                         width: xUnits * gridUnit,

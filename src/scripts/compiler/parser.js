@@ -4,6 +4,9 @@ import { Grid, CircleGrid, GridContainer } from '../workspace/components';
 import { Node, Cross } from '../workspace/components/overlayHelperShapes';
 import { HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, polarToCartesian, radToDeg, COLORS } from '../util';
 import { Store } from '../data';
+import { globals } from '../util';
+
+const DEFAULT_DOC_ARGS = [100, 100, 0];
 
 const { Fragment } = React;
 
@@ -245,24 +248,74 @@ const elements = {
             </Fragment>
         );
     },
-    root: (_, children = []) => props => {
+    root: ({ token }, children = []) => props => {
+        return children.map(Child => <Child />);
+    },
+    document: ({ token }, children = []) => props => {
+        const [width, height, padding] = token.args;
+        const widthPlusPadding = width + padding * 2;
+        const heightPlusPadding = height + padding * 2;
+        const viewBox = `0 0 ${widthPlusPadding} ${heightPlusPadding}`;
+
+        // let width, height;
+
+        //         if (lexed.length && lexed[0].name === 'document') {
+        //             width = lexed[0][0];
+        //             height = lexed[0][1];
+        //         } else {
+        //             const size = lexed
+        //                 .filter(t => t.name.includes('grid'))
+        //                 .reduce(
+        //                     (a, b) => {
+        //                         if (b.name === 'circlegrid') {
+        //                             a.width = Math.max(b.args[0] * 2, a.width);
+        //                             a.height = Math.max(b.args[0] * 2, a.height);
+        //                         } else {
+        //                             const gridWidth =
+        //                                 b.args[0] * b.args[2] +
+        //                                 // b.args[4] * 2 +
+        //                                 (b.args[5] || 0);
+        //                             const gridHeight =
+        //                                 b.args[1] * b.args[2] +
+        //                                 // b.args[4] * 2 +
+        //                                 (b.args[6] || 0);
+        //                             a.width = Math.max(gridWidth, a.width);
+        //                             a.height = Math.max(gridHeight, a.height);
+        //                         }
+        //                         return a;
+        //                     },
+        //                     { width: defaultWidth, height: defaultHeight }
+        //                 );
+        //             width = size.width;
+        //             height = size.height;
+        //         }
+
         return (
-            <Fragment>
-                {children.map((Child, i) => (
-                    <Child key={i} />
-                ))}
-            </Fragment>
+            <svg xmlns="http://www.w3.org/2000/svg" className="renderer-svg" height={heightPlusPadding} width={widthPlusPadding} viewBox={viewBox}>
+                <rect stroke="#ff00ff" fill="none" x={0} y={0} width={widthPlusPadding} height={heightPlusPadding} strokeDasharray="2 2" />
+                <rect stroke="none" fill="#000" x={padding} y={padding} width={width} height={height} opacity="0.05" />
+                <g transform={`translate(${padding}, ${padding})`}>
+                    {children.map(Child => (
+                        <Child />
+                    ))}
+                </g>
+            </svg>
         );
     },
 };
 
 export default function(tokens, showHelpers = true) {
     let $refs = {};
-    let state = Store.getState();
     let parseTree = { children: [], token: { name: 'root' } };
+    if (!tokens.length || tokens[0].name !== 'document') {
+        tokens.unshift({ name: 'document', args: DEFAULT_DOC_ARGS, depth: 0 });
+    }
     let node = parseTree;
     let currentDepth = -1;
-    tokens.forEach(token => {
+    tokens.forEach((token, i) => {
+        if (i && token.name === 'document') {
+            throw new Error('Document must be at root level');
+        }
         if (token.depth > currentDepth) {
             const newBranch = { token };
             node.children = [...(node.children || []), newBranch];
