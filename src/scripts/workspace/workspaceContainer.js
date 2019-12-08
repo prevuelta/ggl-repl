@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
+import {
+    Button,
+    Source,
+    Renderer,
+    Browser,
+    Preview,
+    StatusBar,
+    Dialog,
+    EditRuneDialog,
+} from './components';
 import example from '../example.rs';
 import { generateName, guid, globals, runeData } from '../util';
 import { lex, parse } from '../compiler';
@@ -163,8 +172,14 @@ class Workspace extends Component {
                         a.width = Math.max(b.args[0] * 2, a.width);
                         a.height = Math.max(b.args[0] * 2, a.height);
                     } else {
-                        const gridWidth = b.args[0] * b.args[2] + b.args[4] * 2;
-                        const gridHeight = b.args[1] * b.args[2] + b.args[4] * 2;
+                        const gridWidth =
+                            b.args[0] * b.args[2] +
+                            // b.args[4] * 2 +
+                            (b.args[5] || 0);
+                        const gridHeight =
+                            b.args[1] * b.args[2] +
+                            // b.args[4] * 2 +
+                            (b.args[6] || 0);
                         a.width = Math.max(gridWidth, a.width);
                         a.height = Math.max(gridHeight, a.height);
                     }
@@ -173,7 +188,14 @@ class Workspace extends Component {
                 { width: defaultWidth, height: defaultHeight }
             );
 
-        const svgString = renderToStaticMarkup(<RenderLayer width={width} height={height} fill={'black'} PathElements={parse(lexed, false).paths} />);
+        const svgString = renderToStaticMarkup(
+            <RenderLayer
+                width={width}
+                height={height}
+                fill={'black'}
+                PathElements={parse(lexed, false).paths}
+            />
+        );
 
         rune.svg = svgString;
 
@@ -202,18 +224,58 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune, width, height, message, showEditDialog } = this.state;
+        const {
+            parsed,
+            lexed,
+            source,
+            runes,
+            rune,
+            width,
+            height,
+            message,
+            showEditDialog,
+        } = this.state;
 
         return (
             <div className="workspace">
-                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.finishEditing} close={this.hideEditDialog} />}
-                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.startEditing} />
-                <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
-                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
+                {showEditDialog && (
+                    <EditRuneDialog
+                        rune={rune}
+                        updateRune={this.finishEditing}
+                        close={this.hideEditDialog}
+                    />
+                )}
+                <StatusBar
+                    mode={state.app.mode}
+                    rune={rune}
+                    save={this.saveRune}
+                    message={message}
+                    edit={this.startEditing}
+                />
+                <Browser
+                    rune={rune}
+                    runes={runes}
+                    newRune={this.newRune}
+                    deleteRune={this.deleteRune}
+                    active={rune && rune.id}
+                />
+                <Source
+                    value={source}
+                    parseInput={this.parseInput}
+                    setExample={this.setExample}
+                    handleCursorChange={this.cursorChange}
+                />
                 {parsed && rune && (
                     <>
                         <Preview rendered={rune.svg} />
-                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                        <Renderer
+                            mode={state.app.mode}
+                            width={width}
+                            height={height}
+                            rune={rune}
+                            elements={parsed}
+                            lexed={lexed}
+                        />
                     </>
                 )}
             </div>
