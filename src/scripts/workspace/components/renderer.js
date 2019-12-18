@@ -23,7 +23,12 @@ function Renderer(props) {
                         ({width}x{height})
                     </span>
                 </p>
-                <RenderLayer width={width} height={height} PathElements={props.elements.paths} grids={props.elements.grids} />
+                <RenderLayer
+                    width={width}
+                    height={height}
+                    PathElements={props.elements.paths}
+                    grids={props.elements.grids}
+                />
             </div>
         </div>
     );

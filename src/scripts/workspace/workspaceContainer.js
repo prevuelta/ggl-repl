@@ -1,8 +1,23 @@
 import React, { Component } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Button, Source, Renderer, Browser, Preview, StatusBar, Dialog, EditRuneDialog } from './components';
+import {
+    Button,
+    Source,
+    Renderer,
+    Browser,
+    Preview,
+    StatusBar,
+    Dialog,
+    EditRuneDialog,
+} from './components';
 import example from '../example.rs';
-import { generateName, guid, globals, runeData } from '../util';
+import {
+    generateName,
+    guid,
+    globals,
+    runeData,
+    getDocumentSize,
+} from '../util';
 import { lex, parse } from '../compiler';
 import { RenderLayer } from './components/layers';
 
@@ -54,15 +69,18 @@ class Workspace extends Component {
 
     updateRune = rune => {
         // globals.rune = rune;
-        // const index = this.state.runes.findIndex(r => r.id === rune.id);
-        // if (index === -1) {
-        // console.warn('Error updating rune: rune not found');
-        // return;
-        // }
-        // const { runes } = this.state;
-        // return new Promise((res, rej) => {
-        //     this.setState({ rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) }, res);
-        // });
+        const index = this.state.runes.findIndex(r => r.id === rune.id);
+        if (index === -1) {
+            console.warn('Error updating rune: rune not found');
+            return;
+        }
+        const { runes } = this.state;
+        return new Promise((res, rej) => {
+            this.setState(
+                { rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) },
+                res
+            );
+        });
     };
 
     getRunes = async () => {
@@ -135,10 +153,10 @@ class Workspace extends Component {
 
     finishEditing = rune => {
         console.log(this.state.runes, rune);
-        // this.updateRune(rune).then(() => {
-        //     this.hideEditDialog();
-        // this.saveRune();
-        // });
+        this.updateRune(rune).then(() => {
+            this.hideEditDialog();
+            this.saveRune();
+        });
     };
 
     parseInput = source => {
@@ -153,40 +171,22 @@ class Workspace extends Component {
         console.log('TOKENS', lexed);
         const parsed = parse(lexed);
         // Create render tree
-        const svgString = renderToStaticMarkup(<RenderLayer PathElements={parse(lexed, false).paths} />);
+        const svgString = renderToStaticMarkup(
+            <RenderLayer PathElements={parse(lexed, false).paths} />
+        );
 
         rune.svg = svgString;
 
         let width, height;
 
+        const size = getDocumentSize(lexed);
+
         if (lexed.length && lexed[0].name === 'document') {
-            console.log(lexed[0]);
-            width = lexed[0].args[0] + lexed[0].args[2] * 2;
-            height = lexed[0].args[1] + lexed[0].args[2] * 2;
+            const [w, h] = lexed[0].args;
+            const padding = (lexed[0].args[2] || 0) * 2;
+            width = (w === 'a' ? size.width : w) + padding;
+            height = (h === 'a' ? size.height : h) + padding;
         } else {
-            const size = lexed
-                .filter(t => t.name.includes('grid'))
-                .reduce(
-                    (a, b) => {
-                        if (b.name === 'circlegrid') {
-                            a.width = Math.max(b.args[0] * 2, a.width);
-                            a.height = Math.max(b.args[0] * 2, a.height);
-                        } else {
-                            const gridWidth =
-                                b.args[0] * b.args[2] +
-                                // b.args[4] * 2 +
-                                (b.args[5] || 0);
-                            const gridHeight =
-                                b.args[1] * b.args[2] +
-                                // b.args[4] * 2 +
-                                (b.args[6] || 0);
-                            a.width = Math.max(gridWidth, a.width);
-                            a.height = Math.max(gridHeight, a.height);
-                        }
-                        return a;
-                    },
-                    { width: defaultWidth, height: defaultHeight }
-                );
             width = size.width;
             height = size.height;
         }
@@ -218,18 +218,58 @@ class Workspace extends Component {
     render() {
         const { props } = this;
         const { state } = props;
-        const { parsed, lexed, source, runes, rune, width, height, message, showEditDialog } = this.state;
+        const {
+            parsed,
+            lexed,
+            source,
+            runes,
+            rune,
+            width,
+            height,
+            message,
+            showEditDialog,
+        } = this.state;
 
         return (
             <div className="workspace">
-                {showEditDialog && <EditRuneDialog rune={rune} updateRune={this.finishEditing} close={this.hideEditDialog} />}
-                <StatusBar mode={state.app.mode} rune={rune} save={this.saveRune} message={message} edit={this.startEditing} />
-                <Browser rune={rune} runes={runes} newRune={this.newRune} deleteRune={this.deleteRune} active={rune && rune.id} />
-                <Source value={source} parseInput={this.parseInput} setExample={this.setExample} handleCursorChange={this.cursorChange} />
+                {showEditDialog && (
+                    <EditRuneDialog
+                        rune={rune}
+                        updateRune={this.finishEditing}
+                        close={this.hideEditDialog}
+                    />
+                )}
+                <StatusBar
+                    mode={state.app.mode}
+                    rune={rune}
+                    save={this.saveRune}
+                    message={message}
+                    edit={this.startEditing}
+                />
+                <Browser
+                    rune={rune}
+                    runes={runes}
+                    newRune={this.newRune}
+                    deleteRune={this.deleteRune}
+                    active={rune && rune.id}
+                />
+                <Source
+                    value={source}
+                    parseInput={this.parseInput}
+                    setExample={this.setExample}
+                    handleCursorChange={this.cursorChange}
+                />
                 {parsed && rune && (
                     <>
                         <Preview rendered={rune.svg} />
-                        <Renderer mode={state.app.mode} width={width} height={height} rune={rune} elements={parsed} lexed={lexed} />
+                        <Renderer
+                            mode={state.app.mode}
+                            width={width}
+                            height={height}
+                            rune={rune}
+                            elements={parsed}
+                            lexed={lexed}
+                        />
                     </>
                 )}
             </div>
