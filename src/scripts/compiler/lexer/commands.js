@@ -7,6 +7,10 @@ const gridCommands = {
         name: 'circlegrid',
         type: 'grid',
     },
+    gu: {
+        name: 'gridunit',
+        type: 'grid',
+    },
 };
 
 export const pathCommands = {
