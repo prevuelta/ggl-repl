@@ -213,6 +213,10 @@ export default function(string) {
                     });
                 });
 
+                if (name === 'gridunit') {
+                    gridContext.gridUnit = +tokenArgs[0];
+                }
+
                 if (name === 'circlegrid') {
                     if (!tokenArgs.length) return;
 
