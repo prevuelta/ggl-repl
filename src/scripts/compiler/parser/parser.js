@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Grid, CircleGrid, GridContainer } from '../workspace/components';
-import { Node, Cross } from '../workspace/components/overlayHelperShapes';
-import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg } from '../util';
-import { Store } from '../data';
-import { globals } from '../util';
+import { Grid, CircleGrid, GridContainer, Line } from '../../workspace/components';
+import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
+import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals } from '../../util';
+import { Store } from '../../data';
+import { pathCommands } from '../lexer/commands';
 
 const DEFAULT_DOC_ARGS = [100, 100, 0];
 
@@ -147,6 +147,7 @@ const elements = {
         let helpers = [];
         const points = [];
         (tokens || []).forEach((token, idx) => {
+            console.log('Parsing path token');
             const { name, args } = token;
             let string = '';
             if (isPointOrVector(name)) {
@@ -171,6 +172,26 @@ const elements = {
                 }
                 string = `${command} ${i} ${j}`;
                 points.push({ x: currentLocation.x, y: currentLocation.y });
+            } else if (name === 'bezier') {
+                const { x, y } = currentLocation;
+                const [x2, y2, c1x, c1y, c2x = 0, c2y = 0] = token.args;
+                currentLocation = { x: x2, y: y2 };
+                string = `M ${x} ${y} c ${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+                helpers.push(
+                    ...[
+                        {
+                            x: x + c1x,
+                            y: y + c1y,
+                        },
+                        {
+                            x: x2 + c2x,
+                            y: y2 + c2y,
+                        },
+                    ].map(n => <circle cx={n.x} cy={n.y} r={4} />),
+                    <Line x1={x} y1={x} x2={x + c1x} y2={y + c1y} />,
+                    <Line x1={x2} y1={y2} x2={x2 + c2x} y2={y2 + c2y} />
+                );
+                points.push({ x: x + x2, y: y + y2 });
             } else if (name === 'arc') {
                 const center = {
                     x: currentLocation.x + token.args[0],
@@ -345,7 +366,9 @@ export default function(tokens, showHelpers = true) {
 }
 
 function isDrawCommand(name) {
-    return ['vector', 'point', 'arc'].includes(name);
+    return Object.values(pathCommands)
+        .map(v => v.name)
+        .includes(name);
 }
 function isPointOrVector(name) {
     return ['vector', 'point'].includes(name);

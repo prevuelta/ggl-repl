@@ -1,78 +1,8 @@
-const commonRegEx = {
-    comment: /^\/\//,
-    emptyLine: /^(\t| |\r)*$/,
-};
+import commands from './commands';
+import { commentRegEx, emptyLineRegEx, pathTypesRegEx } from './regex';
 
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
-};
-
-const commands = {
-    d: {
-        name: 'document',
-    },
-    sg: {
-        name: 'squaregrid',
-        type: 'grid',
-    },
-    cg: {
-        name: 'circlegrid',
-        type: 'grid',
-    },
-    r: {
-        name: 'rotate',
-        type: 'transform',
-    },
-    ry: {
-        name: 'reflect',
-        data: 'y',
-        type: 'transform',
-    },
-    rx: {
-        name: 'reflect',
-        data: 'x',
-        type: 'transform',
-    },
-    sc: {
-        name: 'scale',
-        type: 'transform',
-    },
-    tr: {
-        name: 'translate',
-        type: 'transform',
-    },
-    s: {
-        name: 'stroke',
-        type: 'style',
-    },
-    f: {
-        name: 'fill',
-        type: 'style',
-    },
-    p: {
-        name: 'point',
-        type: 'path',
-    },
-    '+': {
-        name: 'vector',
-        type: 'path',
-    },
-    l: {
-        name: 'corner',
-        type: 'path',
-    },
-    a: {
-        name: 'arc',
-        type: 'path',
-    },
-    ci: {
-        name: 'circle',
-        type: 'shape',
-    },
-    sq: {
-        name: 'square',
-        type: 'shape',
-    },
 };
 
 const commandTypes = Object.keys(commands).reduce((a, b) => {
@@ -80,14 +10,10 @@ const commandTypes = Object.keys(commands).reduce((a, b) => {
     return a;
 }, {});
 
-const pathTypesRegEx = /[ap\+l]/;
-
 const { PI } = Math;
 const HALF_PI = PI / 2;
 const QUARTER_PI = PI / 4;
 const TWO_PI = PI * 2;
-
-const negative = str => str[0] === '-';
 
 const pairArgReplacements = [
     {
@@ -202,7 +128,7 @@ export default function(string) {
         .split('\n');
     let tokens = [];
     lines
-        .filter(line => !(commonRegEx.comment.test(line.trim()) || commonRegEx.emptyLine.test(line)))
+        .filter(line => !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line)))
         .map(line => {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
@@ -265,7 +191,6 @@ export default function(string) {
                     matches;
 
                 tokenArgs = argStr.trim().split(',');
-                console.log('TokenArgs', tokenArgs);
 
                 const vars = { ...gridContext };
 
@@ -274,7 +199,6 @@ export default function(string) {
                     argStr = pairArgReplacements.reduce((a, b) => {
                         return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
                     }, argStr);
-                    console.log('Midparse', argStr);
                     return argStr.split(' ').map(str => {
                         const arg = singleArgReplacements.reduce((a, b) => {
                             if (b.regex.test(a)) {
@@ -288,8 +212,6 @@ export default function(string) {
                         return isNaN(arg) ? arg : +arg;
                     });
                 });
-
-                console.log('Parsed token args', tokenArgs);
 
                 if (name === 'circlegrid') {
                     if (!tokenArgs.length) return;

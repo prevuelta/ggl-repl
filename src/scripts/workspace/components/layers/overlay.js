@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import { POINT_TYPES } from '../../../util/constants';
 import { getDistance } from '../../../util/trig';
 import { Node, Cross } from '../overlayHelperShapes';
-import { getArcEndpoint } from '../../../compiler/parser';
+import { getArcEndpoint } from '../../../compiler/parser/parser';
 const { Fragment } = React;
 
 const OverlayLayer = props => {
@@ -63,22 +63,9 @@ const OverlayLayer = props => {
     const elements = [
         ...points.map((point, i) => (
             <Fragment>
-                {point.circle && (
-                    <circle
-                        cx={point.circle.x}
-                        cy={point.circle.y}
-                        r={point.circle.radius}
-                        fill="none"
-                        stroke="red"
-                        opacity="0.5"
-                    />
-                )}
-                {point.type === 'node' && (
-                    <Node key={i} x={point.x} y={point.y} color={point.color} />
-                )}
-                {point.type === 'cross' && (
-                    <Cross location={point} color={point.color} size={10} />
-                )}
+                {point.circle && <circle cx={point.circle.x} cy={point.circle.y} r={point.circle.radius} fill="none" stroke="red" opacity="0.5" />}
+                {point.type === 'node' && <Node key={i} x={point.x} y={point.y} color={point.color} />}
+                {point.type === 'cross' && <Cross location={point} color={point.color} size={10} />}
             </Fragment>
         )),
     ];
