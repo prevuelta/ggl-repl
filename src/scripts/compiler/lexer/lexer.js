@@ -18,9 +18,9 @@ const TWO_PI = PI * 2;
 const pairArgReplacements = [
     {
         name: 'Circle unit',
-        regex: /^(.+?)r(.+?)s$/,
-        replace(str, matches, gridContext) {
-            const { radius, rings, segments, offset } = gridContext;
+        regex: /^(.+?)r(.+?)$/,
+        replace(str, matches, vars) {
+            const { radius, rings, segments, offset } = vars.circleGridContext;
             const r = +matches[1];
             const s = +matches[2];
             const sInterval = TWO_PI / segments;
@@ -144,6 +144,8 @@ export default function(string) {
         gridDivisions: 1,
     };
 
+    let circleGridContext = {};
+
     const lines = string
         .replace(/-\s*[\n|\r]\s*/g, ',')
         .trim()
@@ -219,7 +221,7 @@ export default function(string) {
 
                 tokenArgs = argStr.trim().split(',');
 
-                const vars = { ...gridContext };
+                const vars = { ...gridContext, circleGridContext };
 
                 tokenArgs = tokenArgs.map(argStr => {
                     argStr.trim();
@@ -251,7 +253,7 @@ export default function(string) {
 
                     const [radius, rings, segments, offset = 0] = tokenArgs[0];
 
-                    gridContext = {
+                    circleGridContext = {
                         width: radius * 2,
                         height: radius * 2,
                         radius,
