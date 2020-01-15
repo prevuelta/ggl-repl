@@ -17,6 +17,14 @@ const TWO_PI = PI * 2;
 
 const pairArgReplacements = [
     {
+        name: 'Center',
+        regex: /c/,
+        replace(str, matches, { width, height }) {
+            const center = `${width / 2} ${height / 2}`;
+            return str.replace(matches[0], center);
+        },
+    },
+    {
         name: 'Circle unit',
         regex: /^(.+?)r(.+?)$/,
         replace(str, matches, vars) {
