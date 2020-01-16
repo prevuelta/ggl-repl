@@ -11,6 +11,10 @@ const gridCommands = {
         name: 'gridunit',
         type: 'grid',
     },
+    ag: {
+        name: 'anglegrid',
+        type: 'grid',
+    },
 };
 
 export const pathCommands = {
@@ -36,12 +40,7 @@ export const pathCommands = {
     },
 };
 
-export default {
-    ...gridCommands,
-    ...pathCommands,
-    d: {
-        name: 'document',
-    },
+const transformCommands = {
     r: {
         name: 'rotate',
         type: 'transform',
@@ -64,14 +63,9 @@ export default {
         name: 'translate',
         type: 'transform',
     },
-    s: {
-        name: 'stroke',
-        type: 'style',
-    },
-    f: {
-        name: 'fill',
-        type: 'style',
-    },
+};
+
+const shapeCommands = {
     ci: {
         name: 'circle',
         type: 'shape',
@@ -79,5 +73,22 @@ export default {
     sq: {
         name: 'square',
         type: 'shape',
+    },
+};
+
+export default {
+    ...gridCommands,
+    ...pathCommands,
+    ...transformCommands,
+    ...shapeCommands,
+    re: {
+        name: 'repeat',
+    },
+    d: {
+        name: 'document',
+    },
+    s: {
+        name: 'style',
+        type: 'style',
     },
 };
