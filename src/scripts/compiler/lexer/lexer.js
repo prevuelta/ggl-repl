@@ -26,9 +26,8 @@ const pairArgReplacements = [
     },
     {
         name: 'Loop variables',
-        regex: /{(.)}/,
+        regex: /\{(.)\}/,
         replace(str, matches, { loopContext }) {
-            console.log('Loop replacement', str, matches, loopContext.count);
             return str.replace(matches[0], loopContext.count);
         },
     },
@@ -72,14 +71,11 @@ const singleArgReplacements = [
     },
     {
         name: 'Grid Units',
-        regex: /^((?:^-)?[\d|\.]*)u([\d|\.]*)$/,
+        regex: /((?:^-)?[\d|\.]*)u([\d|\.]*)$/,
         replace(str, matches, { gridUnit, gridDivisions }) {
-            const result = str.replace(
-                matches[0],
-                +matches[1] * gridUnit +
-                    +matches[2] * (gridUnit / gridDivisions)
-            );
-
+            console.log(str, matches);
+            const result = str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
+            console.log('Result', result);
             return result;
         },
     },
@@ -87,20 +83,14 @@ const singleArgReplacements = [
         name: 'Center',
         regex: /^c([x|y])$/,
         replace(str, matches, { width, height, gridUnit }) {
-            return str.replace(
-                matches[0],
-                { x: width, y: height }[matches[1]] / 2
-            );
+            return str.replace(matches[0], { x: width, y: height }[matches[1]] / 2);
         },
     },
     {
         name: 'Parts of PI',
         regex: /-?([h|q])pi/,
         replace(str, matches) {
-            const result = str.replace(
-                /.pi/,
-                { h: HALF_PI, q: QUARTER_PI }[matches[1]]
-            );
+            const result = str.replace(/.pi/, { h: HALF_PI, q: QUARTER_PI }[matches[1]]);
             return result;
         },
     },
@@ -109,13 +99,8 @@ const singleArgReplacements = [
         regex: /(-?[\d|\.]*)([w|h])/,
         replace(str, matches, { width, height }) {
             // console.log('Width & height', str, matches, width, height);
-            const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
-                : 1;
-            const replacement =
-                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
+            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
+            const replacement = clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
             return str.replace(matches[0], replacement);
         },
     },
@@ -123,11 +108,7 @@ const singleArgReplacements = [
         name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
         replace(str, matches) {
-            const multiplier = matches[1]
-                ? matches[1] === '-'
-                    ? -1
-                    : matches[1]
-                : 1;
+            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
             });
@@ -135,8 +116,9 @@ const singleArgReplacements = [
     },
     {
         name: 'Multiplication & division',
-        regex: /^(.+?)([\*|\/|\-|\+])(.+?)$/,
+        regex: /^([\d|\.]+)([\*|\/|\-|\+])([\d|\.]+)/,
         replace(str, matches) {
+            console.log(str, matches);
             return {
                 '*': (a, b) => a * b,
                 '+': (a, b) => a + b,
@@ -169,10 +151,7 @@ export default function(string) {
     let exitLoopDepth;
 
     lines
-        .filter(
-            line =>
-                !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line))
-        )
+        .filter(line => !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line)))
         .map(line => {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
@@ -198,12 +177,6 @@ export default function(string) {
             if (typeRef === 're') {
                 isRepeating = true;
                 exitLoopDepth = depth;
-                loopContext = {
-                    count: 0,
-                    increment: 1,
-                    limit: 3,
-                    ref: 'x',
-                };
                 console.log('Start loop', exitLoopDepth);
                 tokens.push({
                     name: 'repeat',
@@ -219,6 +192,12 @@ export default function(string) {
             }
 
             if (isRepeating) {
+                loopContext = {
+                    count: 0,
+                    increment: 1,
+                    limit: 3,
+                    ref: 'x',
+                };
                 for (let i = 0; i < loopContext.limit; i++) {
                     loopContext.count += loopContext.increment;
                     processLine();
@@ -255,9 +234,7 @@ export default function(string) {
                     return;
                 }
 
-                const commandLines = line.split(
-                    new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`)
-                );
+                const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`));
 
                 commandLines.forEach(command => {
                     let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
@@ -283,10 +260,9 @@ export default function(string) {
                     tokenArgs = tokenArgs.map(argStr => {
                         argStr.trim();
                         argStr = pairArgReplacements.reduce((a, b) => {
-                            return b.regex.test(a)
-                                ? b.replace(a, b.regex.exec(a), vars)
-                                : a;
+                            return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
                         }, argStr);
+                        console.log('Arg str', argStr);
                         return argStr.split(' ').map(str => {
                             const arg = singleArgReplacements.reduce((a, b) => {
                                 if (b.regex.test(a)) {
@@ -308,12 +284,7 @@ export default function(string) {
                     if (name === 'circlegrid') {
                         if (!tokenArgs.length) return;
 
-                        const [
-                            radius,
-                            rings,
-                            segments,
-                            offset = 0,
-                        ] = tokenArgs[0];
+                        const [radius, rings, segments, offset = 0] = tokenArgs[0];
 
                         circleGridContext = {
                             width: radius * 2,
@@ -326,14 +297,7 @@ export default function(string) {
                     }
                     if (name === 'squaregrid') {
                         if (!tokenArgs.length) return;
-                        const [
-                            xUnits,
-                            yUnits,
-                            gridUnit,
-                            gridDivisions = 1,
-                            offsetX = 0,
-                            offsetY = 0,
-                        ] = tokenArgs[0];
+                        const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
 
                         gridContext = {
                             width: xUnits * gridUnit,

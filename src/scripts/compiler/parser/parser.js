@@ -1,25 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-    Grid,
-    CircleGrid,
-    GridContainer,
-    Line,
-} from '../../workspace/components';
+import { Grid, CircleGrid, GridContainer, Line } from '../../workspace/components';
 import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
-import {
-    COLORS,
-    HALF_PI,
-    PI,
-    TWO_PI,
-    addVector,
-    getAngle,
-    getDistance,
-    getDocumentSize,
-    polarToCartesian,
-    radToDeg,
-    globals,
-} from '../../util';
+import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals } from '../../util';
 import { Store } from '../../data';
 import { pathCommands } from '../lexer/commands';
 
@@ -36,23 +19,9 @@ const Helpers = ({ children, fill, stroke }) => {
 };
 
 export function tokenToArc(token, isFirst) {
-    const [
-        startX,
-        startY,
-        centerX,
-        centerY,
-        angle,
-        largeArcFlag,
-        sweep,
-    ] = token.args;
+    const [startX, startY, centerX, centerY, angle, largeArcFlag, sweep] = token.args;
 
-    return describeArc(
-        { x: startX, y: startY },
-        { x: centerX, y: centerY },
-        angle,
-        largeArcFlag,
-        sweep
-    );
+    return describeArc({ x: startX, y: startY }, { x: centerX, y: centerY }, angle, largeArcFlag, sweep);
 }
 
 export function tokenToVArc(start, center, token) {
@@ -109,9 +78,7 @@ const elements = {
         const axis = token.data;
         const scale = { x: '1, -1', y: '-1, 1' }[axis];
         const distancePx = `${distance}px`;
-        const origin = `${axis === 'y' ? distancePx : '0'} ${
-            axis === 'x' ? distancePx : '0'
-        }`;
+        const origin = `${axis === 'y' ? distancePx : '0'} ${axis === 'x' ? distancePx : '0'}`;
 
         return (
             <>
@@ -135,19 +102,10 @@ const elements = {
         );
     },
     style: ({ token }, children = []) => props => {
-        const [
-            fill = 'none',
-            stroke = RED,
-            strokeWidth = 1,
-            strokeOpacity = 1,
-        ] = token.args;
+        const [fill = 'none', stroke = RED, strokeWidth = 1, strokeOpacity = 1] = token.args;
         // const strokeAlignment = { c: 'center', i: 'inner', o: 'outer' }[rawStrokeAlignment];
         return (
-            <g
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={strokeWidth}
-                strokeOpacity={strokeOpacity}>
+            <g fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeOpacity={strokeOpacity}>
                 {mapChildren(children)}
             </g>
         );
@@ -166,7 +124,7 @@ const elements = {
         );
     },
     repeat: (args, children = []) => () => {
-        return children;
+        return children.map(Child => <Child />);
     },
     scale: ({ token }, children = []) => props => {
         const [scaleX, scaleY] = token.args;
@@ -180,16 +138,7 @@ const elements = {
     },
     square: ({ token }) => props => {
         const [x1, y1, x2, y2, cornerRadius = 0] = token.args;
-        return (
-            <rect
-                id={token.id}
-                x={x1}
-                y={y1}
-                width={x2}
-                height={y2}
-                rx={cornerRadius}
-            />
-        );
+        return <rect id={token.id} x={x1} y={y1} width={x2} height={y2} rx={cornerRadius} />;
     },
     circle: ({ token }) => props => {
         const [x, y, r] = token.args;
@@ -201,7 +150,7 @@ const elements = {
         let helpers = [];
         const points = [];
         (tokens || []).forEach((token, idx) => {
-            console.log('Parsing path token');
+            // console.log('Parsing path token');
             const { name, args } = token;
             let string = '';
             if (isPointOrVector(name)) {
@@ -254,26 +203,10 @@ const elements = {
                 const arcData = tokenToVArc(currentLocation, center, token);
                 string = `${idx ? 'L' : 'M'} ${arcData.string}`;
                 currentLocation = arcData.end;
-                points.push(
-                    { x: currentLocation.x, y: currentLocation.y },
-                    arcData.start,
-                    arcData.end
-                );
+                points.push({ x: currentLocation.x, y: currentLocation.y }, arcData.start, arcData.end);
                 helpers.push(
-                    <circle
-                        cx={arcData.center.x}
-                        cy={arcData.center.y}
-                        r={arcData.radius}
-                        fill="none"
-                        stroke="red"
-                        strokeWidth="1"
-                        opacity="0.5"
-                    />,
-                    <Cross
-                        x={arcData.center.x}
-                        y={arcData.center.y}
-                        size={10}
-                    />
+                    <circle cx={arcData.center.x} cy={arcData.center.y} r={arcData.radius} fill="none" stroke="red" strokeWidth="1" opacity="0.5" />,
+                    <Cross x={arcData.center.x} y={arcData.center.y} size={10} />
                 );
             } else if (name === 'corner') {
                 // const nextToken = tokenGroup.tokens[idx + 1];
@@ -299,29 +232,17 @@ const elements = {
                     y: y2,
                     color: 'purple',
                 };
-                helpers.push(
-                    <Cross x={p1.x} y={p1.y} color={p1.color} size={10} />,
-                    <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />
-                );
+                helpers.push(<Cross x={p1.x} y={p1.y} color={p1.color} size={10} />, <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />);
             }
 
             pathString.push(string);
         });
-        helpers = [
-            ...points.map(({ x, y }) => <Node x={x} y={y} color="red" />),
-            ...helpers,
-        ];
-        helpers.push(
-            <path d={pathString.join(' ')} stroke="red" fill="none" />
-        );
+        helpers = [...points.map(({ x, y }) => <Node x={x} y={y} color="red" />), ...helpers];
+        helpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);
 
         return props => (
             <Fragment>
-                <path
-                    id={path.id}
-                    d={pathString.join(' ') + (path.closed ? ' Z' : '')}
-                    fillRule="evenodd"
-                />
+                <path id={path.id} d={pathString.join(' ') + (path.closed ? ' Z' : '')} fillRule="evenodd" />
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -345,15 +266,7 @@ const elements = {
         const height = radius * 2;
         return (
             <Fragment>
-                {showHelpers && (
-                    <CircleGrid
-                        width={width}
-                        height={height}
-                        radius={radius}
-                        segments={segments}
-                        rings={rings}
-                    />
-                )}
+                {showHelpers && <CircleGrid width={width} height={height} radius={radius} segments={segments} rings={rings} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
@@ -377,33 +290,11 @@ const elements = {
         const viewBox = `0 0 ${widthPlusPadding} ${heightPlusPadding}`;
 
         return (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="renderer-svg"
-                height={heightPlusPadding}
-                width={widthPlusPadding}
-                fill={'#000000'}
-                viewBox={viewBox}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="renderer-svg" height={heightPlusPadding} width={widthPlusPadding} fill={'#000000'} viewBox={viewBox}>
                 {showHelpers && (
                     <>
-                        <rect
-                            stroke="#ff00ff"
-                            fill="none"
-                            x={0}
-                            y={0}
-                            width={widthPlusPadding}
-                            height={heightPlusPadding}
-                            strokeDasharray="2 2"
-                        />
-                        <rect
-                            stroke="none"
-                            fill="#000"
-                            x={padding}
-                            y={padding}
-                            width={width}
-                            height={height}
-                            opacity="0.05"
-                        />
+                        <rect stroke="#ff00ff" fill="none" x={0} y={0} width={widthPlusPadding} height={heightPlusPadding} strokeDasharray="2 2" />
+                        <rect stroke="none" fill="#000" x={padding} y={padding} width={width} height={height} opacity="0.05" />
                     </>
                 )}
 
@@ -429,28 +320,20 @@ export default function(tokens, showHelpers = true) {
     const size = getDocumentSize(tokens);
 
     tokens.forEach((token, i) => {
-        console.log('Processing token', token, currentDepth);
         if (i && token.name === 'document') {
             throw new Error('Document must be at root level');
         }
         if (token.depth > currentDepth) {
             const newBranch = { token };
-            console.log('Adding', newBranch);
             node.children = [...(node.children || []), newBranch];
             newBranch.parent = node;
             node = newBranch;
-        } else if (
-            token.depth < currentDepth ||
-            (node.token.name === 'path' && token.name === 'path') ||
-            !isDrawCommand(token.name)
-        ) {
-            console.log('Should add repeat here', token);
+        } else if (token.depth < currentDepth || (node.token.name === 'path' && token.name === 'path') || !isDrawCommand(token.name)) {
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
                 node = node.parent;
             }
             const newBranch = { token };
-            console.log(node.parent, 'adding repeat', token);
             node.parent.children.push(newBranch);
             newBranch.parent = node.parent;
             node = newBranch;
