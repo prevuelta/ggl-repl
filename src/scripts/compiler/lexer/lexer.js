@@ -25,6 +25,14 @@ const pairArgReplacements = [
         },
     },
     {
+        name: 'Loop variables',
+        regex: /{(.)}/,
+        replace(str, matches, { loopContext }) {
+            console.log('Loop replacement', str, matches, loopContext.count);
+            return str.replace(matches[0], loopContext.count);
+        },
+    },
+    {
         name: 'Circle unit',
         regex: /^(.+?)r(.+?)$/,
         replace(str, matches, vars) {
@@ -45,7 +53,7 @@ const pairArgReplacements = [
         name: 'Single axis',
         regex: /(-?.+?)([x|y])/,
         replace(str, matches) {
-            console.log('Single axis match', str, matches);
+            // console.log('Single axis match', str, matches);
             const isY = matches[2] === 'y';
             const result = `${isY ? '0 ' : ''}${matches[1]}${!isY ? ' 0' : ''}`;
             return str.replace(matches[0], result);
@@ -66,10 +74,11 @@ const singleArgReplacements = [
         name: 'Grid Units',
         regex: /^((?:^-)?[\d|\.]*)u([\d|\.]*)$/,
         replace(str, matches, { gridUnit, gridDivisions }) {
-            console.log(str, matches, gridUnit, gridDivisions);
-            const result = str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
-
-            console.log(result);
+            const result = str.replace(
+                matches[0],
+                +matches[1] * gridUnit +
+                    +matches[2] * (gridUnit / gridDivisions)
+            );
 
             return result;
         },
@@ -78,14 +87,20 @@ const singleArgReplacements = [
         name: 'Center',
         regex: /^c([x|y])$/,
         replace(str, matches, { width, height, gridUnit }) {
-            return str.replace(matches[0], { x: width, y: height }[matches[1]] / 2);
+            return str.replace(
+                matches[0],
+                { x: width, y: height }[matches[1]] / 2
+            );
         },
     },
     {
         name: 'Parts of PI',
         regex: /-?([h|q])pi/,
         replace(str, matches) {
-            const result = str.replace(/.pi/, { h: HALF_PI, q: QUARTER_PI }[matches[1]]);
+            const result = str.replace(
+                /.pi/,
+                { h: HALF_PI, q: QUARTER_PI }[matches[1]]
+            );
             return result;
         },
     },
@@ -93,9 +108,14 @@ const singleArgReplacements = [
         name: 'Width & Height',
         regex: /(-?[\d|\.]*)([w|h])/,
         replace(str, matches, { width, height }) {
-            console.log('Width & height', str, matches, width, height);
-            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
-            const replacement = clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
+            // console.log('Width & height', str, matches, width, height);
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
+            const replacement =
+                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
             return str.replace(matches[0], replacement);
         },
     },
@@ -103,7 +123,11 @@ const singleArgReplacements = [
         name: 'Pi',
         regex: /(-?[\d|\.]*)pi/,
         replace(str, matches) {
-            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
             });
@@ -140,8 +164,15 @@ export default function(string) {
         .trim()
         .split('\n');
     let tokens = [];
+    let isRepeating = false;
+    let loopContext;
+    let exitLoopDepth;
+
     lines
-        .filter(line => !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line)))
+        .filter(
+            line =>
+                !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line))
+        )
         .map(line => {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
@@ -154,128 +185,179 @@ export default function(string) {
                 line = `p:0 0,${line}`;
             }
 
-            const typeRef = line.substr(0, 1);
+            const typeMatches = line.match(/^([a-z]*):/);
+            if (!typeMatches || typeMatches.length <= 1) return;
+
+            const typeRef = typeMatches[1];
 
             if (!typeRef) return;
 
-            const type = commandTypes[typeRef];
+            // const type = commandTypes[typeRef];
             const idMatches = /=(.+?)(?=:)/.exec(line);
 
             if (typeRef === 're') {
-                console.log('Is loop');
-            }
-
-            let id;
-            if (idMatches) {
-                id = idMatches[1];
-                line = line.replace(idMatches[0], '');
-            }
-
-            if (pathTypesRegEx.test(typeRef)) {
+                isRepeating = true;
+                exitLoopDepth = depth;
+                loopContext = {
+                    count: 0,
+                    increment: 1,
+                    limit: 3,
+                    ref: 'x',
+                };
+                console.log('Start loop', exitLoopDepth);
                 tokens.push({
-                    name: 'path',
+                    name: 'repeat',
                     depth,
-                    id,
-                    closed: false,
-                });
-            }
-
-            const refRegEx = /^#(.+?)\s?$/;
-
-            if (refRegEx.test(line)) {
-                const matches = refRegEx.exec(line);
-                tokens.push({
-                    name: '$ref',
-                    depth,
-                    id: matches[1],
                 });
                 return;
+            } else {
+                console.log('Is Looping', isRepeating, exitLoopDepth, depth);
+                if (isRepeating && depth <= exitLoopDepth) {
+                    isRepeating = false;
+                    console.log('End loop');
+                }
             }
 
-            const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`));
+            if (isRepeating) {
+                for (let i = 0; i < loopContext.limit; i++) {
+                    loopContext.count += loopContext.increment;
+                    processLine();
+                }
+            } else {
+                processLine();
+            }
 
-            console.log('Command lines', commandLines, depth);
+            function processLine() {
+                let id;
+                if (idMatches) {
+                    id = idMatches[1];
+                    line = line.replace(idMatches[0], '');
+                }
 
-            commandLines.forEach(command => {
-                let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
+                if (pathTypesRegEx.test(typeRef)) {
+                    tokens.push({
+                        name: 'path',
+                        depth,
+                        id,
+                        closed: false,
+                    });
+                }
 
-                if (!commands[ref]) {
-                    console.warn(`Command not recognised - ${ref}`);
+                const refRegEx = /^#(.+?)\s?$/;
+
+                if (refRegEx.test(line)) {
+                    const matches = refRegEx.exec(line);
+                    tokens.push({
+                        name: '$ref',
+                        depth,
+                        id: matches[1],
+                    });
                     return;
                 }
 
-                const commandRef = commands[ref];
-                const { name = '', argsRegEx } = commandRef;
-                let tokenArgs = [],
-                    matches;
+                const commandLines = line.split(
+                    new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`)
+                );
 
-                tokenArgs = argStr.trim().split(',');
+                commandLines.forEach(command => {
+                    let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
-                const vars = { ...gridContext, circleGridContext };
+                    if (!commands[ref]) {
+                        console.warn(`Command not recognised - ${ref}`);
+                        return;
+                    }
 
-                tokenArgs = tokenArgs.map(argStr => {
-                    argStr.trim();
-                    argStr = pairArgReplacements.reduce((a, b) => {
-                        return b.regex.test(a) ? b.replace(a, b.regex.exec(a), vars) : a;
-                    }, argStr);
-                    return argStr.split(' ').map(str => {
-                        const arg = singleArgReplacements.reduce((a, b) => {
-                            if (b.regex.test(a)) {
-                                const matches = b.regex.exec(a);
-                                return b.replace(a, matches, vars);
-                            } else {
-                                return a;
-                            }
-                        }, str);
+                    const commandRef = commands[ref];
+                    const { name = '', argsRegEx } = commandRef;
+                    let tokenArgs = [],
+                        matches;
 
-                        return isNaN(arg) ? arg : +arg;
+                    tokenArgs = argStr.trim().split(',');
+
+                    const vars = {
+                        ...gridContext,
+                        circleGridContext,
+                        loopContext,
+                    };
+
+                    tokenArgs = tokenArgs.map(argStr => {
+                        argStr.trim();
+                        argStr = pairArgReplacements.reduce((a, b) => {
+                            return b.regex.test(a)
+                                ? b.replace(a, b.regex.exec(a), vars)
+                                : a;
+                        }, argStr);
+                        return argStr.split(' ').map(str => {
+                            const arg = singleArgReplacements.reduce((a, b) => {
+                                if (b.regex.test(a)) {
+                                    const matches = b.regex.exec(a);
+                                    return b.replace(a, matches, vars);
+                                } else {
+                                    return a;
+                                }
+                            }, str);
+
+                            return isNaN(arg) ? arg : +arg;
+                        });
                     });
+
+                    if (name === 'gridunit') {
+                        gridContext.gridUnit = +tokenArgs[0];
+                    }
+
+                    if (name === 'circlegrid') {
+                        if (!tokenArgs.length) return;
+
+                        const [
+                            radius,
+                            rings,
+                            segments,
+                            offset = 0,
+                        ] = tokenArgs[0];
+
+                        circleGridContext = {
+                            width: radius * 2,
+                            height: radius * 2,
+                            radius,
+                            segments,
+                            rings,
+                            offset,
+                        };
+                    }
+                    if (name === 'squaregrid') {
+                        if (!tokenArgs.length) return;
+                        const [
+                            xUnits,
+                            yUnits,
+                            gridUnit,
+                            gridDivisions = 1,
+                            offsetX = 0,
+                            offsetY = 0,
+                        ] = tokenArgs[0];
+
+                        gridContext = {
+                            width: xUnits * gridUnit,
+                            height: yUnits * gridUnit,
+                            xUnits,
+                            yUnits,
+                            gridUnit,
+                            gridDivisions,
+                            offsetX,
+                            offsetY,
+                        };
+                    }
+                    tokens = [
+                        ...tokens,
+                        ...tokenArgs.map(args => ({
+                            name,
+                            data: commandRef.data,
+                            args,
+                            depth,
+                            id,
+                        })),
+                    ];
                 });
-
-                if (name === 'gridunit') {
-                    gridContext.gridUnit = +tokenArgs[0];
-                }
-
-                if (name === 'circlegrid') {
-                    if (!tokenArgs.length) return;
-
-                    const [radius, rings, segments, offset = 0] = tokenArgs[0];
-
-                    circleGridContext = {
-                        width: radius * 2,
-                        height: radius * 2,
-                        radius,
-                        segments,
-                        rings,
-                        offset,
-                    };
-                }
-                if (name === 'squaregrid') {
-                    if (!tokenArgs.length) return;
-                    const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
-
-                    gridContext = {
-                        width: xUnits * gridUnit,
-                        height: yUnits * gridUnit,
-                        xUnits,
-                        yUnits,
-                        gridUnit,
-                        gridDivisions,
-                        offsetX,
-                        offsetY,
-                    };
-                }
-                tokens = [
-                    ...tokens,
-                    ...tokenArgs.map(args => ({
-                        name,
-                        data: commandRef.data,
-                        args,
-                        depth,
-                        id,
-                    })),
-                ];
-            });
+            }
         });
 
     return tokens;
