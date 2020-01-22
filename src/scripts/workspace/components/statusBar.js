@@ -5,7 +5,7 @@ import Notifications from './notifications';
 
 export default ({ mode, save, edit, message, rune }) => (
     <div className="statusbar">
-        <span className="tag">{MODE_TAGS[mode]} mode</span>
+        <span className="tag">Rune</span>
         {rune && (
             <>
                 <Button onClick={save}>Save</Button>

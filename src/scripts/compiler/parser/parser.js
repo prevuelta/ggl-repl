@@ -138,7 +138,7 @@ const elements = {
     },
     square: ({ token }) => props => {
         const [x1, y1, x2, y2, cornerRadius = 0] = token.args;
-        return <rect id={token.id} x={x1} y={y1} width={x2} height={y2} rx={cornerRadius} />;
+        return <rect id={token.id} x={x1} y={y1} width={Math.max(0, x2)} height={Math.max(0, y2)} rx={cornerRadius} />;
     },
     circle: ({ token }) => props => {
         const [x, y, r] = token.args;
