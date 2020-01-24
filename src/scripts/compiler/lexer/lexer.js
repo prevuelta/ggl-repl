@@ -121,7 +121,7 @@ const singleArgReplacements = [
         },
     },
     {
-        name: 'Multiplication & division',
+        name: 'Arithmetic operations',
         regex: /([\d|.]+)([\*|/|\-|\+])([\d|.]+)/,
         parse(str, vars) {
             // let match = this.regex.exec(str);
@@ -135,7 +135,11 @@ const singleArgReplacements = [
             // const matches = [...str.matchAll(new RegExp(this.regex))];
             // console.log('Matches', matches);
             // matches.forEach(m => {});
-            return eval(str);
+            try {
+                return eval(str); // Use mathjs for this at some point
+            } catch (error) {
+                return '';
+            }
         },
         replace(str, matches) {
             console.log('Operations', str, matches);

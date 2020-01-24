@@ -83,7 +83,7 @@ class Workspace extends Component {
 
         const payload = {
             ...rune,
-            script: source,
+            source,
         };
         this.setState({ message: 'Saving...' });
 
@@ -103,7 +103,8 @@ class Workspace extends Component {
         const res = await runeData.new();
         await this.getRunes();
         if (res.status === 200) {
-            this.setRune(this.state.runes[0]);
+            const rune = this.state.runes[0];
+            window.location.hash = rune.id;
         }
     };
 
@@ -117,11 +118,10 @@ class Workspace extends Component {
             rune = this.getRune(rune);
         }
         if (rune) {
-            console.log(rune);
             // globals.rune = rune;
             this.setState({ rune }, () => {
                 console.log('Set rune', rune);
-                this.parseInput(rune.script);
+                this.parseInput(rune.source);
             });
         }
     };
@@ -141,7 +141,7 @@ class Workspace extends Component {
     parseInput = source => {
         console.log('Parse input', source, this.state.rune);
         if (!source && this.state.rune) {
-            source = this.state.rune.script;
+            source = this.state.rune.source;
         }
 
         const { rune } = this.state;
