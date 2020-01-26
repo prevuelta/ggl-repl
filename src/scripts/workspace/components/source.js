@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import AceEditor from 'react-ace';
-
-// import 'brace/theme/github';
+import RuneEditor from './runeEditor';
 
 export default props => {
     return (
         <div className="source-inspector">
-            <AceEditor
+            <RuneEditor
                 tabSize={2}
                 className="editable"
                 value={props.value}
@@ -16,7 +14,3 @@ export default props => {
         </div>
     );
 };
-// <textarea
-//     value={props.value}
-//     onChange={e => props.parseInput(e.target.value)}
-// />

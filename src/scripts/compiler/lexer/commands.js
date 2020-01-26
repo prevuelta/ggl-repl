@@ -23,7 +23,11 @@ export const pathCommands = {
         type: 'path',
     },
     '+': {
-        name: 'vector',
+        name: 'addvector',
+        type: 'path',
+    },
+    '-': {
+        name: 'subvector',
         type: 'path',
     },
     b: {
