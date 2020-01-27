@@ -1,12 +1,12 @@
 export * from './group';
 export * from './line';
-export { GridContainer } from './grid';
+export { default as SquareGrid } from './grids/squaregrid';
+export { default as TriGrid } from './grids/trigrid';
+export { default as CircleGrid } from './grids/circlegrid';
 export { default as Browser } from './browser';
 export { default as Button } from './button';
-export { default as CircleGrid } from './circleGrid';
 export { default as Dialog } from './dialog';
 export { default as EditRuneDialog } from './editRuneDialog';
-export { default as Grid } from './grid';
 export { default as Notifications } from './notifications';
 export { default as Preview } from './preview';
 export { default as Renderer } from './renderer';

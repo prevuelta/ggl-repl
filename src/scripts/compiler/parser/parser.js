@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Grid, CircleGrid, GridContainer, Line } from '../../workspace/components';
+import { CircleGrid, SquareGrid, Line, TriGrid } from '../../workspace/components';
 import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
 import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals } from '../../util';
 import { Store } from '../../data';
@@ -257,10 +257,18 @@ const elements = {
             </Fragment>
         );
     },
+    trigrid: ({ token, showHelpers }, children = []) => props => {
+        <Fragment>
+            {showHelpers && <TriGrid args={token.args} />}
+            {children.map((Child, i) => (
+                <Child key={i} />
+            ))}
+        </Fragment>;
+    },
     squaregrid: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
-                {showHelpers && <GridContainer args={token.args} />}
+                {showHelpers && <SquareGrid args={token.args} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}

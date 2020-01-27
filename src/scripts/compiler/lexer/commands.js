@@ -7,6 +7,10 @@ const gridCommands = {
         name: 'circlegrid',
         type: 'grid',
     },
+    tg: {
+        name: 'trigrid',
+        type: 'grid',
+    },
     gu: {
         name: 'gridunit',
         type: 'grid',

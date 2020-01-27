@@ -335,7 +335,7 @@ export default function(string) {
                             offset,
                         };
                     }
-                    if (name === 'squaregrid') {
+                    if (name === 'squaregrid' || name === 'trigrid') {
                         if (!tokenArgs.length) return;
                         const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
 
