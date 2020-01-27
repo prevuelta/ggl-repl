@@ -15,16 +15,20 @@ const HALF_PI = PI / 2;
 const QUARTER_PI = PI / 4;
 const TWO_PI = PI * 2;
 
+const chars = '[0-9a-z*/+-.{}]';
+
 const pairArgReplacements = [
     {
         name: 'XY',
-        regex: '(?:\\s|^)(.+?)xy',
+        regex: `(${chars}+)xy`,
         parse(str) {
             const matches = [...str.matchAll(this.regex)];
-            console.log(matches);
+            console.log('XY matches', matches);
             matches.forEach(match => {
                 str = this.replace(str, match);
             });
+
+            console.log(str);
 
             return str;
         },
@@ -141,17 +145,6 @@ const singleArgReplacements = [
         name: 'Arithmetic operations',
         regex: /([\d|.]+)([\*|/|\-|\+])([\d|.]+)/,
         parse(str, vars) {
-            // let match = this.regex.exec(str);
-            // console.log('Str', str, match, this.regex);
-            // while (match) {
-            //     str = this.replace(str, match);
-            // console.log('New Str', str);
-            // match = this.regex.exec(str);
-            // console.log(match);
-            // }
-            // const matches = [...str.matchAll(new RegExp(this.regex))];
-            // console.log('Matches', matches);
-            // matches.forEach(m => {});
             try {
                 return eval(str); // Use mathjs for this at some point
             } catch (error) {
@@ -170,6 +163,22 @@ const singleArgReplacements = [
         },
     },
 ];
+
+function argReducerFactory(vars) {
+    return (a, b) => {
+        const regex = typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
+
+        if (regex.test(a)) {
+            if (b.parse) {
+                return b.parse(a, vars);
+            } else {
+                return b.replace(a, regex.exec(a), vars);
+            }
+        } else {
+            return a;
+        }
+    };
+}
 
 // TODO: Break token replacement into replace, compute
 
@@ -295,35 +304,13 @@ export default function(string) {
                         loopContext,
                     };
 
+                    const argReducer = argReducerFactory(vars);
+
                     tokenArgs = tokenArgs.map(argStr => {
                         argStr.trim();
-                        argStr = pairArgReplacements.reduce((a, b) => {
-                            const regex = typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
-
-                            if (regex.test(a)) {
-                                if (b.parse) {
-                                    return b.parse(a, vars);
-                                } else {
-                                    return b.replace(a, regex.exec(a), vars);
-                                }
-                            } else {
-                                return a;
-                            }
-                        }, argStr);
+                        argStr = pairArgReplacements.reduce(argReducer, argStr);
                         const parsedStr = argStr.split(' ').map(str => {
-                            const arg = singleArgReplacements.reduce((a, b) => {
-                                const regex = typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
-                                if (regex.test(a)) {
-                                    if (b.parse) {
-                                        return b.parse(a, vars);
-                                    } else {
-                                        const matches = regex.exec(a);
-                                        return b.replace(a, matches, vars);
-                                    }
-                                } else {
-                                    return a;
-                                }
-                            }, str);
+                            const arg = singleArgReplacements.reduce(argReducer, str);
 
                             return isNaN(arg) ? arg : +arg;
                         });
