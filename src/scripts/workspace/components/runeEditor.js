@@ -13,17 +13,6 @@ export default class extends React.Component {
     }
 
     render() {
-        return (
-            <AceEditor
-                {...this.props}
-                ref={this.aceEditor}
-                theme="github"
-                mode="text"
-                onChange={val => console.log(val)}
-                name="UNIQUE_ID_OF_DIV"
-                editorProps={{ $blockScrolling: true }}
-                ref={this.aceEditor}
-            />
-        );
+        return <AceEditor {...this.props} ref={this.aceEditor} theme="github" mode="text" editorProps={{ $blockScrolling: true }} ref={this.aceEditor} />;
     }
 }

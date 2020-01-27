@@ -17,6 +17,23 @@ const TWO_PI = PI * 2;
 
 const pairArgReplacements = [
     {
+        name: 'XY',
+        regex: '(?:\\s|^)(.+?)xy',
+        parse(str) {
+            const matches = [...str.matchAll(this.regex)];
+            console.log(matches);
+            matches.forEach(match => {
+                str = this.replace(str, match);
+            });
+
+            return str;
+        },
+        replace(str, matches) {
+            const replacement = `${matches[1]} ${matches[1]}`;
+            return str.replace(matches[0], replacement);
+        },
+    },
+    {
         name: 'Center',
         regex: /c/,
         replace(str, matches, { width, height }) {
@@ -283,7 +300,15 @@ export default function(string) {
                         argStr = pairArgReplacements.reduce((a, b) => {
                             const regex = typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
 
-                            return regex.test(a) ? b.replace(a, regex.exec(a), vars) : a;
+                            if (regex.test(a)) {
+                                if (b.parse) {
+                                    return b.parse(a, vars);
+                                } else {
+                                    return b.replace(a, regex.exec(a), vars);
+                                }
+                            } else {
+                                return a;
+                            }
                         }, argStr);
                         const parsedStr = argStr.split(' ').map(str => {
                             const arg = singleArgReplacements.reduce((a, b) => {
