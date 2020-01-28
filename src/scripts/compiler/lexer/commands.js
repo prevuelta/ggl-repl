@@ -15,10 +15,6 @@ const gridCommands = {
         name: 'gridunit',
         type: 'grid',
     },
-    ag: {
-        name: 'anglegrid',
-        type: 'grid',
-    },
 };
 
 export const pathCommands = {

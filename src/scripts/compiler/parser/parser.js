@@ -258,12 +258,14 @@ const elements = {
         );
     },
     trigrid: ({ token, showHelpers }, children = []) => props => {
-        <Fragment>
-            {showHelpers && <TriGrid args={token.args} />}
-            {children.map((Child, i) => (
-                <Child key={i} />
-            ))}
-        </Fragment>;
+        return (
+            <Fragment>
+                {showHelpers && <TriGrid args={token.args} />}
+                {children.map((Child, i) => (
+                    <Child key={i} />
+                ))}
+            </Fragment>
+        );
     },
     squaregrid: ({ token, showHelpers }, children = []) => props => {
         return (

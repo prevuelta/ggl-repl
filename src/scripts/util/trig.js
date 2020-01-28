@@ -15,8 +15,28 @@ function getSide(adj, opp, hyp) {
     console.warn('Invalid values passed to getSide');
 }
 
+export function getOpp(angle, adj) {
+    return adj / Math.tan(angle);
+}
+
+export function getTri(adj, opp, hyp) {
+    if (isNaN(opp) || isNaN(opp) || isNaN(hyp)) {
+        console.warn('Invalid values passed to getSide');
+    }
+
+    if (!isNaN(adj) & !isNaN(hyp)) {
+        opp = Math.sqrt(hyp * hyp - adj * adj);
+    } else if (!isNaN(adj) & !isNaN(opp)) {
+        hyp = Math.sqrt(opp * opp + adj * adj);
+    } else if (!isNaN(opp) & !isNaN(hyp)) {
+        adj = Math.sqrt(hyp * hyp - opp * opp);
+    }
+
+    return { adj, opp, hyp };
+}
+
 export function addVector(v1, v2) {
-  return { x: v1.x + v2.x, y: v1.y + v2.y };
+    return { x: v1.x + v2.x, y: v1.y + v2.y };
 }
 
 function getAngle(p1, p2) {
@@ -42,15 +62,4 @@ const { PI } = Math;
 const HALF_PI = PI / 2;
 const TWO_PI = PI * 2;
 
-export {
-    getMid,
-    getDistance,
-    getSide,
-    getAngle,
-    radToDeg,
-    degToRad,
-    polarToCartesian,
-    HALF_PI,
-    PI,
-    TWO_PI,
-};
+export { getMid, getDistance, getSide, getAngle, radToDeg, degToRad, polarToCartesian, HALF_PI, PI, TWO_PI };
