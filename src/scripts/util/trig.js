@@ -16,6 +16,7 @@ function getSide(adj, opp, hyp) {
 }
 
 export function getOpp(angle, adj) {
+    console.log('Angle', angle, adj);
     return adj / Math.tan(angle);
 }
 
@@ -58,8 +59,4 @@ function polarToCartesian(center, radius, angle) {
     };
 }
 
-const { PI } = Math;
-const HALF_PI = PI / 2;
-const TWO_PI = PI * 2;
-
-export { getMid, getDistance, getSide, getAngle, radToDeg, degToRad, polarToCartesian, HALF_PI, PI, TWO_PI };
+export { getMid, getDistance, getSide, getAngle, radToDeg, degToRad, polarToCartesian };

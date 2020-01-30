@@ -187,7 +187,7 @@ const elements = {
                 const { x, y } = currentLocation;
                 const [x2, y2, c1x, c1y, c2x = 0, c2y = 0] = token.args;
                 currentLocation = { x: x2, y: y2 };
-                string = `M ${x} ${y} c ${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+                string = `M ${x} ${y} c ${c1x},${c1y} ${c2x + x2},${c2y + y2} ${x2},${y2}`;
                 helpers.push(
                     ...[
                         {
@@ -200,7 +200,7 @@ const elements = {
                         },
                     ].map(n => <circle cx={n.x} cy={n.y} r={4} />),
                     <Line x1={x} y1={x} x2={x + c1x} y2={y + c1y} />,
-                    <Line x1={x2} y1={y2} x2={x2 + c2x} y2={y2 + c2y} />
+                    <Line x1={x2 + x} y1={y2 + y} x2={x2 + c2x} y2={y2 + c2y} />
                 );
                 points.push({ x: x + x2, y: y + y2 });
             } else if (name === 'arc') {

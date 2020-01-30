@@ -1,6 +1,9 @@
 import React from 'react';
 import { Line, Vline, Hline, Group } from '../../components';
-import { COLORS, getTri } from '../../../util';
+import { COLORS, getOpp, PI } from '../../../util';
+
+import * as util from '../../../util';
+console.log(util);
 
 const UNIT_LINE_OPACITY = 1;
 const DIVISION_LINE_OPACITY = 0.3;
@@ -13,13 +16,18 @@ export function TriGridLines(props) {
 
     const lines = [];
 
-    const triSize = gridUnit;
+    const angle = PI / 3;
+
+    const size = gridUnit;
+    /* const height = getOpp(angle, */
+
     // Generate tris
     // const currentHeight = height;
     // const currentWidth = width;
-    const opp = getOpp(Math.pi / 3, height);
+    /* console.log(PI, getOpp); */
+    const opp = getOpp(angle, height);
 
-    lines.push(<Line x1={0} y1={0} x2={opp} y2={adj} />);
+    lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={0} y1={0} x2={opp} y2={height} />);
 
     // const triBaseg
 
