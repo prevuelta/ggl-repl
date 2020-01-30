@@ -149,6 +149,9 @@ const elements = {
         let currentLocation = { x: 0, y: 0 };
         let helpers = [];
         const points = [];
+
+        let previousToken;
+
         (tokens || []).forEach((token, idx) => {
             // console.log('Parsing path token');
             const { name, args } = token;
@@ -183,26 +186,26 @@ const elements = {
                 }
                 string = `${command} ${i} ${j}`;
                 points.push({ x: currentLocation.x, y: currentLocation.y });
-            } else if (name === 'bezier') {
-                const { x, y } = currentLocation;
-                const [x2, y2, c1x, c1y, c2x = 0, c2y = 0] = token.args;
-                currentLocation = { x: x2, y: y2 };
-                string = `M ${x} ${y} c ${c1x},${c1y} ${c2x + x2},${c2y + y2} ${x2},${y2}`;
-                helpers.push(
-                    ...[
-                        {
-                            x: x + c1x,
-                            y: y + c1y,
-                        },
-                        {
-                            x: x2 + c2x,
-                            y: y2 + c2y,
-                        },
-                    ].map(n => <circle cx={n.x} cy={n.y} r={4} />),
-                    <Line x1={x} y1={x} x2={x + c1x} y2={y + c1y} />,
-                    <Line x1={x2 + x} y1={y2 + y} x2={x2 + c2x} y2={y2 + c2y} />
-                );
-                points.push({ x: x + x2, y: y + y2 });
+            } else if (name === 'beziercurve') {
+                let { x, y } = currentLocation;
+                const [x2, y2, cx, cy, c2x = 0, c2y = 0] = token.args;
+                if (previousToken.name === 'beziercurve') {
+                    x = x + x2;
+                    y = y + y2;
+                    currentLocation = { x, y };
+                    string = `s ${cx},${cy} ${x2},${y2}`;
+                } else {
+                    currentLocation = { x: x + x2, y: y + y2 };
+                    string = `M ${x} ${y} c ${cx},${cy} ${c2x + x2},${c2y + y2} ${x2},${y2}`;
+                }
+                if (cx || cy) {
+                    helpers.push(<circle cx={x + cx} cy={y + cy} r={4} />, <Line color={'green'} x1={x} y1={y} x2={x + cx} y2={y + cy} />);
+                }
+                if (c2x || c2y) {
+                    helpers.push(<circle cx={x + x2 + c2x} cy={y + y2 + c2y} r={4} />, <Line x1={x + x2} y1={y + y2} x2={x + x2 + c2x} y2={y + y2 + c2y} />);
+                }
+                console.log(string);
+                points.push(currentLocation);
             } else if (name === 'arc') {
                 const center = {
                     x: currentLocation.x + token.args[0],
@@ -243,6 +246,7 @@ const elements = {
                 helpers.push(<Cross x={p1.x} y={p1.y} color={p1.color} size={10} />, <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />);
             }
             pathString.push(string);
+            previousToken = token;
         });
         helpers = [...points.map(({ x, y }) => <Node x={x} y={y} color="red" />), ...helpers];
         helpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);

@@ -31,7 +31,7 @@ export const pathCommands = {
         type: 'path',
     },
     b: {
-        name: 'bezier',
+        name: 'beziercurve',
         type: 'path',
     },
     l: {
