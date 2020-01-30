@@ -97,12 +97,20 @@ const singleArgReplacements = [
             const matches = [...str.matchAll(this.regex)];
             // return this.replace(str);
             matches.forEach(match => {
-                str = str.replace(match[0], +match[1] * gridUnit + +match[2] * (gridUnit / gridDivisions));
+                str = str.replace(
+                    match[0],
+                    +match[1] * gridUnit +
+                        +match[2] * (gridUnit / gridDivisions)
+                );
             });
             return str;
         },
         replace(str, matches, { gridUnit, gridDivisions }) {
-            const result = str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
+            const result = str.replace(
+                matches[0],
+                +matches[1] * gridUnit +
+                    +matches[2] * (gridUnit / gridDivisions)
+            );
             return result;
         },
     },
@@ -110,14 +118,20 @@ const singleArgReplacements = [
         name: 'Center',
         regex: /^c([x|y])$/,
         replace(str, matches, { width, height, gridUnit }) {
-            return str.replace(matches[0], { x: width, y: height }[matches[1]] / 2);
+            return str.replace(
+                matches[0],
+                { x: width, y: height }[matches[1]] / 2
+            );
         },
     },
     {
         name: 'Parts of PI',
         regex: /-?([h|q])pi/,
         replace(str, matches) {
-            const result = str.replace(/.pi/, { h: HALF_PI, q: QUARTER_PI }[matches[1]]);
+            const result = str.replace(
+                /.pi/,
+                { h: HALF_PI, q: QUARTER_PI }[matches[1]]
+            );
             return result;
         },
     },
@@ -126,8 +140,13 @@ const singleArgReplacements = [
         regex: /(-?[\d|.]*)([w|h])/,
         replace(str, matches, { width, height }) {
             // console.log('Width & height', str, matches, width, height);
-            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
-            const replacement = clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
+            const replacement =
+                clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
             return str.replace(matches[0], replacement);
         },
     },
@@ -135,7 +154,11 @@ const singleArgReplacements = [
         name: 'Pi',
         regex: /(-?[\d|.]*)pi/,
         replace(str, matches) {
-            const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
+            const multiplier = matches[1]
+                ? matches[1] === '-'
+                    ? -1
+                    : matches[1]
+                : 1;
             return str.replace(matches[0], str => {
                 return (multiplier || 1) * PI;
             });
@@ -166,7 +189,8 @@ const singleArgReplacements = [
 
 function argReducerFactory(vars) {
     return (a, b) => {
-        const regex = typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
+        const regex =
+            typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
 
         if (regex.test(a)) {
             if (b.parse) {
@@ -205,7 +229,10 @@ export default function(string) {
     console.log('lines', lines);
 
     lines
-        .filter(line => !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line)))
+        .filter(
+            line =>
+                !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line))
+        )
         .map(line => {
             const depth = (line.match(/ {2}/g) || []).length;
             line = line.trim().replace(/\r|\n/, '');
@@ -281,7 +308,9 @@ export default function(string) {
                     });
                 }
 
-                const commandLines = line.split(new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`));
+                const commandLines = line.split(
+                    new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`)
+                );
 
                 commandLines.forEach(command => {
                     let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
@@ -310,7 +339,10 @@ export default function(string) {
                         argStr.trim();
                         argStr = pairArgReplacements.reduce(argReducer, argStr);
                         const parsedStr = argStr.split(' ').map(str => {
-                            const arg = singleArgReplacements.reduce(argReducer, str);
+                            const arg = singleArgReplacements.reduce(
+                                argReducer,
+                                str
+                            );
 
                             return isNaN(arg) ? arg : +arg;
                         });
@@ -324,7 +356,12 @@ export default function(string) {
                     if (name === 'circlegrid') {
                         if (!tokenArgs.length) return;
 
-                        const [radius, rings, segments, offset = 0] = tokenArgs[0];
+                        const [
+                            radius,
+                            rings,
+                            segments,
+                            offset = 0,
+                        ] = tokenArgs[0];
 
                         circleGridContext = {
                             width: radius * 2,
@@ -337,7 +374,14 @@ export default function(string) {
                     }
                     if (name === 'squaregrid' || name === 'trigrid') {
                         if (!tokenArgs.length) return;
-                        const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
+                        const [
+                            xUnits,
+                            yUnits,
+                            gridUnit,
+                            gridDivisions = 1,
+                            offsetX = 0,
+                            offsetY = 0,
+                        ] = tokenArgs[0];
 
                         gridContext = {
                             width: xUnits * gridUnit,
