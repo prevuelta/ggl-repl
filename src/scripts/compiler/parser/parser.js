@@ -188,8 +188,11 @@ const elements = {
                 points.push({ x: currentLocation.x, y: currentLocation.y });
             } else if (name === 'beziercurve') {
                 let { x, y } = currentLocation;
-                const [x2, y2, cx, cy, c2x = 0, c2y = 0] = token.args;
+                const [x2, y2, cx = 0, cy = 0, c2x = 0, c2y = 0] = token.args;
                 if (previousToken.name === 'beziercurve') {
+                    const prevCx = previousToken.args[4] || 0;
+                    const prevCy = previousToken.args[5] || 0;
+                    helpers.push(<circle cx={x - prevCx} cy={y - prevCy} r={4} />, <Line color={'green'} x1={x} y1={y} x2={x - prevCx} y2={y - prevCy} />);
                     x = x + x2;
                     y = y + y2;
                     currentLocation = { x, y };
