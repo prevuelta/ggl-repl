@@ -27,9 +27,7 @@ const pairArgReplacements = [
             matches.forEach(match => {
                 str = this.replace(str, match);
             });
-
             console.log(str);
-
             return str;
         },
         replace(str, matches) {
@@ -101,13 +99,16 @@ const singleArgReplacements = [
     },
     {
         name: 'Grid Units',
-        regex: '((?:^-)?[0-9.]*)u([0-9.]*)',
+        regex: '([0-9.]*)u([0-9.]*)',
         parse(str, { gridUnit, gridDivisions }) {
+            console.log('Cstr', str);
             const matches = [...str.matchAll(this.regex)];
             // return this.replace(str);
+            console.log(matches);
             matches.forEach(match => {
                 str = str.replace(match[0], +match[1] * gridUnit + +match[2] * (gridUnit / gridDivisions));
             });
+            console.log('NEw str', str);
             return str;
         },
         replace(str, matches, { gridUnit, gridDivisions }) {

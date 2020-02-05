@@ -25,9 +25,14 @@ export function TriGridLines(props) {
     // const currentHeight = height;
     // const currentWidth = width;
     /* console.log(PI, getOpp); */
-    const opp = getOpp(angle, height);
 
-    lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={0} y1={0} x2={opp} y2={height} />);
+    let currentHeight = 0;
+    while (currentHeight < height) {
+        const opp = getOpp(angle, height - currentHeight);
+        lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={0} y1={currentHeight} x2={opp} y2={height} />);
+        lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={width} y1={currentHeight} x2={width - opp} y2={height} />);
+        currentHeight += size;
+    }
 
     // const triBaseg
 

@@ -290,7 +290,7 @@ const elements = {
         const height = radius * 2;
         return (
             <Fragment>
-                {showHelpers && <CircleGrid width={width} height={height} radius={radius} segments={segments} rings={rings} />}
+                {showHelpers && <CircleGrid {...{ offset, width, height, radius, rings, segments }} />}
                 {children.map((Child, i) => (
                     <Child key={i} />
                 ))}
