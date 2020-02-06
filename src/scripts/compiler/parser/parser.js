@@ -1,32 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { CircleGrid, SquareGrid, Line, TriGrid } from '../../workspace/components';
 import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
-import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals } from '../../util';
+import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals, mapChildren } from '../../util';
 import { Store } from '../../data';
 import { pathCommands, tokenNames } from '../lexer/commands';
+import transforms from './transforms';
 
-const {
-    ADD_VECTOR,
-    BEZIER_CURVE,
-    CIRCLE,
-    CIRCLE_GRID,
-    DOCUMENT,
-    FILL,
-    PATH,
-    POINT,
-    REFLECT,
-    REPEAT,
-    ROOT,
-    ROTATE,
-    SCALE,
-    SQUARE,
-    SQUARE_GRID,
-    STYLE,
-    SUB_VECTOR,
-    TRANSLATE,
-    TRI_GRID,
-} = tokenNames;
+const { ADD_VECTOR, BEZIER_CURVE, CIRCLE, CIRCLE_GRID, DOCUMENT, FILL, PATH, POINT, REPEAT, ROOT, SQUARE, SQUARE_GRID, STYLE, SUB_VECTOR, TRI_GRID } = tokenNames;
 
 const DEFAULT_DOC_ARGS = [100, 100, 0];
 
@@ -78,41 +58,10 @@ function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
     };
 }
 
-function mapChildren(children) {
-    return children.map((Child, i) => <Child key={i} />);
-}
-
 // TODO: generic transform element factory
 
 const elements = {
-    [TRANSLATE]: ({ token }, children = []) => props => {
-        const [x = 0, y = 0] = token.args;
-        return (
-            <g transform={`translate(${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </g>
-        );
-    },
-    [REFLECT]: ({ token }, children = []) => props => {
-        const [distance] = token.args;
-        const axis = token.data;
-        const scale = { x: '1, -1', y: '-1, 1' }[axis];
-        const distancePx = `${distance}px`;
-        const origin = `${axis === 'y' ? distancePx : '0'} ${axis === 'x' ? distancePx : '0'}`;
-
-        return (
-            <>
-                <g transform={`scale(${scale})`} transform-origin={origin}>
-                    {children.map(Child => (
-                        <Child />
-                    ))}
-                </g>
-                {mapChildren(children)}
-            </>
-        );
-    },
+    ...transforms,
     [FILL]: ({ token }, children = []) => props => {
         const [color = COLORS.BLACK] = token.args;
         return (
@@ -135,28 +84,8 @@ const elements = {
     $ref: ({ token }) => props => {
         return <use href={`#${token.id}`} x="0" y="0" />;
     },
-    [ROTATE]: ({ token }, children = []) => props => {
-        const [angle, x = 0, y = 0] = token.args;
-        return (
-            <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </g>
-        );
-    },
     [REPEAT]: (args, children = []) => () => {
         return children.map(Child => <Child />);
-    },
-    [SCALE]: ({ token }, children = []) => props => {
-        const [scaleX, scaleY] = token.args;
-        return (
-            <g transform={`scale(${scaleX} ${scaleY || scaleX})`}>
-                {children.map(Child => (
-                    <Child />
-                ))}
-            </g>
-        );
     },
     [SQUARE]: ({ token }) => props => {
         const [x1, y1, x2, y2, cornerRadius = 0] = token.args;

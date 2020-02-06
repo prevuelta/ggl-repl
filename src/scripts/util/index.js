@@ -1,6 +1,11 @@
+import React from 'react';
 import { tokenNames } from '../compiler/lexer/commands';
 
 const { CIRCLE_GRID } = tokenNames;
+
+export function mapChildren(children) {
+    return children.map((Child, i) => <Child key={i} />);
+}
 
 export default {
     getIndices(points, gridPoints) {
