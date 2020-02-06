@@ -1,5 +1,7 @@
-import commands from './commands';
+import commands, { tokenNames } from './commands';
 import { commentRegEx, emptyLineRegEx, pathTypesRegEx } from './regex';
+
+const { SQUARE_GRID, TRI_GRID, CIRCLE_GRID, GRID_UNIT } = tokenNames;
 
 const clamp = function(val, min, max) {
     return Math.min(Math.max(val, min), max);
@@ -327,11 +329,11 @@ export default function(string) {
                         return parsedStr;
                     });
 
-                    if (name === 'gridunit') {
+                    if (name === GRID_UNIT) {
                         gridContext.gridUnit = +tokenArgs[0];
                     }
 
-                    if (name === 'circlegrid') {
+                    if (name === CIRCLE_GRID) {
                         if (!tokenArgs.length) return;
 
                         const [radius, rings, segments, offset = 0] = tokenArgs[0];
@@ -345,7 +347,7 @@ export default function(string) {
                             offset,
                         };
                     }
-                    if (name === 'squaregrid' || name === 'trigrid') {
+                    if (name === SQUARE_GRID || name === TRI_GRID) {
                         if (!tokenArgs.length) return;
                         const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
 

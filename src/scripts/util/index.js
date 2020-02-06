@@ -1,3 +1,7 @@
+import { tokenNames } from '../compiler/lexer/commands';
+
+const { CIRCLE_GRID } = tokenNames;
+
 export default {
     getIndices(points, gridPoints) {
         return points.map(function(point) {
@@ -10,9 +14,7 @@ export default {
         return new F();
     },
     getLocalData(ref) {
-        return localStorage[ref] && typeof localStorage[ref] === 'string'
-            ? JSON.parse(localStorage[ref])
-            : null;
+        return localStorage[ref] && typeof localStorage[ref] === 'string' ? JSON.parse(localStorage[ref]) : null;
     },
     debounce(func, wait, immediate) {
         let timeout;
@@ -32,9 +34,7 @@ export default {
 };
 
 export function guid(a) {
-    return a
-        ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16)
-        : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, guid);
+    return a ? (a ^ ((Math.random() * 16) >> (a / 4))).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, guid);
 }
 
 export * from './constants';
@@ -50,7 +50,7 @@ export function getDocumentSize(tokens) {
         .filter(t => t.name.includes('grid'))
         .reduce(
             (a, b) => {
-                if (b.name === 'circlegrid') {
+                if (b.name === CIRCLE_GRID) {
                     a.width = Math.max(b.args[0] * 2, a.width);
                     a.height = Math.max(b.args[0] * 2, a.height);
                 } else {

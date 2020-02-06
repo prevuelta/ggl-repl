@@ -1,18 +1,22 @@
 const gridCommands = {
     sg: {
-        name: 'squaregrid',
+        name: 'square-grid',
+        type: 'grid',
+    },
+    pg: {
+        name: 'prop-grid',
         type: 'grid',
     },
     cg: {
-        name: 'circlegrid',
+        name: 'circle-grid',
         type: 'grid',
     },
     tg: {
-        name: 'trigrid',
+        name: 'tri-grid',
         type: 'grid',
     },
     gu: {
-        name: 'gridunit',
+        name: 'grid-unit',
         type: 'grid',
     },
 };
@@ -23,15 +27,15 @@ export const pathCommands = {
         type: 'path',
     },
     '+': {
-        name: 'addvector',
+        name: 'add-vector',
         type: 'path',
     },
     '-': {
-        name: 'subvector',
+        name: 'sub-vector',
         type: 'path',
     },
     b: {
-        name: 'beziercurve',
+        name: 'bezier-curve',
         type: 'path',
     },
     l: {
@@ -80,7 +84,7 @@ const shapeCommands = {
     },
 };
 
-export default {
+const allCommands = {
     ...gridCommands,
     ...pathCommands,
     ...transformCommands,
@@ -96,3 +100,18 @@ export default {
         type: 'style',
     },
 };
+
+export const tokenNames = Object.values(allCommands)
+    .map(c => c.name)
+    .reduce(
+        (a, b) => {
+            const c = b.toUpperCase().replace('-', '_');
+            return { ...a, [c]: b };
+        },
+        {
+            PATH: 'path',
+            ROOT: 'root',
+        }
+    );
+
+export default allCommands;

@@ -4,7 +4,29 @@ import { CircleGrid, SquareGrid, Line, TriGrid } from '../../workspace/component
 import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
 import { COLORS, HALF_PI, PI, TWO_PI, addVector, getAngle, getDistance, getDocumentSize, polarToCartesian, radToDeg, globals } from '../../util';
 import { Store } from '../../data';
-import { pathCommands } from '../lexer/commands';
+import { pathCommands, tokenNames } from '../lexer/commands';
+
+const {
+    ADD_VECTOR,
+    BEZIER_CURVE,
+    CIRCLE,
+    CIRCLE_GRID,
+    DOCUMENT,
+    FILL,
+    PATH,
+    POINT,
+    REFLECT,
+    REPEAT,
+    ROOT,
+    ROTATE,
+    SCALE,
+    SQUARE,
+    SQUARE_GRID,
+    STYLE,
+    SUB_VECTOR,
+    TRANSLATE,
+    TRI_GRID,
+} = tokenNames;
 
 const DEFAULT_DOC_ARGS = [100, 100, 0];
 
@@ -63,7 +85,7 @@ function mapChildren(children) {
 // TODO: generic transform element factory
 
 const elements = {
-    translate: ({ token }, children = []) => props => {
+    [TRANSLATE]: ({ token }, children = []) => props => {
         const [x = 0, y = 0] = token.args;
         return (
             <g transform={`translate(${x} ${y})`}>
@@ -73,7 +95,7 @@ const elements = {
             </g>
         );
     },
-    reflect: ({ token }, children = []) => props => {
+    [REFLECT]: ({ token }, children = []) => props => {
         const [distance] = token.args;
         const axis = token.data;
         const scale = { x: '1, -1', y: '-1, 1' }[axis];
@@ -91,7 +113,7 @@ const elements = {
             </>
         );
     },
-    fill: ({ token }, children = []) => props => {
+    [FILL]: ({ token }, children = []) => props => {
         const [color = COLORS.BLACK] = token.args;
         return (
             <g fill={color}>
@@ -101,7 +123,7 @@ const elements = {
             </g>
         );
     },
-    style: ({ token }, children = []) => props => {
+    [STYLE]: ({ token }, children = []) => props => {
         const [fill = 'none', stroke = COLORS.RED, strokeWidth = 1, strokeOpacity = 1] = token.args;
         // const strokeAlignment = { c: 'center', i: 'inner', o: 'outer' }[rawStrokeAlignment];
         return (
@@ -113,7 +135,7 @@ const elements = {
     $ref: ({ token }) => props => {
         return <use href={`#${token.id}`} x="0" y="0" />;
     },
-    rotate: ({ token }, children = []) => props => {
+    [ROTATE]: ({ token }, children = []) => props => {
         const [angle, x = 0, y = 0] = token.args;
         return (
             <g transform={`rotate(${radToDeg(token.args[0])} ${x} ${y})`}>
@@ -123,10 +145,10 @@ const elements = {
             </g>
         );
     },
-    repeat: (args, children = []) => () => {
+    [REPEAT]: (args, children = []) => () => {
         return children.map(Child => <Child />);
     },
-    scale: ({ token }, children = []) => props => {
+    [SCALE]: ({ token }, children = []) => props => {
         const [scaleX, scaleY] = token.args;
         return (
             <g transform={`scale(${scaleX} ${scaleY || scaleX})`}>
@@ -136,15 +158,15 @@ const elements = {
             </g>
         );
     },
-    square: ({ token }) => props => {
+    [SQUARE]: ({ token }) => props => {
         const [x1, y1, x2, y2, cornerRadius = 0] = token.args;
         return <rect id={token.id} x={x1} y={y1} width={Math.max(0, x2)} height={Math.max(0, y2)} rx={cornerRadius} />;
     },
-    circle: ({ token }) => props => {
+    [CIRCLE]: ({ token }) => props => {
         const [x, y, r] = token.args;
         return <circle cx={x} cy={y} r={r} />;
     },
-    path: ({ tokens, token: path, showHelpers }, children = []) => {
+    [PATH]: ({ tokens, token: path, showHelpers }, children = []) => {
         const pathString = [];
         let currentLocation = { x: 0, y: 0 };
         let helpers = [];
@@ -159,7 +181,7 @@ const elements = {
             if (isPointOrVector(name)) {
                 let [i, j] = args;
                 let command;
-                if (name === 'point') {
+                if (name === POINT) {
                     currentLocation.x = i;
                     currentLocation.y = j;
                     if (!idx) {
@@ -168,8 +190,7 @@ const elements = {
                         command = 'L';
                     }
                 } else if (name.includes('vector')) {
-                    if (name === 'subvector') {
-                        console.log('SIBTRAD');
+                    if (name === SUB_VECTOR) {
                         currentLocation.x -= i;
                         currentLocation.y -= j;
                         i = -i;
@@ -186,10 +207,10 @@ const elements = {
                 }
                 string = `${command} ${i} ${j}`;
                 points.push({ x: currentLocation.x, y: currentLocation.y });
-            } else if (name === 'beziercurve') {
+            } else if (name === BEZIER_CURVE) {
                 let { x, y } = currentLocation;
                 const [x2, y2, cx = 0, cy = 0, c2x = 0, c2y = 0] = token.args;
-                if (previousToken.name === 'beziercurve') {
+                if (previousToken.name === BEZIER_CURVE) {
                     const prevCx = previousToken.args[4] || 0;
                     const prevCy = previousToken.args[5] || 0;
                     helpers.push(<circle cx={x - prevCx} cy={y - prevCy} r={4} />, <Line color={'green'} x1={x} y1={y} x2={x - prevCx} y2={y - prevCy} />);
@@ -264,7 +285,7 @@ const elements = {
             </Fragment>
         );
     },
-    trigrid: ({ token, showHelpers }, children = []) => props => {
+    [TRI_GRID]: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
                 {showHelpers && <TriGrid args={token.args} />}
@@ -274,7 +295,7 @@ const elements = {
             </Fragment>
         );
     },
-    squaregrid: ({ token, showHelpers }, children = []) => props => {
+    [SQUARE_GRID]: ({ token, showHelpers }, children = []) => props => {
         return (
             <Fragment>
                 {showHelpers && <SquareGrid args={token.args} />}
@@ -284,7 +305,7 @@ const elements = {
             </Fragment>
         );
     },
-    circlegrid: ({ token, showHelpers }, children = []) => props => {
+    [CIRCLE_GRID]: ({ token, showHelpers }, children = []) => props => {
         const [radius, rings, segments, offset = 0] = token.args;
         const width = radius * 2;
         const height = radius * 2;
@@ -297,10 +318,10 @@ const elements = {
             </Fragment>
         );
     },
-    root: ({ token }, children = []) => props => {
+    [ROOT]: ({ token }, children = []) => props => {
         return children.map(Child => <Child />);
     },
-    document: ({ token, size, showHelpers }, children = []) => props => {
+    [DOCUMENT]: ({ token, size, showHelpers }, children = []) => props => {
         let [width, height, padding] = token.args;
         if (width === 'a') {
             width = size.width;
@@ -335,7 +356,7 @@ const elements = {
 export default function(tokens, showHelpers = true) {
     let $refs = {};
     let parseTree = { children: [], token: { name: 'root' } };
-    if (!tokens.length || tokens[0].name !== 'document') {
+    if (!tokens.length || tokens[0].name !== DOCUMENT) {
         tokens.unshift({ name: 'document', args: DEFAULT_DOC_ARGS, depth: 0 });
     }
     let node = parseTree;
@@ -344,7 +365,7 @@ export default function(tokens, showHelpers = true) {
     const size = getDocumentSize(tokens);
 
     tokens.forEach((token, i) => {
-        if (i && token.name === 'document') {
+        if (i && token.name === DOCUMENT) {
             throw new Error('Document must be at root level');
         }
         if (token.depth > currentDepth) {
@@ -352,7 +373,7 @@ export default function(tokens, showHelpers = true) {
             node.children = [...(node.children || []), newBranch];
             newBranch.parent = node;
             node = newBranch;
-        } else if (token.depth < currentDepth || (node.token.name === 'path' && token.name === 'path') || !isDrawCommand(token.name)) {
+        } else if (token.depth < currentDepth || (node.token.name === PATH && token.name === PATH) || !isDrawCommand(token.name)) {
             const dif = currentDepth - token.depth;
             for (let i = 0; i < dif; i++) {
                 node = node.parent;
@@ -362,7 +383,7 @@ export default function(tokens, showHelpers = true) {
             newBranch.parent = node.parent;
             node = newBranch;
         } else {
-            if (node.token.name === 'path') {
+            if (node.token.name === PATH) {
                 node.tokens = [...(node.tokens || []), token];
                 if (node.token.id) {
                     $refs[node.token.id] = node;
@@ -398,5 +419,5 @@ function isDrawCommand(name) {
         .includes(name);
 }
 function isPointOrVector(name) {
-    return ['subvector', 'addvector', 'point'].includes(name);
+    return [SUB_VECTOR, ADD_VECTOR, POINT].includes(name);
 }
