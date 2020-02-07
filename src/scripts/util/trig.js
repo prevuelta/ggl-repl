@@ -15,9 +15,28 @@ function getSide(adj, opp, hyp) {
     console.warn('Invalid values passed to getSide');
 }
 
-export function getOpp(angle, adj) {
-    console.log('Angle', angle, adj);
-    return adj / Math.tan(angle);
+export function soh(angle, opp, hyp) {
+    if (opp) {
+        return opp / Math.sin(angle);
+    } else {
+        return hyp * Math.sin(angle);
+    }
+}
+
+export function cah(angle, adj, hyp) {
+    if (adj) {
+        return adj / Math.cos(angle);
+    } else {
+        return hyp * Math.cos(angle);
+    }
+}
+
+export function toa(angle, opp, adj) {
+    if (opp) {
+        return opp / Math.tan(angle);
+    } else {
+        return adj * Math.tan(angle);
+    }
 }
 
 export function getTri(adj, opp, hyp) {

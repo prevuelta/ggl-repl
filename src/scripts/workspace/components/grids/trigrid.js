@@ -1,6 +1,6 @@
 import React from 'react';
 import { Line, Vline, Hline, Group } from '../../components';
-import { COLORS, getOpp, PI } from '../../../util';
+import { COLORS, cah, toa, soh, PI } from '../../../util';
 
 import * as util from '../../../util';
 console.log(util);
@@ -16,9 +16,18 @@ export function TriGridLines(props) {
 
     const lines = [];
 
+    function addLine(opt) {
+        const [x1, y1, x2, y2] = opt;
+
+        lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} {...{ x1, y1, x2, y2 }} />);
+    }
+
     const angle = PI / 3;
 
     const size = gridUnit;
+    const xUnit = size;
+    const yUnit = soh(angle, null, size);
+    // const yUnit = toa(angle, null, size / 2);
     /* const height = getOpp(angle, */
 
     // Generate tris
@@ -26,13 +35,52 @@ export function TriGridLines(props) {
     // const currentWidth = width;
     /* console.log(PI, getOpp); */
 
-    let currentHeight = 0;
-    while (currentHeight < height) {
-        const opp = getOpp(angle, height - currentHeight);
-        lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={0} y1={currentHeight} x2={opp} y2={height} />);
-        lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={width} y1={currentHeight} x2={width - opp} y2={height} />);
-        currentHeight += size;
+    let currentY = 0;
+    for (let i = 0; i < yUnits; i++) {
+        const offset = i % 2 == 0 ? xUnit / 2 : 0;
+        // prettier-ignore
+        [
+        [
+          0,
+          currentY,
+          width,
+          currentY
+        ]
+      ].forEach(addLine);
+
+        let currentX = xUnit / 2 + offset;
+
+        for (let j = 0; j < xUnits; j++) {
+            const isEven = i % 2 == 0;
+            const isOdd = !isEven;
+            // prettier-ignore
+            [
+              [
+            currentX,
+            currentY,
+            currentX - xUnit / 2,
+            currentY + yUnit
+                
+              ],
+          [
+            currentX,
+            currentY,
+            currentX + xUnit / 2,
+            currentY + yUnit
+          ]
+        ].forEach(addLine);
+            currentX += xUnit;
+        }
+        currentY += yUnit;
     }
+
+    // let currentHeight = 0;
+    // while (currentHeight < height) {
+    // const opp = getOpp(angle, height - currentHeight);
+    // lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={0} y1={currentHeight} x2={opp} y2={height} />);
+    // lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} x1={width} y1={currentHeight} x2={width - opp} y2={height} />);
+    // currentHeight += size;
+    // }
 
     // const triBaseg
 
