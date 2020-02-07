@@ -99,6 +99,8 @@ class Workspace extends Component {
             return Promise.resolve();
         }
 
+        rune.ratio = this.state.ratio;
+
         const payload = {
             ...rune,
             source,
@@ -188,14 +190,13 @@ class Workspace extends Component {
             height = size.height;
         }
 
-        console.log('Width', width, 'Height', height);
-
         this.setState({
             source,
             parsed,
             lexed,
             width,
             height,
+            ratio: width / height,
             rune,
         });
     };
@@ -223,6 +224,7 @@ class Workspace extends Component {
             rune,
             width,
             height,
+            ratio,
             message,
             showEditDialog,
         } = this.state;
@@ -237,7 +239,6 @@ class Workspace extends Component {
                     />
                 )}
                 <StatusBar
-                    mode={state.app.mode}
                     rune={rune}
                     save={this.saveRune}
                     message={message}
@@ -263,6 +264,7 @@ class Workspace extends Component {
                             mode={state.app.mode}
                             width={width}
                             height={height}
+                            ratio={ratio}
                             rune={rune}
                             elements={parsed}
                             lexed={lexed}

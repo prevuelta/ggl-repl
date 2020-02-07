@@ -4,7 +4,7 @@ import { OverlayLayer, GridLayer, RenderLayer } from './layers';
 import { Data } from '../../data';
 
 function Renderer(props) {
-    const { lexed, mode, elements, rune, width, height } = props;
+    const { lexed, mode, elements, rune, width, height, ratio } = props;
     const verticalPadding = 40;
     const horizontalPadding = 40;
 
@@ -20,7 +20,7 @@ function Renderer(props) {
                 <p className="canvas-label">
                     {rune.name}{' '}
                     <span className="canvas-size">
-                        ({width}x{height})
+                        ({width}x{height} {ratio.toFixed(2)})
                     </span>
                 </p>
                 <RenderLayer

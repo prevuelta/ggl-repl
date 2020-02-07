@@ -1,7 +1,9 @@
 import React from 'react';
 import { pathCommands, tokenNames } from '../lexer/commands';
-const { REFLECT, ROTATE, SCALE, TRANSLATE } = tokenNames;
 import { mapChildren } from '../../util';
+import { radToDeg } from '../../util';
+
+const { REFLECT, ROTATE, SCALE, TRANSLATE } = tokenNames;
 
 export default {
     [TRANSLATE]: ({ token }, children = []) => props => {
@@ -39,7 +41,9 @@ export default {
         const axis = token.data;
         const scale = { x: '1, -1', y: '-1, 1' }[axis];
         const distancePx = `${distance}px`;
-        const origin = `${axis === 'y' ? distancePx : '0'} ${axis === 'x' ? distancePx : '0'}`;
+        const origin = `${axis === 'y' ? distancePx : '0'} ${
+            axis === 'x' ? distancePx : '0'
+        }`;
 
         return (
             <>
