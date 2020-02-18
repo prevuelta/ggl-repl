@@ -40,9 +40,8 @@ const pairArgReplacements = [
     {
         name: 'Center',
         regex: /c/,
-        replace(str, matches, vars) {
-            const { width, height } = vars || vars.circleGridContext;
-            const center = `${width / 2} ${height / 2}`;
+        replace(str, matches, { squareGridContext: { width, height } }) {
+            const center = `${+width / 2} ${+height / 2}`;
             const result = str.replace(matches[0], center);
             return result;
         },
@@ -67,6 +66,7 @@ const pairArgReplacements = [
         name: 'Circle unit',
         regex: /([0-9.]*)r([0-9.]*)/,
         replace(str, matches, { circleGridContext }) {
+            console.log(circleGridContext);
             const { radius, rings, segments, offset } = circleGridContext;
             const r = +matches[1];
             const s = +matches[2];
@@ -104,7 +104,7 @@ const singleArgReplacements = [
     {
         name: 'Grid Units',
         regex: '([0-9.]*)u([0-9.]*)',
-        parse(str, { type, gridUnit, gridDivisions }) {
+        parse(str, { squareGridContext: { type, gridUnit, gridDivisions } }) {
             let replaceFn = match => {
                 str = str.replace(match[0], +match[1] * gridUnit + +match[2] * (gridUnit / gridDivisions));
             };
@@ -119,7 +119,7 @@ const singleArgReplacements = [
             matches.forEach(replaceFn);
             return str;
         },
-        replace(str, matches, { gridUnit, gridDivisions }) {
+        replace(str, matches, { squareGridContext: { gridUnit, gridDivisions } }) {
             const result = str.replace(matches[0], +matches[1] * gridUnit + +matches[2] * (gridUnit / gridDivisions));
             return result;
         },
@@ -127,7 +127,7 @@ const singleArgReplacements = [
     {
         name: 'Center',
         regex: /^c([x|y])$/,
-        replace(str, matches, { width, height, gridUnit }) {
+        replace(str, matches, { squareGridContext: { width, height, gridUnit } }) {
             return str.replace(matches[0], { x: width, y: height }[matches[1]] / 2);
         },
     },
@@ -142,7 +142,7 @@ const singleArgReplacements = [
     {
         name: 'Width & Height',
         regex: /(-?[\d|.]*)([w|h])/,
-        replace(str, matches, { width, height }) {
+        replace(str, matches, { squareGridContext: { width, height } }) {
             // console.log('Width & height', str, matches, width, height);
             const multiplier = matches[1] ? (matches[1] === '-' ? -1 : matches[1]) : 1;
             const replacement = clamp(+multiplier, -1, 1) * { w: width, h: height }[matches[2]];
@@ -201,7 +201,7 @@ function argReducerFactory(vars) {
 // TODO: Break token replacement into replace, compute
 
 export default function(string) {
-    let gridContext = {
+    let squareGridContext = {
         gridUnit: 10,
         x: 10,
         y: 10,
@@ -319,7 +319,7 @@ export default function(string) {
                     tokenArgs = argStr.trim().split(',');
 
                     const vars = {
-                        ...gridContext,
+                        squareGridContext,
                         circleGridContext,
                         loopContext,
                     };
@@ -338,7 +338,7 @@ export default function(string) {
                     });
 
                     if (name === GRID_UNIT) {
-                        gridContext.gridUnit = +tokenArgs[0];
+                        squareGridContext.gridUnit = +tokenArgs[0];
                     }
 
                     if (name === CIRCLE_GRID) {
@@ -354,14 +354,12 @@ export default function(string) {
                             rings,
                             offset,
                         };
-
-                        console.log(circleGridContext);
                     }
                     if (name === SQUARE_GRID || name === TRI_GRID) {
                         if (!tokenArgs.length) return;
                         const [xUnits, yUnits, gridUnit, gridDivisions = 1, offsetX = 0, offsetY = 0] = tokenArgs[0];
 
-                        gridContext = {
+                        squareGridContext = {
                             type: name,
                             width: xUnits * gridUnit,
                             height: yUnits * gridUnit,

@@ -41,9 +41,7 @@ export default {
         const axis = token.data;
         const scale = { x: '1, -1', y: '-1, 1' }[axis];
         const distancePx = `${distance}px`;
-        const origin = `${axis === 'y' ? distancePx : '0'} ${
-            axis === 'x' ? distancePx : '0'
-        }`;
+        const origin = `${axis === 'y' ? distancePx : '0'} ${axis === 'x' ? distancePx : '0'}`;
 
         return (
             <>
