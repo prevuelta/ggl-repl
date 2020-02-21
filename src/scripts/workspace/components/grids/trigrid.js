@@ -17,8 +17,8 @@ export function TriGridLines(props) {
     const lines = [];
 
     function addLine(opt) {
+        if (!opt) return;
         const [x1, y1, x2, y2] = opt;
-
         lines.push(<Line color={UNIT_LINE_COLOR} opacity={UNIT_LINE_OPACITY} {...{ x1, y1, x2, y2 }} />);
     }
 
@@ -36,8 +36,8 @@ export function TriGridLines(props) {
     /* console.log(PI, getOpp); */
 
     let currentY = 0;
-    for (let i = 0; i < yUnits; i++) {
-        const offset = i % 2 == 0 ? xUnit / 2 : 0;
+    for (let i = 0; i <= yUnits; i++) {
+        const offset = i % 2 == 0 ? 0 : xUnit / 2;
         // prettier-ignore
         [
         [
@@ -48,26 +48,25 @@ export function TriGridLines(props) {
         ]
       ].forEach(addLine);
 
-        let currentX = xUnit / 2 + offset;
+        let currentX = offset;
 
-        for (let j = 0; j < xUnits; j++) {
+        for (let j = 0; j <= xUnits; j++) {
             const isEven = i % 2 == 0;
             const isOdd = !isEven;
             // prettier-ignore
             [
-              [
+              (j && isEven ) || (isOdd && j < xUnits) ?  [
             currentX,
             currentY,
             currentX - xUnit / 2,
             currentY + yUnit
-                
-              ],
-          [
+              ]:null,
+          j < xUnits ? [
             currentX,
             currentY,
             currentX + xUnit / 2,
             currentY + yUnit
-          ]
+          ]: null
         ].forEach(addLine);
             currentX += xUnit;
         }
