@@ -5,6 +5,7 @@ import glob from 'glob';
 import fs from 'fs';
 import { guid, generateName, saveThumbnail } from './util';
 import { exec } from 'child_process';
+import cors from 'cors';
 
 const app = express();
 const { port } = config;
@@ -14,13 +15,17 @@ const storage = `${__dirname}/../stored`;
 const thumbDir = `${storage}/thumbs`;
 const tmpDir = `${__dirname}/../tmp`;
 
+// app.use(cors);
 app.use(express.static(appDir));
 app.use('/thumbs', express.static(`${storage}/thumbs`));
 app.use(express.json());
 
 app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5100'); // update to match the domain you will make the request from
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:9020'); // update to match the domain you will make the request from
+    res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept'
+    );
     next();
 });
 
