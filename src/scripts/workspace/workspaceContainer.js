@@ -9,14 +9,14 @@ import {
   StatusBar,
   Dialog,
   Modal,
-  EditRuneDialog
+  EditRuneDialog,
 } from "./components";
 import {
   generateName,
   guid,
   globals,
   runeData,
-  getDocumentSize
+  getDocumentSize,
 } from "../util";
 import { lex, parse } from "../compiler";
 import { RenderLayer } from "./components/layers";
@@ -37,7 +37,7 @@ class Workspace extends Component {
       rune: null,
       showEditGroup: true,
       message: "",
-      showHelpDialog: true
+      showHelpDialog: false,
     };
   }
 
@@ -104,7 +104,7 @@ class Workspace extends Component {
 
     const payload = {
       ...rune,
-      source
+      source,
     };
     this.setState({ message: "Saving..." });
 
@@ -198,7 +198,7 @@ class Workspace extends Component {
       width,
       height,
       ratio: width / height,
-      rune
+      rune,
     });
   };
 
@@ -236,7 +236,7 @@ class Workspace extends Component {
       ratio,
       message,
       showEditDialog,
-      showHelpDialog
+      showHelpDialog,
     } = this.state;
 
     return (

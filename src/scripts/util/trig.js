@@ -1,81 +1,89 @@
 function getMid(p1, p2) {
-    return [(p1.x + p2.x) / 2, (p1.y + p2.y) / 2];
+  return [(p1.x + p2.x) / 2, (p1.y + p2.y) / 2];
 }
 function getDistance(p1, p2) {
-    return getSide(p1.y - p2.y, p1.x - p2.x);
+  return getSide(p1.y - p2.y, p1.x - p2.x);
 }
 function getSide(adj, opp, hyp) {
-    if (!isNaN(adj) & !isNaN(hyp)) {
-        return Math.sqrt(hyp * hyp - adj * adj);
-    } else if (!isNaN(adj) & !isNaN(opp)) {
-        return Math.sqrt(opp * opp + adj * adj);
-    } else if (!isNaN(opp) & !isNaN(hyp)) {
-        return Math.sqrt(hyp * hyp - opp * opp);
-    }
-    console.warn('Invalid values passed to getSide');
+  if (!isNaN(adj) & !isNaN(hyp)) {
+    return Math.sqrt(hyp * hyp - adj * adj);
+  } else if (!isNaN(adj) & !isNaN(opp)) {
+    return Math.sqrt(opp * opp + adj * adj);
+  } else if (!isNaN(opp) & !isNaN(hyp)) {
+    return Math.sqrt(hyp * hyp - opp * opp);
+  }
+  console.warn("Invalid values passed to getSide");
 }
 
 export function soh(angle, opp, hyp) {
-    if (opp) {
-        return opp / Math.sin(angle);
-    } else {
-        return hyp * Math.sin(angle);
-    }
+  if (opp) {
+    return opp / Math.sin(angle);
+  } else {
+    return hyp * Math.sin(angle);
+  }
 }
 
 export function cah(angle, adj, hyp) {
-    if (adj) {
-        return adj / Math.cos(angle);
-    } else {
-        return hyp * Math.cos(angle);
-    }
+  if (adj) {
+    return adj / Math.cos(angle);
+  } else {
+    return hyp * Math.cos(angle);
+  }
 }
 
 export function toa(angle, opp, adj) {
-    if (opp) {
-        return opp / Math.tan(angle);
-    } else {
-        return adj * Math.tan(angle);
-    }
+  if (opp) {
+    return opp / Math.tan(angle);
+  } else {
+    return adj * Math.tan(angle);
+  }
 }
 
 export function getTri(adj, opp, hyp) {
-    if (isNaN(opp) || isNaN(opp) || isNaN(hyp)) {
-        console.warn('Invalid values passed to getSide');
-    }
+  if (isNaN(opp) || isNaN(opp) || isNaN(hyp)) {
+    console.warn("Invalid values passed to getSide");
+  }
 
-    if (!isNaN(adj) & !isNaN(hyp)) {
-        opp = Math.sqrt(hyp * hyp - adj * adj);
-    } else if (!isNaN(adj) & !isNaN(opp)) {
-        hyp = Math.sqrt(opp * opp + adj * adj);
-    } else if (!isNaN(opp) & !isNaN(hyp)) {
-        adj = Math.sqrt(hyp * hyp - opp * opp);
-    }
+  if (!isNaN(adj) & !isNaN(hyp)) {
+    opp = Math.sqrt(hyp * hyp - adj * adj);
+  } else if (!isNaN(adj) & !isNaN(opp)) {
+    hyp = Math.sqrt(opp * opp + adj * adj);
+  } else if (!isNaN(opp) & !isNaN(hyp)) {
+    adj = Math.sqrt(hyp * hyp - opp * opp);
+  }
 
-    return { adj, opp, hyp };
+  return { adj, opp, hyp };
 }
 
 export function addVector(v1, v2) {
-    return { x: v1.x + v2.x, y: v1.y + v2.y };
+  return { x: v1.x + v2.x, y: v1.y + v2.y };
 }
 
 function getAngle(p1, p2) {
-    let angle = Math.atan2(p1.y - p2.y, p1.x - p2.x);
-    return angle;
+  let angle = Math.atan2(p1.y - p2.y, p1.x - p2.x);
+  return angle;
 }
 
 function radToDeg(radians) {
-    return radians / (Math.PI / 180);
+  return radians / (Math.PI / 180);
 }
 function degToRad(degrees) {
-    return degrees * (Math.PI / 180);
+  return degrees * (Math.PI / 180);
 }
 
 function polarToCartesian(center, radius, angle) {
-    return {
-        x: Math.cos(angle) * radius + center.x,
-        y: Math.sin(angle) * radius + center.y,
-    };
+  return {
+    x: Math.cos(angle) * radius + center.x,
+    y: Math.sin(angle) * radius + center.y,
+  };
 }
 
-export { getMid, getDistance, getSide, getAngle, radToDeg, degToRad, polarToCartesian };
+export {
+  getMid,
+  getDistance,
+  getSide,
+  getAngle,
+  radToDeg,
+  degToRad,
+  polarToCartesian,
+};

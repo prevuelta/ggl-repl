@@ -14,7 +14,7 @@ export default ({ mode, save, edit, message, rune, help }) => (
     )}
     {rune && <p>{rune.name}</p>}
     <Notifications notifications={[message]} />
-    <Button style={{ "margin-left": "auto" }} onClick={help}>
+    <Button style={{ marginLeft: "auto" }} onClick={help}>
       Help
     </Button>
   </div>
