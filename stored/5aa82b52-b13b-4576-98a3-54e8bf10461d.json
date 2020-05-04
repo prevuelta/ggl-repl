@@ -1,1 +1,12 @@
-{"id":"5aa82b52-b13b-4576-98a3-54e8bf10461d","source":"d:a a 0\n  sg:10 10 20 1\n    r:0.25pi 0.2w 0.5h\n      p:0 1u,1u 0,+:3ux,5uy,-4ux\n      tr:-0.5ux\n        p:5ux,+:3ux,+5uy,-3ux","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"renderer-svg\" height=\"200\" width=\"200\" fill=\"#000000\" viewBox=\"0 0 200 200\"><g transform=\"translate(0, 0)\"><g transform=\"rotate(45 40 100)\"><path d=\"M 0 20 L 20 0 l 60 0 l 0 100 l -80 0\" fill-rule=\"evenodd\"></path><path d=\"\" fill-rule=\"evenodd\"></path><g transform=\"translate(-10 0)\"><path d=\"M 100 0 l 60 0 l 0 100 l -60 0\" fill-rule=\"evenodd\"></path></g></g></g></svg>","name":"Bone Five Cloud","group":"ungrouped","modified":"2020-04-14T02:30:19.544Z","created":"2020-03-17T06:57:49.633Z","padding":0,"thumb":"5aa82b52-b13b-4576-98a3-54e8bf10461d.png","ratio":1}
+{
+  "id": "5aa82b52-b13b-4576-98a3-54e8bf10461d",
+  "source": "d:a a 0\n  sg:10 10 20 1\n    r:0.25pi 0.2w 0.5h\n      p:0 1u,1u 0,+:3ux,5uy,-4ux\n      tr:-0.5ux\n        p:5ux,+:3ux,+5uy,-3ux",
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"renderer-svg\" height=\"200\" width=\"200\" fill=\"#000000\" viewBox=\"0 0 200 200\"><g transform=\"translate(0, 0)\"><g transform=\"rotate(45 40 100)\"><path d=\"M 0 20 L 20 0 l 60 0 l 0 100 l -80 0\" fill-rule=\"evenodd\"></path><path d=\"\" fill-rule=\"evenodd\"></path><g transform=\"translate(-10 0)\"><path d=\"M 100 0 l 60 0 l 0 100 l -60 0\" fill-rule=\"evenodd\"></path></g></g></g></svg>",
+  "name": "Bone Five Cloud",
+  "group": "ungrouped",
+  "modified": "2020-04-14T02:30:19.544Z",
+  "created": "2020-03-17T06:57:49.633Z",
+  "padding": 0,
+  "thumb": "5aa82b52-b13b-4576-98a3-54e8bf10461d.png",
+  "ratio": 1
+}
