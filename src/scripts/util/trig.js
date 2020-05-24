@@ -14,7 +14,7 @@ export function getSide(adj, opp, hyp) {
   } else if (!isNaN(opp) & !isNaN(hyp)) {
     return Math.sqrt(hyp * hyp - opp * opp);
   }
-  console.warn('Invalid values passed to getSide');
+  console.warn("Invalid values passed to getSide");
 }
 
 export function soh(angle, opp, hyp) {
@@ -43,7 +43,7 @@ export function toa(angle, opp, adj) {
 
 export function getTri(adj, opp, hyp) {
   if (isNaN(opp) || isNaN(opp) || isNaN(hyp)) {
-    console.warn('Invalid values passed to getSide');
+    console.warn("Invalid values passed to getSide");
   }
 
   if (!isNaN(adj) & !isNaN(hyp)) {

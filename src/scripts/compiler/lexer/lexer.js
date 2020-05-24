@@ -372,16 +372,18 @@ export default function(string) {
 
           const argReducer = argReducerFactory(vars);
 
-          tokenArgs = tokenArgs.map(argStr => {
-            argStr.trim();
-            argStr = pairArgReplacements.reduce(argReducer, argStr);
-            const parsedStr = argStr.split(" ").map(str => {
-              const arg = singleArgReplacements.reduce(argReducer, str);
+          tokenArgs = tokenArgs
+            .map(argStr => argStr.trim())
+            .filter(argStr => argStr)
+            .map(argStr => {
+              argStr = pairArgReplacements.reduce(argReducer, argStr);
+              const parsedStr = argStr.split(" ").map(str => {
+                const arg = singleArgReplacements.reduce(argReducer, str);
 
-              return isNaN(arg) ? arg : +arg;
+                return isNaN(arg) ? arg : +arg;
+              });
+              return parsedStr;
             });
-            return parsedStr;
-          });
 
           if (name === GRID_UNIT) {
             squareGridContext.gridUnit = +tokenArgs[0];

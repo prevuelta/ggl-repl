@@ -50,6 +50,10 @@ export const pathCommands = {
     name: "tangent",
     type: "path",
   },
+  i: {
+    name: "intersect",
+    type: "path",
+  },
 };
 
 const transformCommands = {

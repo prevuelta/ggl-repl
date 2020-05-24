@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import {
   CircleGrid,
   SquareGrid,
   Line,
   TriGrid,
-} from '../../workspace/components';
-import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
+} from "../../workspace/components";
+import { Node, Cross } from "../../workspace/components/overlayHelperShapes";
 import {
   COLORS,
   HALF_PI,
@@ -20,11 +20,11 @@ import {
   globals,
   mapChildren,
   getTangents,
-} from '../../util';
-import { Store } from '../../data';
-import { pathCommands, tokenNames } from '../lexer/commands';
-import transforms from './transforms';
-import { tangent } from './commands';
+} from "../../util";
+import { Store } from "../../data";
+import { pathCommands, tokenNames } from "../lexer/commands";
+import transforms from "./transforms";
+import { tangent } from "./commands";
 
 const {
   ADD_VECTOR,
@@ -54,7 +54,7 @@ const { Fragment } = React;
 
 const Helpers = ({ children, fill, stroke }) => {
   return (
-    <g fill={fill || 'none'} stroke={stroke || 'red'} strokeWidth="1">
+    <g fill={fill || "none"} stroke={stroke || "red"} strokeWidth="1">
       {children}
     </g>
   );
@@ -128,7 +128,7 @@ const elements = {
   },
   [STYLE]: ({ token }, children = []) => props => {
     const [
-      fill = 'none',
+      fill = "none",
       stroke = COLORS.RED,
       strokeWidth = 1,
       strokeOpacity = 1,
@@ -179,7 +179,7 @@ const elements = {
     (tokens || []).forEach((token, idx) => {
       // console.log('Parsing path token');
       const { name, args } = token;
-      let string = '';
+      let string = "";
       if (isPointOrVector(name)) {
         let [i, j] = args;
         let command;
@@ -187,11 +187,11 @@ const elements = {
           currentLocation.x = i;
           currentLocation.y = j;
           if (!idx) {
-            command = 'M';
+            command = "M";
           } else {
-            command = 'L';
+            command = "L";
           }
-        } else if (name.includes('vector')) {
+        } else if (name.includes("vector")) {
           if (name === SUB_VECTOR) {
             currentLocation.x -= i;
             currentLocation.y -= j;
@@ -202,9 +202,9 @@ const elements = {
             currentLocation.y += j;
           }
           if (!idx) {
-            command = 'm';
+            command = "m";
           } else {
-            command = 'l';
+            command = "l";
           }
         }
         string = `${command} ${i} ${j}`;
@@ -218,7 +218,7 @@ const elements = {
           helpers.push(
             <circle cx={x - prevCx} cy={y - prevCy} r={4} />,
             <Line
-              color={'green'}
+              color={"green"}
               x1={x}
               y1={y}
               x2={x - prevCx}
@@ -237,7 +237,7 @@ const elements = {
         if (cx || cy) {
           helpers.push(
             <circle cx={x + cx} cy={y + cy} r={4} />,
-            <Line color={'green'} x1={x} y1={y} x2={x + cx} y2={y + cy} />
+            <Line color={"green"} x1={x} y1={y} x2={x + cx} y2={y + cy} />
           );
         }
         if (c2x || c2y) {
@@ -253,8 +253,8 @@ const elements = {
           y: currentLocation.y + token.args[1],
         };
         const arcData = tokenToVArc(currentLocation, center, token);
-        console.log('Arc data', arcData.string);
-        string = `${idx ? 'L' : 'M'} ${arcData.string}`;
+        console.log("Arc data", arcData.string);
+        string = `${idx ? "L" : "M"} ${arcData.string}`;
         currentLocation = arcData.end;
         points.push(
           { x: currentLocation.x, y: currentLocation.y },
@@ -286,22 +286,63 @@ const elements = {
         string = `L ${center.x} ${center.y} L ${end.x} ${end.y}`;
         points.push(center, end);
       } else if (name === INTERSECT) {
-        const [x1, y1, x2, y2, dist] = token.args;
-        const p1 = {
-          x: x1,
-          y: y1,
-          color: 'green',
+        // Intersect
+        // const [cx, cy, radius, endX, endY, flag = 0] = token.args;
+        const [cx, cy, stroke, endX, endY, flag = 0] = token.args;
+        const center = {
+          x: cx,
+          y: cy,
+          color: "green",
         };
-        const p2 = {
-          x: x2,
-          y: y2,
-          color: 'purple',
+        const end = {
+          x: endX,
+          y: endY,
+          color: "purple",
         };
+        const angle1 = getAngle(currentLocation, center);
+        const angle2 = getAngle(end, center);
+        const angleDiff = angle1 - angle2;
+        const miterLength = stroke / Math.sin(angleDiff / 2);
+
+        // const miterPoint = polarToCartesian(center, miterLength, angle1);
+
+        const p3 = polarToCartesian(center, stroke, angle1);
+        const p4 = polarToCartesian(center, stroke, angle2);
+
+        string = `L ${currentLocation.x} ${currentLocation.y} ${miterPoint.x} ${miterPoint.y} ${end.x} ${end.y}`;
+        currentLocation = end;
         helpers.push(
-          <Cross x={p1.x} y={p1.y} color={p1.color} size={10} />,
-          <Cross x={p2.x} y={p2.y} color={p2.color} size={10} />
+          <Cross
+            x={miterPoint.x}
+            y={miterPoint.y}
+            color={center.color}
+            size={10}
+          />,
+          <Cross x={center.x} y={center.y} color={center.color} size={5} />,
+          <Cross x={end.x} y={end.y} color={end.color} size={10} />,
+          <Cross x={p3.x} y={p3.y} color="red" size={20} />,
+          <Cross x={p4.x} y={p4.y} color="blue" size={20} />,
+          <circle
+            cx={cx}
+            cy={cy}
+            r={miterLength}
+            fill="none"
+            stroke="blue"
+            strokeWidth="1"
+            opacity="0.5"
+          />,
+          <circle
+            cx={cx}
+            cy={cy}
+            r={stroke}
+            fill="none"
+            stroke="red"
+            strokeWidth="1"
+            opacity="0.5"
+          />
         );
       } else if (name === TANGENT) {
+        // Tangent
         const [
           centerX,
           centerY,
@@ -327,9 +368,9 @@ const elements = {
         currentLocation = end;
         helpers.push(
           <Cross x={center.x} y={center.y} size={10} />,
-          <Cross x={t1.x} y={t1.y} size={10} color={'blue'} />,
-          <Cross x={t2.x} y={t2.y} size={10} color={'blue'} />,
-          <Cross x={end.x} y={end.y} size={10} color={'blue'} />,
+          <Cross x={t1.x} y={t1.y} size={10} color={"blue"} />,
+          <Cross x={t2.x} y={t2.y} size={10} color={"blue"} />,
+          <Cross x={end.x} y={end.y} size={10} color={"blue"} />,
           <circle
             cx={center.x}
             cy={center.y}
@@ -342,7 +383,7 @@ const elements = {
         );
       }
 
-      console.log('Next string', string);
+      console.log("Next string", string);
       pathString.push(string);
       previousToken = token;
     });
@@ -350,13 +391,13 @@ const elements = {
       ...points.map(({ x, y }, i) => <Node key={i} x={x} y={y} color="red" />),
       ...helpers,
     ];
-    helpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);
+    helpers.push(<path d={pathString.join(" ")} stroke="red" fill="none" />);
 
     return props => (
       <Fragment>
         <path
           id={path.id}
-          d={pathString.join(' ') + (path.closed ? ' Z' : '')}
+          d={pathString.join(" ") + (path.closed ? " Z" : "")}
           fillRule="evenodd"
         />
         {children.map((Child, i) => (
@@ -406,10 +447,10 @@ const elements = {
   },
   [DOCUMENT]: ({ token, size, showHelpers }, children = []) => props => {
     let [width, height, padding] = token.args;
-    if (width === 'a') {
+    if (width === "a") {
       width = size.width;
     }
-    if (height === 'a') {
+    if (height === "a") {
       height = size.height;
     }
 
@@ -423,7 +464,7 @@ const elements = {
         className="renderer-svg"
         height={heightPlusPadding}
         width={widthPlusPadding}
-        fill={'#000000'}
+        fill={"#000000"}
         viewBox={viewBox}
       >
         {showHelpers && (
@@ -461,9 +502,9 @@ const elements = {
 
 export default function(tokens, showHelpers = true) {
   let $refs = {};
-  let parseTree = { children: [], token: { name: 'root' } };
+  let parseTree = { children: [], token: { name: "root" } };
   if (!tokens.length || tokens[0].name !== DOCUMENT) {
-    tokens.unshift({ name: 'document', args: DEFAULT_DOC_ARGS, depth: 0 });
+    tokens.unshift({ name: "document", args: DEFAULT_DOC_ARGS, depth: 0 });
   }
   let node = parseTree;
   let currentDepth = -1;
@@ -472,7 +513,7 @@ export default function(tokens, showHelpers = true) {
 
   tokens.forEach((token, i) => {
     if (i && token.name === DOCUMENT) {
-      throw new Error('Document must be at root level');
+      throw new Error("Document must be at root level");
     }
     if (token.depth > currentDepth) {
       const newBranch = { token };
@@ -517,7 +558,7 @@ export default function(tokens, showHelpers = true) {
     return elFn(opt);
   }
 
-  console.log('TREE', parseTree);
+  console.log("TREE", parseTree);
   output.paths = iterateNodes(parseTree);
   // console.log('OUTPUT', output);
   return output;
