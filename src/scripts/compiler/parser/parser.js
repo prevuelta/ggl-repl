@@ -19,12 +19,11 @@ import {
   radToDeg,
   globals,
   mapChildren,
-  getTangents,
 } from '../../util';
 import { Store } from '../../data';
 import { pathCommands, tokenNames } from '../lexer/commands';
 import transforms from './transforms';
-import { tangent } from './commands';
+import parseToken from './commands';
 
 const {
   ADD_VECTOR,
@@ -171,7 +170,7 @@ const elements = {
   [PATH]: ({ tokens, token: path, showHelpers }, children = []) => {
     const pathString = [];
     let currentLocation = { x: 0, y: 0 };
-    let helpers = [];
+    let allHelpers = [];
     const points = [];
 
     let previousToken;
@@ -215,7 +214,7 @@ const elements = {
         if (previousToken.name === BEZIER_CURVE) {
           const prevCx = previousToken.args[4] || 0;
           const prevCy = previousToken.args[5] || 0;
-          helpers.push(
+          allHelpers.push(
             <circle cx={x - prevCx} cy={y - prevCy} r={4} />,
             <Line
               color={'green'}
@@ -235,13 +234,13 @@ const elements = {
             y2} ${x2},${y2}`;
         }
         if (cx || cy) {
-          helpers.push(
+          allHelpers.push(
             <circle cx={x + cx} cy={y + cy} r={4} />,
             <Line color={'green'} x1={x} y1={y} x2={x + cx} y2={y + cy} />
           );
         }
         if (c2x || c2y) {
-          helpers.push(
+          allHelpers.push(
             <circle cx={x + x2 + c2x} cy={y + y2 + c2y} r={4} />,
             <Line x1={x + x2} y1={y + y2} x2={x + x2 + c2x} y2={y + y2 + c2y} />
           );
@@ -261,7 +260,7 @@ const elements = {
           arcData.start,
           arcData.end
         );
-        helpers.push(
+        allHelpers.push(
           <circle
             cx={arcData.center.x}
             cy={arcData.center.y}
@@ -311,7 +310,7 @@ const elements = {
 
         string = `L ${currentLocation.x} ${currentLocation.y} ${miterPoint.x} ${miterPoint.y} ${end.x} ${end.y}`;
         currentLocation = end;
-        helpers.push(
+        allHelpers.push(
           <Cross
             x={miterPoint.x}
             y={miterPoint.y}
@@ -342,57 +341,25 @@ const elements = {
           />
         );
       } else if (name === TANGENT) {
-        // Tangent
-        const [
-          centerX,
-          centerY,
-          flag1,
-          endX,
-          endY,
-          isRelative,
-          flag2,
-          radius,
-          sweep = 0,
-          largeArcFlag = 0,
-        ] = token.args;
-        const center = { x: centerX, y: centerY };
-        const end = {
-          x: isRelative ? currentLocation.x + endX : endX,
-          y: isRelative ? currentLocation.y + endY : endY,
-        };
-
-        const t1 = getTangents(center, currentLocation, radius, flag1);
-        const t2 = getTangents(center, end, radius, flag2);
-
-        const arcString = `L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${t2.x} ${t2.y}`;
-        string = `${arcString} L ${t2.x} ${t2.y} ${end.x} ${end.y}`;
+        const { str, end, helpers } = parseToken(token, {
+          prevToken: tokens[idx - 1] || null,
+          nextToken: tokens[idx + 1] || null,
+          currentLocation,
+        });
+        string = str;
         currentLocation = end;
-        helpers.push(
-          <Cross x={center.x} y={center.y} size={10} />,
-          <Cross x={t1.x} y={t1.y} size={10} color={'blue'} />,
-          <Cross x={t2.x} y={t2.y} size={10} color={'blue'} />,
-          <Cross x={end.x} y={end.y} size={10} color={'blue'} />,
-          <circle
-            cx={center.x}
-            cy={center.y}
-            r={radius}
-            fill="none"
-            stroke="red"
-            strokeWidth="1"
-            opacity="0.5"
-          />
-        );
+        allHelpers.push(helpers);
       }
 
       console.log('Next string', string);
       pathString.push(string);
       previousToken = token;
     });
-    helpers = [
+    allHelpers = [
       ...points.map(({ x, y }, i) => <Node key={i} x={x} y={y} color="red" />),
-      ...helpers,
+      ...allHelpers,
     ];
-    helpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);
+    allHelpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);
 
     return props => (
       <Fragment>
@@ -404,7 +371,7 @@ const elements = {
         {children.map((Child, i) => (
           <Child key={i} />
         ))}
-        {showHelpers && <Helpers children={helpers} />}
+        {showHelpers && <Helpers children={allHelpers} />}
       </Fragment>
     );
   },
