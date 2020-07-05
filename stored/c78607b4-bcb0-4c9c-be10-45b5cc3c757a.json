@@ -1,1 +1,12 @@
-{"id":"c78607b4-bcb0-4c9c-be10-45b5cc3c757a","source":"d:a a 0\n  sg:6 4 40 1\n      ry:0.5w\n        p:0 0,t:2u 2u 1 u 4u 1 0 1u 0 1,+:-4uy","svg":"<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"renderer-svg\" height=\"160\" width=\"240\" fill=\"#000000\" viewBox=\"0 0 240 160\"><g transform=\"translate(0, 0)\"><g transform=\"scale(-1, 1)\" transform-origin=\"120px 0\"><path d=\"M 0 0 L 96.4575131106459 43.542486889354095 A 40 40 0 0 1 96.4575131106459 116.4575131106459 L 96.4575131106459 116.4575131106459 0 160 l 0 -160\" fill-rule=\"evenodd\"></path></g><path d=\"M 0 0 L 96.4575131106459 43.542486889354095 A 40 40 0 0 1 96.4575131106459 116.4575131106459 L 96.4575131106459 116.4575131106459 0 160 l 0 -160\" fill-rule=\"evenodd\"></path></g></svg>","name":"Summer Imperfect Shine","group":"ungrouped","modified":"2020-06-17T08:46:03.742Z","created":"2020-04-14T02:30:20.379Z","padding":0,"thumb":"c78607b4-bcb0-4c9c-be10-45b5cc3c757a.png","ratio":1.5}
+{
+  "id": "c78607b4-bcb0-4c9c-be10-45b5cc3c757a",
+  "source": "d:a a 0\n  sg:6 4 40 1\n      ry:0.5w\n        p:0 0,t:2u 2u 1 u 4u 1 0 1u 0 1,+:-4uy",
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"renderer-svg\" height=\"160\" width=\"240\" fill=\"#000000\" viewBox=\"0 0 240 160\"><g transform=\"translate(0, 0)\"><g transform=\"scale(-1, 1)\" transform-origin=\"120px 0\"><path d=\"M 0 0 L 96.4575131106459 43.542486889354095 A 40 40 0 0 1 96.4575131106459 116.4575131106459 L 96.4575131106459 116.4575131106459 0 160 l 0 -160\" fill-rule=\"evenodd\"></path></g><path d=\"M 0 0 L 96.4575131106459 43.542486889354095 A 40 40 0 0 1 96.4575131106459 116.4575131106459 L 96.4575131106459 116.4575131106459 0 160 l 0 -160\" fill-rule=\"evenodd\"></path></g></svg>",
+  "name": "Summer Imperfect Shine",
+  "group": "ungrouped",
+  "modified": "2020-06-17T08:46:03.742Z",
+  "created": "2020-04-14T02:30:20.379Z",
+  "padding": 0,
+  "thumb": "c78607b4-bcb0-4c9c-be10-45b5cc3c757a.png",
+  "ratio": 1.5
+}

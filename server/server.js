@@ -1,44 +1,44 @@
-import express from "express";
-import config from "./config";
-import path from "path";
-import glob from "glob";
-import fs from "fs";
-import { guid, generateName, saveThumbnail } from "./util";
-import { exec } from "child_process";
-import cors from "cors";
+import express from 'express';
+import config from './config';
+import path from 'path';
+import glob from 'glob';
+import fs from 'fs';
+import { guid, generateName, saveThumbnail } from './util';
+import { exec } from 'child_process';
+import cors from 'cors';
 
 const app = express();
 const { port } = config;
 
-const appDir = path.join(__dirname, "../dist");
+const appDir = path.join(__dirname, '../build');
 const storage = `${__dirname}/../stored`;
 const thumbDir = `${storage}/thumbs`;
 const tmpDir = `${__dirname}/../tmp`;
 
 // app.use(cors);
 app.use(express.static(appDir));
-app.use("/thumbs", express.static(`${storage}/thumbs`));
+app.use('/thumbs', express.static(`${storage}/thumbs`));
 app.use(express.json());
 
 app.use(function(req, res, next) {
   // res.header("Access-Control-Allow-Origin", "http://localhost:5100"); // update to match the domain you will make the request from
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Origin', '*');
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
   );
   next();
 });
 
 app
-  .route("/rune/:id?")
+  .route('/rune/:id?')
   .get((req, res) => {
     const { id } = req.params;
     if (id) {
       const filePath = path.join(storage, `${id}.json`);
       if (fs.existsSync(filePath)) {
         if (req.query.svg) {
-          const rune = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+          const rune = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
           res.send(rune.svg);
         } else {
           res.sendFile(filePath);
@@ -57,7 +57,7 @@ app
     rune.modified = now;
 
     if (!rune.created) {
-      console.log("Adding created");
+      console.log('Adding created');
       rune.created = now;
     }
 
@@ -66,10 +66,10 @@ app
     const thumbPath = `${thumbDir}/${thumbFileName}`;
     rune.thumb = thumbFileName;
 
-    console.log("Writing file");
+    console.log('Writing file');
 
     fs.writeFile(filePath, JSON.stringify(rune), err => {
-      if (rune.svg !== "") {
+      if (rune.svg !== '') {
         try {
           saveThumbnail(rune.svg, thumbPath, () => {
             if (err) {
@@ -79,19 +79,19 @@ app
           });
         } catch (err) {
           console.log(err);
-          res.status(500).send("Failure creating thumbnail");
+          res.status(500).send('Failure creating thumbnail');
         }
       }
     });
   })
   .put((req, res) => {
     const now = new Date().toJSON();
-    const { group, source = "" } = req.body;
-    console.log("New rune", req.body);
+    const { group, source = '' } = req.body;
+    console.log('New rune', req.body);
     const rune = {
       id: guid(),
       source,
-      svg: "<svg></svg>",
+      svg: '<svg></svg>',
       name: generateName(),
       group,
       modified: now,
@@ -121,11 +121,11 @@ app
   .delete((req, res) => {
     const { id } = req.body;
     fs.unlink(`${storage}/${id}.json`, err => {
-      if (err) console.log("huh", err);
+      if (err) console.log('huh', err);
       const thumbPath = `${storage}/thumbs/${id}.png`;
       if (fs.existsSync(thumbPath)) {
         fs.unlink(thumbPath, err => {
-          if (err) console.log("Wat", err);
+          if (err) console.log('Wat', err);
           res.sendStatus(204);
         });
       } else {
@@ -136,10 +136,10 @@ app
 
 const output = `${tmpDir}/montage.png`;
 exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
-  console.log("Montage generated");
+  console.log('Montage generated');
 });
 
-app.get("/preview", (req, res) => {
+app.get('/preview', (req, res) => {
   const output = `${tmpDir}/montage.png`;
   exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
     if (err) {
@@ -152,12 +152,12 @@ app.get("/preview", (req, res) => {
 
 function getRunes() {
   const runes = glob.sync(`${storage}/*.json`).map(f => {
-    return JSON.parse(fs.readFileSync(f, "utf-8"));
+    return JSON.parse(fs.readFileSync(f, 'utf-8'));
   });
   return runes;
 }
 
-app.get("/runes", (req, res) => {
+app.get('/runes', (req, res) => {
   const runes = getRunes();
   runes.sort((a, b) => {
     const dateA = +new Date(a.created);
