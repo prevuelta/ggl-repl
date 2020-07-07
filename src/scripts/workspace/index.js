@@ -169,11 +169,25 @@ export default class Workspace extends Component {
     const lexed = lex(source);
     // Create
     console.log('TOKENS', lexed);
-    const parsed = parse(lexed);
-    // Create render tree
-    const svgString = renderToStaticMarkup(
-      <RenderLayer PathElements={parse(lexed, false).paths} />
-    );
+    let parsed = {};
+    try {
+      parsed = parse(lexed);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
+
+    let svgString = '';
+
+    try {
+      // Create render tree
+      svgString = renderToStaticMarkup(
+        <RenderLayer PathElements={parse(lexed, false).paths} />
+      );
+    } catch (err) {
+      console.log(err);
+      return;
+    }
 
     rune.svg = svgString;
 

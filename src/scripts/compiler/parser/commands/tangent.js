@@ -1,6 +1,8 @@
 import React from 'react';
 import { getTangents, getStartPosition } from '../../../util';
 import { Cross } from '../../../workspace/components/overlayHelperShapes';
+import { tokenNames } from '../../../compiler/lexer/commands';
+const { TANGENT } = tokenNames;
 
 function getTangents2Circ(c1, r1, c2, r2) {
   const d_sq = (c1.x - c2.x) * (c1.x - c2.x) + (c1.y - c2.y) * (c1.y - c2.y);
@@ -33,37 +35,44 @@ function getTangents2Circ(c1, r1, c2, r2) {
 }
 
 export default ({ args }, { nextToken, prevToken, currentLocation }) => {
-  console.log('Context', prevToken, nextToken);
-  const end = getStartPosition(nextToken);
+  const nextIsTangent = nextToken && nextToken.name === TANGENT;
+  console.log('Context', nextIsTangent, prevToken, nextToken, currentLocation);
 
   // Tangent
-  const [
-    centerX,
-    centerY,
-    radius,
-    flag1 = 0,
-    flag2 = 0,
-    sweep = 0,
-    largeArcFlag = 0,
-  ] = args;
+  const [centerX, centerY, radius, flag1, flag2, sweep, largeArcFlag] = args;
+
+  if (!centerX || !centerY || isNaN(radius)) {
+    return { str: '', helpers: [], end: currentLocation };
+  }
 
   const center = { x: centerX, y: centerY };
 
-  let multiTangents;
+  let end = currentLocation;
+  let tangents;
 
-  if (nextToken.name === 'tangent') {
-    console.log('NEEEXT IS TANGGGENT');
-    multiTangents = getTangents2Circ(
+  if (!nextIsTangent) {
+    end = getStartPosition(nextToken);
+  } else {
+    tangents = getTangents2Circ(
       center,
       radius,
       { x: nextToken.args[0], y: nextToken.args[1] },
       nextToken.args[2]
     );
+    if (tangents.length) {
+      end = {
+        x: tangents[flag1][0],
+        y: tangents[flag1][1],
+      };
+    }
   }
 
-  // if (!nextToken || !prevToken || !end) {
-  // return { str: '', helpers: [], end: currentLocation };
-  // }
+  if (
+    !nextIsTangent &&
+    (!nextToken || !prevToken || !end || !currentLocation)
+  ) {
+    return { str: '', helpers: [], end };
+  }
 
   console.log(
     'Tangent',
@@ -76,37 +85,33 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     nextToken
   );
 
-  console.log('Mult tangents', multiTangents);
+  console.log('Mult tangents', tangents);
 
   const t1 = getTangents(center, currentLocation, radius, flag1);
-  // const t2 = getTangents(center, end, radius, flag2);
+  const t2 = getTangents(center, end, radius, flag2);
 
-  // const arcString = `L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${t2.x} ${t2.y}`;
-  // const string = `${arcString} L ${t2.x} ${t2.y} ${end.x} ${end.y}`;
-  const string = '';
-  const helpers = (
-    <>
-      {multiTangents &&
-        multiTangents.map(tangent => (
-          <>
-            <Cross x={tangent[0]} y={tangent[1]} />
-            <Cross x={tangent[2]} y={tangent[3]} />
-          </>
-        ))}
-      ,
-      <circle
-        cx={center.x}
-        cy={center.y}
-        r={radius}
-        fill="none"
-        stroke="red"
-        strokeWidth="1"
-        opacity="0.5"
-      />
-    </>
-  );
-  // <Cross x={center.x} y={center.y} size={10} />,
-  // <Cross x={t1.x} y={t1.y} size={10} color={'blue'} />,
+  const arcString = `L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${t2.x} ${t2.y}`;
+  const string = `${arcString} L ${t2.x} ${t2.y} ${end.x} ${end.y}`;
+  const helpers = [
+    tangents &&
+      tangents.map(tangent => (
+        <>
+          <Cross x={tangent[0]} y={tangent[1]} />
+          <Cross x={tangent[2]} y={tangent[3]} />
+        </>
+      )),
+    <circle
+      cx={center.x}
+      cy={center.y}
+      r={radius}
+      fill="none"
+      stroke="red"
+      strokeWidth="1"
+      opacity="0.5"
+    />,
+    <Cross x={center.x} y={center.y} size={10} />,
+    <Cross x={t1.x} y={t1.y} size={10} color={'blue'} />,
+  ];
   // <Cross x={t2.x} y={t2.y} size={10} color={'blue'} />,
   // <Cross x={end.x} y={end.y} size={10} color={'blue'} />,
 
