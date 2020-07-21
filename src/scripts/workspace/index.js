@@ -166,15 +166,21 @@ export default class Workspace extends Component {
 
     const { rune } = this.state;
     // Create token list
-    const lexed = lex(source);
+    //
+    let lexed;
+    try {
+      lexed = lex(source);
+    } catch (err) {
+      console.log('Failed to lex', err);
+      return;
+    }
     // Create
     console.log('TOKENS', lexed);
-    let parsed = {};
+    let parsed = { paths: () => null, grids: () => null };
     try {
       parsed = parse(lexed);
     } catch (err) {
-      console.log(err);
-      return;
+      console.log('Failed to parse', err);
     }
 
     let svgString = '';
@@ -186,7 +192,6 @@ export default class Workspace extends Component {
       );
     } catch (err) {
       console.log(err);
-      return;
     }
 
     rune.svg = svgString;

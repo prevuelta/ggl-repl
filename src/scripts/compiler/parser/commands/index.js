@@ -28,7 +28,6 @@ const parsers = {
 };
 
 export default function parseToken(token, context) {
-  console.log('Parse token:', parsers, token.name);
   if (parsers[token.name]) {
     const tokenParser = parsers[token.name];
     return tokenParser(token, context);

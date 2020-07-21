@@ -54,7 +54,9 @@ const { Fragment } = React;
 const Helpers = ({ children, fill, stroke }) => {
   return (
     <g fill={fill || 'none'} stroke={stroke || 'red'} strokeWidth="1">
-      {children}
+      {React.Children.map(children, (child, key) =>
+        React.cloneElement(child, { key })
+      )}
     </g>
   );
 };
@@ -181,6 +183,7 @@ const elements = {
       let string = '';
       if (isPointOrVector(name)) {
         let [i, j] = args;
+        if (isNaN(i) || isNaN(j)) return;
         let command;
         if (name === POINT) {
           currentLocation.x = i;
@@ -348,7 +351,7 @@ const elements = {
         });
         string = str;
         currentLocation = end;
-        allHelpers.push(helpers);
+        allHelpers = [...allHelpers, ...helpers];
       }
 
       console.log('Next string', string);

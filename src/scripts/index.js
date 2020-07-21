@@ -4,7 +4,6 @@ import Workspace from './workspace';
 import Store from './data/store';
 import './util/keys';
 // import 'brace/theme/github';
-console.log(Workspace);
 
 const render = () => {
   ReactDOM.render(
