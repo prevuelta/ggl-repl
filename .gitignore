@@ -5,8 +5,8 @@ npm-debug.log
 renders
 *.swp
 *.swo
-dist
 .env
 .cache
 tmp
 stored/thumbs
+build

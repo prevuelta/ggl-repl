@@ -8,12 +8,12 @@ const { TANGENT } = tokenNames;
 const flagHandlers = {
   tangent: {
     regex: /t[1-4]/,
-    defaultValue: 0,
+    defaultValue: 1,
     value: arg => +arg[1] - 1,
   },
   exitTangent: {
     regex: /e[1-2]/,
-    defaultValue: 0,
+    defaultValue: 1,
     value: arg => +arg[1] - 1,
   },
   sweep: {
@@ -87,6 +87,7 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
   }
 
   if (t1 && exitTangent) {
+    console.log('Tangent with arc');
     if (tangents && tangents.length) {
       currentLocation = {
         x: tangents[flags.tangent][2],
@@ -94,7 +95,11 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       };
     }
 
-    const arcString = `L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${flags.sweep} ${flags.largeArcFlag} ${exitTangent.x} ${exitTangent.y}`;
+    const arcString = `${
+      prevToken ? '' : `M ${currentLocation.x} ${currentLocation.y}`
+    }L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${flags.sweep} ${
+      flags.largeArcFlag
+    } ${exitTangent.x} ${exitTangent.y}`;
     str = `${arcString} L ${exitTangent.x} ${exitTangent.y} ${end.x} ${end.y}`;
 
     helpers = [
