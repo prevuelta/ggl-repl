@@ -1,6 +1,7 @@
 import React from 'react';
 import { getTangents, getStartPosition, getTangents2Circ } from '../../../util';
 import { Cross } from '../../../workspace/components/overlayHelperShapes';
+import { Line } from '../../../workspace/components';
 import { tokenNames } from '../../../compiler/lexer/commands';
 import { getFlags } from '../parserUtil';
 const { TANGENT } = tokenNames;
@@ -30,12 +31,10 @@ const flagHandlers = {
 
 export default ({ args }, { nextToken, prevToken, currentLocation }) => {
   const nextIsTangent = nextToken && nextToken.name === TANGENT;
-  console.log('Context', nextIsTangent, prevToken, nextToken, currentLocation);
 
   const [centerX, centerY, radius = 10, ...flagArgs] = args;
 
   const flags = getFlags(flagHandlers, flagArgs);
-  console.log('Flags', flagArgs, flags);
 
   if (!centerX || !centerY) {
     return { str: '', helpers: [], end: currentLocation };
@@ -43,7 +42,12 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
 
   const center = { x: centerX, y: centerY };
 
-  const t1 = getTangents(center, currentLocation, radius, flags.tangent);
+  const entryTangent = getTangents(
+    center,
+    currentLocation,
+    radius,
+    flags.tangent
+  );
 
   let helpers = [
     <Cross x={center.x} y={center.y} size={10} />,
@@ -56,7 +60,7 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       strokeWidth="1"
       opacity="0.5"
     />,
-    <Cross x={t1.x} y={t1.y} size={10} color={'blue'} />,
+    <Cross x={entryTangent.x} y={entryTangent.y} size={10} color={'blue'} />,
   ];
 
   let end = currentLocation;
@@ -65,11 +69,12 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
   if (!nextIsTangent) {
     end = getStartPosition(nextToken);
   } else {
+    const [nextTokenX, nextTokenY, nextTokenRadius] = nextToken.args;
     tangents = getTangents2Circ(
       center,
       radius,
-      { x: nextToken.args[0], y: nextToken.args[1] },
-      nextToken.args[2]
+      { x: nextTokenX, y: nextTokenY },
+      nextTokenRadius
     );
     if (tangents.length) {
       end = {
@@ -86,20 +91,31 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     exitTangent = getTangents(center, end, radius, flags.exitTangent);
   }
 
-  if (t1 && exitTangent) {
-    console.log('Tangent with arc');
+  if (entryTangent && exitTangent) {
     if (tangents && tangents.length) {
+      console.log('Tangents', tangents);
       currentLocation = {
         x: tangents[flags.tangent][2],
         y: tangents[flags.tangent][3],
       };
+      tangents.forEach(tangent => {
+        helpers.push(
+          <Line
+            color={'teal'}
+            x1={tangents[0]}
+            y1={tangents[1]}
+            x2={tangents[2]}
+            y2={tangents[3]}
+          />
+        );
+      });
     }
 
     const arcString = `${
       prevToken ? '' : `M ${currentLocation.x} ${currentLocation.y}`
-    }L ${t1.x} ${t1.y} A ${radius} ${radius} 0 ${flags.sweep} ${
-      flags.largeArcFlag
-    } ${exitTangent.x} ${exitTangent.y}`;
+    }L ${entryTangent.x} ${entryTangent.y} A ${radius} ${radius} 0 ${
+      flags.sweep
+    } ${flags.largeArcFlag} ${exitTangent.x} ${exitTangent.y}`;
     str = `${arcString} L ${exitTangent.x} ${exitTangent.y} ${end.x} ${end.y}`;
 
     helpers = [
@@ -112,11 +128,29 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
             </>
           ))
         : []),
-      <Cross x={exitTangent.x} y={exitTangent.y} size={10} color={'blue'} />,
+      <Cross x={currentLocation.x} y={currentLocation.y} color={'pink'} />,
+      <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'red'} />,
+      <Cross
+        x={entryTangent.x}
+        y={entryTangent.y}
+        size={20}
+        color={'purple'}
+      />,
     ];
-  } else if (t1) {
-    str = `M ${currentLocation.x} ${currentLocation.y} L ${t1.x} ${t1.y}`;
+  } else if (entryTangent) {
+    helpers = [
+      <Cross
+        x={entryTangent.x}
+        y={entryTangent.y}
+        size={20}
+        color={'purple'}
+      />,
+    ];
+    str = `M ${currentLocation.x} ${currentLocation.y} L ${entryTangent.x} ${entryTangent.y}`;
   } else if (exitTangent) {
+    helpers = [
+      <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'purple'} />,
+    ];
     str = `M ${exitTangent.x} ${exitTangent.y} L ${end.x} ${end.y}`;
   }
 

@@ -1,9 +1,8 @@
-import svg2img from 'svg2img';
-import fs from 'fs';
+import sharp from 'sharp';
 
-export default function(svg, path, cb) {
-    svg2img(svg, (err, buffer) => {
-        fs.writeFileSync(path, buffer);
-        cb && cb(err);
-    });
+export default function saveThumbnail(thumbPath, svg) {
+  console.log('Saving thumbnail', svg);
+  return sharp(Buffer.from(svg))
+    .png()
+    .toFile(thumbPath);
 }

@@ -51,14 +51,12 @@ const pairArgReplacements = [
     regex: '{(.)}',
     parse(str, vars) {
       const matches = [...str.matchAll(this.regex)];
-      console.log('Matches', matches, vars);
       matches.forEach(match => {
         str = this.replace(str, match, vars);
       });
       return str;
     },
     replace(str, matches, { loopContext }) {
-      // console.log(str, matches, loopContext);
       return str.replace(matches[0], loopContext.count);
     },
   },
@@ -66,7 +64,6 @@ const pairArgReplacements = [
     name: 'Circle unit',
     regex: /([0-9.]*)r([0-9.]*)/,
     replace(str, matches, { circleGridContext }) {
-      console.log(circleGridContext);
       const { radius, rings, segments, offset } = circleGridContext;
       const r = +matches[1];
       const s = +matches[2];
@@ -84,7 +81,6 @@ const pairArgReplacements = [
     name: 'Single axis',
     regex: /(-?[^ ]+?)([x|y])/,
     replace(str, matches) {
-      // console.log("Single axis match", str, matches);
       const isY = matches[2] === 'y';
       const result = `${isY ? '0 ' : ''}${matches[1]}${!isY ? ' 0' : ''}`;
       return str.replace(matches[0], result);
@@ -175,7 +171,6 @@ const singleArgReplacements = [
         squareGridContext: { width, height },
       }
     ) {
-      // console.log('Width & height', str, matches, width, height);
       const multiplier = matches[1]
         ? matches[1] === '-'
           ? -1
@@ -211,7 +206,6 @@ const singleArgReplacements = [
       }
     },
     replace(str, matches) {
-      console.log('Operations', str, matches);
       const result = {
         '*': (a, b) => a * b,
         '+': (a, b) => a + b,
@@ -227,7 +221,6 @@ function argReducerFactory(vars) {
   return (a, b) => {
     const regex =
       typeof b.regex === 'string' ? new RegExp(b.regex, 'g') : b.regex;
-    /* console.log(regex.test(a), regex.exec(a), b.regex, a); */
     if (regex.test(a)) {
       if (b.parse) {
         return b.parse(a, vars);
@@ -261,8 +254,6 @@ export default function(string) {
   let loopContext;
   let exitLoopDepth;
   let loopLimit;
-
-  console.log('lines', lines);
 
   lines
     .filter(
@@ -346,8 +337,6 @@ export default function(string) {
         const commandLines = line.split(
           new RegExp(`^|[, ](?=[${Object.keys(commands).join('')}]:)`)
         );
-
-        console.log('Command lines', commandLines);
 
         commandLines.forEach(command => {
           let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);

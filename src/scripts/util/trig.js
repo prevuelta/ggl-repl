@@ -70,12 +70,14 @@ export function getTangents(center, point, radius, flag = true) {
   const b = Math.atan2(dy, dx);
 
   let t = b - a;
+
   const t1 = {
     x: center.x + radius * Math.sin(t),
     y: center.y + radius * -Math.cos(t),
   };
 
   t = b + a;
+
   const t2 = {
     x: center.x + radius * -Math.sin(t),
     y: center.y + radius * Math.cos(t),

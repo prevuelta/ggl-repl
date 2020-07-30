@@ -71,12 +71,14 @@ app
     fs.writeFile(filePath, JSON.stringify(rune), err => {
       if (rune.svg !== '') {
         try {
-          saveThumbnail(rune.svg, thumbPath, () => {
-            if (err) {
-              res.status(500).send("Couldn't save file");
-            }
-            res.sendStatus(200);
-          });
+          saveThumbnail(thumbPath, rune.svg)
+            .then(() => {
+              res.sendStatus(200);
+            })
+            .catch(err => {
+              console.log(err2);
+              res.sendStatus(500);
+            });
         } catch (err) {
           console.log(err);
           res.status(500).send('Failure creating thumbnail');
@@ -109,13 +111,14 @@ app
         console.log(err);
         res.sendStatus(500);
       }
-      saveThumbnail(rune.svg, thumbPath, err2 => {
-        if (err2) {
-          console.log(err2);
+      saveThumbnail(thumbPath, rune.svg)
+        .then(() => {
+          res.sendStatus(200);
+        })
+        .catch(err => {
+          console.log(err);
           res.sendStatus(500);
-        }
-        res.sendStatus(200);
-      });
+        });
     });
   })
   .delete((req, res) => {
@@ -134,9 +137,19 @@ app
     });
   });
 
-const output = `${tmpDir}/montage.png`;
-exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
-  console.log('Montage generated');
+// const output = `${tmpDir}/montage.png`;
+// exec(`montage ${storage}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
+//   console.log('Montage generated');
+// });
+glob(`${storage}/*.json`, (err, files) => {
+  files.forEach(file => {
+    const frag = path.parse(file);
+    const thumbPath = `${storage}/thumbs/${frag.name}.png`;
+    if (!fs.existsSync(thumbPath)) {
+      const rune = JSON.parse(fs.readFileSync(file));
+      saveThumbnail(thumbPath, rune.svg);
+    }
+  });
 });
 
 app.get('/preview', (req, res) => {

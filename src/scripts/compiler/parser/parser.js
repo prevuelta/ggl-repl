@@ -178,7 +178,6 @@ const elements = {
     let previousToken;
 
     (tokens || []).forEach((token, idx) => {
-      // console.log('Parsing path token');
       const { name, args } = token;
       let string = '';
       if (isPointOrVector(name)) {
@@ -255,7 +254,6 @@ const elements = {
           y: currentLocation.y + token.args[1],
         };
         const arcData = tokenToVArc(currentLocation, center, token);
-        console.log('Arc data', arcData.string);
         string = `${idx ? 'L' : 'M'} ${arcData.string}`;
         currentLocation = arcData.end;
         points.push(
@@ -354,7 +352,6 @@ const elements = {
         allHelpers = [...allHelpers, ...helpers];
       }
 
-      console.log('Next string', string);
       pathString.push(string);
       previousToken = token;
     });
@@ -529,7 +526,7 @@ export default function(tokens, showHelpers = true) {
     return elFn(opt);
   }
 
-  console.log('TREE', parseTree);
+  // console.log('TREE', parseTree);
   output.paths = iterateNodes(parseTree);
   // console.log('OUTPUT', output);
   return output;
