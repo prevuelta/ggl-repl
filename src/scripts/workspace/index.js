@@ -160,9 +160,11 @@ export default class Workspace extends Component {
   };
 
   parseInput = source => {
+    console.log('Rendering...');
     // if (!source && this.state.rune) {
     //     source = this.state.rune.source;
     // }
+    this.setState({ source });
 
     const { rune } = this.state;
     // Create token list
@@ -175,13 +177,16 @@ export default class Workspace extends Component {
       return;
     }
     // Create
-    console.log('TOKENS', lexed);
+    console.log('Finished lexing...', lexed);
     let parsed = { paths: () => null, grids: () => null };
     try {
       parsed = parse(lexed);
     } catch (err) {
       console.log('Failed to parse', err);
+      return;
     }
+
+    console.log('Finished parsing...');
 
     let svgString = '';
 
@@ -190,11 +195,10 @@ export default class Workspace extends Component {
       svgString = renderToStaticMarkup(
         <RenderLayer PathElements={parse(lexed, false).paths} />
       );
+      rune.svg = svgString;
     } catch (err) {
       console.log(err);
     }
-
-    rune.svg = svgString;
 
     let width, height;
 
@@ -211,7 +215,6 @@ export default class Workspace extends Component {
     }
 
     this.setState({
-      source,
       parsed,
       lexed,
       width,

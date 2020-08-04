@@ -61,7 +61,7 @@ export function addVector(v1, v2) {
   return { x: v1.x + v2.x, y: v1.y + v2.y };
 }
 
-export function getTangents(center, point, radius, flag = true) {
+export function getTangents(center, radius, point, flag = true) {
   // find tangents
   const dx = center.x - point.x;
   const dy = center.y - point.y;

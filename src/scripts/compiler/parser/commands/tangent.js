@@ -7,13 +7,13 @@ import { getFlags } from '../parserUtil';
 const { TANGENT } = tokenNames;
 
 const flagHandlers = {
-  tangent: {
-    regex: /t[1-4]/,
+  entryTangent: {
+    regex: /e[1-2]/,
     defaultValue: 1,
     value: arg => +arg[1] - 1,
   },
   exitTangent: {
-    regex: /e[1-2]/,
+    regex: /x[1-4]/,
     defaultValue: 1,
     value: arg => +arg[1] - 1,
   },
@@ -29,8 +29,13 @@ const flagHandlers = {
   },
 };
 
+function isTangent(token) {
+  return token && token.name === TANGENT;
+}
+
 export default ({ args }, { nextToken, prevToken, currentLocation }) => {
-  const nextIsTangent = nextToken && nextToken.name === TANGENT;
+  const nextIsTangent = isTangent(nextToken);
+  const prevIsTangent = isTangent(prevToken);
 
   const [centerX, centerY, radius = 10, ...flagArgs] = args;
 
@@ -44,9 +49,9 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
 
   const entryTangent = getTangents(
     center,
-    currentLocation,
     radius,
-    flags.tangent
+    currentLocation,
+    flags.entryTangent
   );
 
   let helpers = [
@@ -60,15 +65,12 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       strokeWidth="1"
       opacity="0.5"
     />,
-    <Cross x={entryTangent.x} y={entryTangent.y} size={10} color={'blue'} />,
+    <Cross x={entryTangent.x} y={entryTangent.y} size={10} color={'green'} />,
   ];
 
-  let end = currentLocation;
-  let tangents;
+  let tangents, endPoint, exitTangent;
 
-  if (!nextIsTangent) {
-    end = getStartPosition(nextToken);
-  } else {
+  if (nextIsTangent) {
     const [nextTokenX, nextTokenY, nextTokenRadius] = nextToken.args;
     tangents = getTangents2Circ(
       center,
@@ -77,35 +79,33 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       nextTokenRadius
     );
     if (tangents.length) {
-      end = {
-        x: tangents[flags.tangent][0],
-        y: tangents[flags.tangent][1],
+      exitTangent = {
+        x: tangents[flags.exitTangent][0],
+        y: tangents[flags.exitTangent][1],
+      };
+      endPoint = {
+        x: tangents[flags.exitTangent][2],
+        y: tangents[flags.exitTangent][3],
       };
     }
+  } else {
+    endPoint = getStartPosition(nextToken);
+    exitTangent = getTangents(center, radius, endPoint, flags.exitTangent);
   }
 
   let str = '';
-  let exitTangent;
-
-  if (end) {
-    exitTangent = getTangents(center, end, radius, flags.exitTangent);
-  }
 
   if (entryTangent && exitTangent) {
     if (tangents && tangents.length) {
-      console.log('Tangents', tangents);
-      currentLocation = {
-        x: tangents[flags.tangent][2],
-        y: tangents[flags.tangent][3],
-      };
       tangents.forEach(tangent => {
         helpers.push(
           <Line
-            color={'teal'}
-            x1={tangents[0]}
-            y1={tangents[1]}
-            x2={tangents[2]}
-            y2={tangents[3]}
+            color={'red'}
+            opacity={0.3}
+            x1={tangent[0]}
+            y1={tangent[1]}
+            x2={tangent[2]}
+            y2={tangent[3]}
           />
         );
       });
@@ -116,7 +116,7 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     }L ${entryTangent.x} ${entryTangent.y} A ${radius} ${radius} 0 ${
       flags.sweep
     } ${flags.largeArcFlag} ${exitTangent.x} ${exitTangent.y}`;
-    str = `${arcString} L ${exitTangent.x} ${exitTangent.y} ${end.x} ${end.y}`;
+    str = `${arcString} L ${exitTangent.x} ${exitTangent.y} ${endPoint.x} ${endPoint.y}`;
 
     helpers = [
       ...helpers,
@@ -129,7 +129,6 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
           ))
         : []),
       <Cross x={currentLocation.x} y={currentLocation.y} color={'pink'} />,
-      <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'red'} />,
       <Cross
         x={entryTangent.x}
         y={entryTangent.y}
@@ -148,15 +147,23 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     ];
     str = `M ${currentLocation.x} ${currentLocation.y} L ${entryTangent.x} ${entryTangent.y}`;
   } else if (exitTangent) {
-    helpers = [
-      <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'purple'} />,
-    ];
-    str = `M ${exitTangent.x} ${exitTangent.y} L ${end.x} ${end.y}`;
+    // helpers = [
+    //   <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'purple'} />,
+    // ];
+    str = `M ${exitTangent.x} ${exitTangent.y} L ${endPoint.x} ${endPoint.y}`;
+  }
+
+  // sets currentlocation for next token
+  if (tangents && tangents.length) {
+    currentLocation = {
+      x: tangents[flags.exitTangent][2],
+      y: tangents[flags.exitTangent][3],
+    };
   }
 
   return {
     str,
-    end,
+    end: endPoint,
     helpers,
   };
 };

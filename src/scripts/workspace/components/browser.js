@@ -34,10 +34,7 @@ export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
                 onClick={() => (window.location.hash = r.id)}
                 className={r.id === active ? 'active' : ''}
               >
-                <img
-                  src={`/thumbs/${r.thumb}?${nanoid(5)}`}
-                  className="thumbnail"
-                />
+                <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
                 {r.name}
                 <div className="actions">
                   <Button
