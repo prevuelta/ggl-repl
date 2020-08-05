@@ -47,12 +47,9 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
 
   const center = { x: centerX, y: centerY };
 
-  const entryTangent = getTangents(
-    center,
-    radius,
-    currentLocation,
-    flags.entryTangent
-  );
+  const entryTangent = prevIsTangent
+    ? currentLocation
+    : getTangents(center, radius, currentLocation, flags.entryTangent);
 
   let helpers = [
     <Cross x={center.x} y={center.y} size={10} />,
@@ -94,6 +91,8 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
   }
 
   let str = '';
+
+  console.log(endPoint, exitTangent, entryTangent);
 
   if (entryTangent && exitTangent) {
     if (tangents && tangents.length) {
@@ -137,6 +136,7 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       />,
     ];
   } else if (entryTangent) {
+    console.log('Only entry tangent');
     helpers = [
       <Cross
         x={entryTangent.x}
@@ -147,11 +147,12 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     ];
     str = `M ${currentLocation.x} ${currentLocation.y} L ${entryTangent.x} ${entryTangent.y}`;
   } else if (exitTangent) {
-    // helpers = [
-    //   <Cross x={exitTangent.x} y={exitTangent.y} size={20} color={'purple'} />,
-    // ];
+    console.log('Only exit tangent');
+    helpers = [<Cross x={exitTangent.x} y={exitTangent.y} color={'red'} />];
     str = `M ${exitTangent.x} ${exitTangent.y} L ${endPoint.x} ${endPoint.y}`;
   }
+
+  console.log('Exit tangent', exitTangent);
 
   // sets currentlocation for next token
   if (tangents && tangents.length) {

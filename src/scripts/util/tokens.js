@@ -8,5 +8,6 @@ export function getStartPosition(token) {
     return { x, y };
   } else if (token.name === TANGENT) {
   }
+
   return;
 }
