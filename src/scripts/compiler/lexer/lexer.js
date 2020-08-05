@@ -1,7 +1,13 @@
 import commands, { tokenNames } from './commands';
 import { commentRegEx, emptyLineRegEx, pathTypesRegEx } from './regex';
 
-const { SQUARE_GRID, TRI_GRID, CIRCLE_GRID, GRID_UNIT } = tokenNames;
+const {
+  SQUARE_GRID,
+  TRI_GRID,
+  CIRCLE_GRID,
+  GRID_UNIT,
+  CLOSE_PATH,
+} = tokenNames;
 
 const clamp = function(val, min, max) {
   return Math.min(Math.max(val, min), max);
@@ -341,6 +347,8 @@ export default function(string) {
         commandLines.forEach(command => {
           let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
+          console.log(_, ref, argStr);
+
           if (!commands[ref]) {
             console.warn(`Command not recognised - ${ref}`);
             return;
@@ -415,6 +423,20 @@ export default function(string) {
               offsetY,
             };
           }
+
+          if (name === CLOSE_PATH) {
+            tokens = [
+              ...tokens,
+              {
+                name,
+                depth,
+                id,
+              },
+            ];
+
+            return;
+          }
+
           tokens = [
             ...tokens,
             ...tokenArgs
