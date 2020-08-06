@@ -22,6 +22,11 @@ const gridCommands = {
 };
 
 export const pathCommands = {
+  '.': {
+    name: 'close-path',
+    type: 'path',
+    argCount: 0,
+  },
   p: {
     name: 'point',
     type: 'path',

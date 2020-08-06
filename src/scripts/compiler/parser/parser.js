@@ -31,6 +31,7 @@ const {
   BEZIER_CURVE,
   CIRCLE,
   CIRCLE_GRID,
+  CLOSE_PATH,
   CORNER,
   DOCUMENT,
   FILL,
@@ -350,6 +351,8 @@ const elements = {
         string = str;
         currentLocation = end;
         allHelpers = [...allHelpers, ...helpers];
+      } else if (name === CLOSE_PATH) {
+        string = 'Z';
       }
 
       pathString.push(string);

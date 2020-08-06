@@ -92,8 +92,6 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
 
   let str = '';
 
-  console.log(endPoint, exitTangent, entryTangent);
-
   if (entryTangent && exitTangent) {
     if (tangents && tangents.length) {
       tangents.forEach(tangent => {
@@ -136,7 +134,6 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
       />,
     ];
   } else if (entryTangent) {
-    console.log('Only entry tangent');
     helpers = [
       <Cross
         x={entryTangent.x}
@@ -147,12 +144,9 @@ export default ({ args }, { nextToken, prevToken, currentLocation }) => {
     ];
     str = `M ${currentLocation.x} ${currentLocation.y} L ${entryTangent.x} ${entryTangent.y}`;
   } else if (exitTangent) {
-    console.log('Only exit tangent');
     helpers = [<Cross x={exitTangent.x} y={exitTangent.y} color={'red'} />];
     str = `M ${exitTangent.x} ${exitTangent.y} L ${endPoint.x} ${endPoint.y}`;
   }
-
-  console.log('Exit tangent', exitTangent);
 
   // sets currentlocation for next token
   if (tangents && tangents.length) {
