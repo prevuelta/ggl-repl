@@ -1,5 +1,6 @@
 import { tokenNames } from '../../lexer/commands';
 import tangent from './tangent';
+import arc from './arc';
 
 const {
   ADD_VECTOR,
@@ -25,6 +26,7 @@ const {
 
 const parsers = {
   [TANGENT]: tangent,
+  [ARC]: arc,
 };
 
 export default function parseToken(token, context) {
