@@ -54,12 +54,17 @@ const pairArgReplacements = [
   },
   {
     name: "Loop interpolation",
-    regex: "{(.)}",
+    regex: "{(.*)}",
     parse(str, vars) {
+      str = str.replace("x", vars.loopContext.count);
+      str = str.replace(/{(.*)}/, (_, match) => eval(match));
       const matches = [...str.matchAll(this.regex)];
       matches.forEach(match => {
         str = this.replace(str, match, vars);
       });
+      // console.log(matches);
+      console.log(str, matches);
+      // return str;
       return str;
     },
     replace(str, matches, { loopContext }) {
@@ -210,8 +215,10 @@ const singleArgReplacements = [
   },
   {
     name: "Arithmetic operations",
-    regex: /([\d|.]+)([\*|/|\-|\+])([\d|.]+)/,
+    regex: /^[()+\-*/%\d.]*$/,
+    // regex: /([\d|.]+)([\*|/|\-|\+])([\d|.]+)/,
     parse(str, vars) {
+      console.log("Apply", str);
       try {
         return eval(str); // Use mathjs for this at some point
       } catch (error) {
@@ -354,8 +361,6 @@ export default function(string) {
         commandLines.forEach(command => {
           let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
-          console.log(_, ref, argStr);
-
           if (!commands[ref]) {
             console.warn(`Command not recognised - ${ref}`);
             return;
@@ -383,7 +388,6 @@ export default function(string) {
               argStr = pairArgReplacements.reduce(argReducer, argStr);
               const parsedStr = argStr.split(" ").map(str => {
                 const arg = singleArgReplacements.reduce(argReducer, str);
-
                 return isNaN(arg) ? arg : +arg;
               });
               return parsedStr;
