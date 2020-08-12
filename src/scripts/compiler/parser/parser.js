@@ -20,7 +20,6 @@ import {
   globals,
   mapChildren,
 } from "../../util";
-import { Store } from "../../data";
 import { pathCommands, tokenNames } from "../lexer/commands";
 import transforms from "./transforms";
 import parseToken from "./commands";
@@ -61,58 +60,6 @@ const Helpers = ({ children, fill, stroke }) => {
     </g>
   );
 };
-
-export function tokenToArc(token, isFirst) {
-  const [
-    startX,
-    startY,
-    centerX,
-    centerY,
-    angle,
-    largeArcFlag,
-    sweep,
-  ] = token.args;
-
-  return describeArc(
-    { x: startX, y: startY },
-    { x: centerX, y: centerY },
-    angle,
-    largeArcFlag,
-    sweep
-  );
-}
-
-export function tokenToVArc(start, center, token) {
-  const [_, __, angle, largeArcFlag, sweep] = token.args;
-
-  return describeArc(start, center, angle, largeArcFlag, sweep);
-}
-
-function describeArc(start, center, angle, largeArcFlag = 0, sweep = 0) {
-  const originalAngle = angle;
-  const startAngle = getAngle(start, center);
-  angle += startAngle;
-  angle = angle % TWO_PI;
-
-  if (originalAngle > PI || originalAngle < -PI) {
-    // sweep = 1;
-  }
-
-  if (angle >= PI) {
-    // largeArcFlag = largeArcFlag ? 0 : 1;
-  }
-
-  const radius = getDistance(start, center);
-  var end = polarToCartesian(center, radius, angle);
-
-  return {
-    string: `${start.x} ${start.y} A ${radius} ${radius} 0 ${sweep} ${largeArcFlag} ${end.x} ${end.y}`,
-    end,
-    start,
-    radius,
-    center,
-  };
-}
 
 // TODO: generic transform element factory
 
@@ -250,30 +197,14 @@ const elements = {
         }
         points.push(currentLocation);
       } else if (name === ARC) {
-        const center = {
-          x: currentLocation.x + token.args[0],
-          y: currentLocation.y + token.args[1],
-        };
-        const arcData = tokenToVArc(currentLocation, center, token);
-        string = `${idx ? "L" : "M"} ${arcData.string}`;
-        currentLocation = arcData.end;
-        points.push(
-          { x: currentLocation.x, y: currentLocation.y },
-          arcData.start,
-          arcData.end
-        );
-        allHelpers.push(
-          <circle
-            cx={arcData.center.x}
-            cy={arcData.center.y}
-            r={arcData.radius}
-            fill="none"
-            stroke="red"
-            strokeWidth="1"
-            opacity="0.5"
-          />,
-          <Cross x={arcData.center.x} y={arcData.center.y} size={10} />
-        );
+        const { str, end, helpers } = parseToken(token, {
+          prevToken: tokens[idx - 1] || null,
+          nextToken: tokens[idx + 1] || null,
+          currentLocation,
+        });
+        string = str;
+        currentLocation = end;
+        allHelpers = [...allHelpers, ...helpers];
       } else if (name === CORNER) {
         // const nextToken = tokenGroup.tokens[idx + 1];
         const center = { x: args[0], y: args[1] };

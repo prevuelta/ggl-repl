@@ -25,7 +25,7 @@ const defaultHeight = 50;
 const defaultWidth = 50;
 
 const AUTOSAVE_TIMEOUT = 10000;
-const AUTOSAVE_ON = true;
+const AUTOSAVE_ON = false;
 
 export default class Workspace extends Component {
   constructor(props) {
@@ -58,9 +58,10 @@ export default class Workspace extends Component {
     }
   }
 
-  autosave = () => {
+  autosave = async () => {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
+    await this.saveRune();
     this.setState({ message: `Autosaved at ${new Date()}` });
   };
 
@@ -312,7 +313,6 @@ export default class Workspace extends Component {
           <>
             <Preview rendered={rune.svg} />
             <Renderer
-              mode={state.app.mode}
               width={width}
               height={height}
               ratio={ratio}
