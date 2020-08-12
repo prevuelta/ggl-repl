@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import {
   CircleGrid,
   SquareGrid,
   Line,
   TriGrid,
-} from '../../workspace/components';
-import { Node, Cross } from '../../workspace/components/overlayHelperShapes';
+} from "../../workspace/components";
+import { Node, Cross } from "../../workspace/components/overlayHelperShapes";
 import {
   COLORS,
   HALF_PI,
@@ -19,11 +19,11 @@ import {
   radToDeg,
   globals,
   mapChildren,
-} from '../../util';
-import { Store } from '../../data';
-import { pathCommands, tokenNames } from '../lexer/commands';
-import transforms from './transforms';
-import parseToken from './commands';
+} from "../../util";
+import { Store } from "../../data";
+import { pathCommands, tokenNames } from "../lexer/commands";
+import transforms from "./transforms";
+import parseToken from "./commands";
 
 const {
   ADD_VECTOR,
@@ -54,7 +54,7 @@ const { Fragment } = React;
 
 const Helpers = ({ children, fill, stroke }) => {
   return (
-    <g fill={fill || 'none'} stroke={stroke || 'red'} strokeWidth="1">
+    <g fill={fill || "none"} stroke={stroke || "red"} strokeWidth="1">
       {React.Children.map(children, (child, key) =>
         React.cloneElement(child, { key })
       )}
@@ -130,7 +130,7 @@ const elements = {
   },
   [STYLE]: ({ token }, children = []) => props => {
     const [
-      fill = 'none',
+      fill = "none",
       stroke = COLORS.RED,
       strokeWidth = 1,
       strokeOpacity = 1,
@@ -180,7 +180,7 @@ const elements = {
 
     (tokens || []).forEach((token, idx) => {
       const { name, args } = token;
-      let string = '';
+      let string = "";
       if (isPointOrVector(name)) {
         let [i, j] = args;
         if (isNaN(i) || isNaN(j)) return;
@@ -189,11 +189,11 @@ const elements = {
           currentLocation.x = i;
           currentLocation.y = j;
           if (!idx) {
-            command = 'M';
+            command = "M";
           } else {
-            command = 'L';
+            command = "L";
           }
-        } else if (name.includes('vector')) {
+        } else if (name.includes("vector")) {
           if (name === SUB_VECTOR) {
             currentLocation.x -= i;
             currentLocation.y -= j;
@@ -204,9 +204,9 @@ const elements = {
             currentLocation.y += j;
           }
           if (!idx) {
-            command = 'm';
+            command = "m";
           } else {
-            command = 'l';
+            command = "l";
           }
         }
         string = `${command} ${i} ${j}`;
@@ -220,7 +220,7 @@ const elements = {
           allHelpers.push(
             <circle cx={x - prevCx} cy={y - prevCy} r={4} />,
             <Line
-              color={'green'}
+              color={"green"}
               x1={x}
               y1={y}
               x2={x - prevCx}
@@ -239,7 +239,7 @@ const elements = {
         if (cx || cy) {
           allHelpers.push(
             <circle cx={x + cx} cy={y + cy} r={4} />,
-            <Line color={'green'} x1={x} y1={y} x2={x + cx} y2={y + cy} />
+            <Line color={"green"} x1={x} y1={y} x2={x + cx} y2={y + cy} />
           );
         }
         if (c2x || c2y) {
@@ -255,7 +255,7 @@ const elements = {
           y: currentLocation.y + token.args[1],
         };
         const arcData = tokenToVArc(currentLocation, center, token);
-        string = `${idx ? 'L' : 'M'} ${arcData.string}`;
+        string = `${idx ? "L" : "M"} ${arcData.string}`;
         currentLocation = arcData.end;
         points.push(
           { x: currentLocation.x, y: currentLocation.y },
@@ -293,12 +293,12 @@ const elements = {
         const center = {
           x: cx,
           y: cy,
-          color: 'green',
+          color: "green",
         };
         const end = {
           x: endX,
           y: endY,
-          color: 'purple',
+          color: "purple",
         };
         const angle1 = getAngle(currentLocation, center);
         const angle2 = getAngle(end, center);
@@ -352,7 +352,7 @@ const elements = {
         currentLocation = end;
         allHelpers = [...allHelpers, ...helpers];
       } else if (name === CLOSE_PATH) {
-        string = 'Z';
+        string = "Z";
       }
 
       pathString.push(string);
@@ -362,13 +362,13 @@ const elements = {
       ...points.map(({ x, y }, i) => <Node key={i} x={x} y={y} color="red" />),
       ...allHelpers,
     ];
-    allHelpers.push(<path d={pathString.join(' ')} stroke="red" fill="none" />);
+    allHelpers.push(<path d={pathString.join(" ")} stroke="red" fill="none" />);
 
     return props => (
       <Fragment>
         <path
           id={path.id}
-          d={pathString.join(' ') + (path.closed ? ' Z' : '')}
+          d={pathString.join(" ") + (path.closed ? " Z" : "")}
           fillRule="evenodd"
         />
         {children.map((Child, i) => (
@@ -399,7 +399,14 @@ const elements = {
     );
   },
   [CIRCLE_GRID]: ({ token, showHelpers }, children = []) => props => {
-    const [radius, rings, segments, offset = 0] = token.args;
+    const [
+      radius,
+      rings,
+      segments,
+      offset = 0,
+      positionX = 0,
+      positionY = 0,
+    ] = token.args;
     const width = radius * 2;
     const height = radius * 2;
     return (
@@ -408,7 +415,18 @@ const elements = {
           <Child key={i} />
         ))}
         {showHelpers && (
-          <CircleGrid {...{ offset, width, height, radius, rings, segments }} />
+          <CircleGrid
+            {...{
+              offset,
+              width,
+              height,
+              radius,
+              rings,
+              segments,
+              positionX,
+              positionY,
+            }}
+          />
         )}
       </Fragment>
     );
@@ -418,10 +436,10 @@ const elements = {
   },
   [DOCUMENT]: ({ token, size, showHelpers }, children = []) => props => {
     let [width, height, padding] = token.args;
-    if (width === 'a') {
+    if (width === "a") {
       width = size.width;
     }
-    if (height === 'a') {
+    if (height === "a") {
       height = size.height;
     }
 
@@ -435,7 +453,7 @@ const elements = {
         className="renderer-svg"
         height={heightPlusPadding}
         width={widthPlusPadding}
-        fill={'#000000'}
+        fill={"#000000"}
         viewBox={viewBox}
       >
         {showHelpers && (
@@ -473,9 +491,9 @@ const elements = {
 
 export default function(tokens, showHelpers = true) {
   let $refs = {};
-  let parseTree = { children: [], token: { name: 'root' } };
+  let parseTree = { children: [], token: { name: "root" } };
   if (!tokens.length || tokens[0].name !== DOCUMENT) {
-    tokens.unshift({ name: 'document', args: DEFAULT_DOC_ARGS, depth: 0 });
+    tokens.unshift({ name: "document", args: DEFAULT_DOC_ARGS, depth: 0 });
   }
   let node = parseTree;
   let currentDepth = -1;
@@ -484,7 +502,7 @@ export default function(tokens, showHelpers = true) {
 
   tokens.forEach((token, i) => {
     if (i && token.name === DOCUMENT) {
-      throw new Error('Document must be at root level');
+      throw new Error("Document must be at root level");
     }
     if (token.depth > currentDepth) {
       const newBranch = { token };
