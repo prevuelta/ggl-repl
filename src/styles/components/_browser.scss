@@ -1,67 +1,73 @@
 .browser {
-    position: fixed;
-    top: $statusbar-height;
-    left: 0;
-    bottom: 0;
-    width: $browser-width;
-    background: $cream-dark;
-    overflow-y: scroll;
-    border-bottom: 2px solid red;
+  position: fixed;
+  top: $statusbar-height;
+  left: 0;
+  bottom: 0;
+  width: $browser-width;
+  background: $cream-dark;
+  overflow-y: scroll;
+  border-bottom: 2px solid red;
 
-    header {
-        padding: $qu;
-    }
+  header {
+    padding: $qu;
+  }
 
-    .thumbnail {
-        width: $u2;
-        height: $u2;
-        background: $cream;
-        margin: 0 $hu 0 0;
-        object-fit: contain;
-    }
+  .thumbnail {
+    width: $u2;
+    height: $u2;
+    background: $cream;
+    margin: 0 $hu 0 0;
+    object-fit: contain;
+  }
 }
 
 .browser ul {
-    display: block;
+  display: block;
 }
 
 .browser ul li {
-    padding: 2px $hu;
-    background: $sky-dark;
+  padding: 2px $hu;
+  background: $sky-dark;
 
-    &:not(.heading) {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        color: $sky;
+  &:not(.heading) {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: $sky;
 
-        &:hover,
-        &.active {
-            text-decoration: underline;
-            background: $dark;
-        }
+    &:hover,
+    &.active {
+      text-decoration: underline;
+      background: $dark;
     }
+  }
 
-    &.heading {
-        color: $cream;
+  &.heading {
+    color: $cream;
+    cursor: pointer;
+
+    &:hover {
+      background: $cream;
+      color: $dark;
     }
+  }
 
-    .actions {
-        margin-left: auto;
-        display: flex;
+  .actions {
+    margin-left: auto;
+    display: flex;
 
-        .button {
-            margin-right: $qu;
-        }
+    .button {
+      margin-right: $qu;
     }
+  }
 
-    &.add-rune {
-        width: 100%;
-        padding: $u 0;
-    }
+  &.add-rune {
+    width: 100%;
+    padding: $u 0;
+  }
 
-    svg {
-        width: $u;
-        height: $u;
-    }
+  svg {
+    width: $u;
+    height: $u;
+  }
 }

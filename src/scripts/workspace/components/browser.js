@@ -1,18 +1,63 @@
-import React, { useState } from 'react';
-import { X, Cross, Pencil } from '../icons';
-import Button from './button';
-import { nanoid } from 'nanoid';
+import React, { useState } from "react";
+import { X, Cross, Pencil } from "../icons";
+import Button from "./button";
+import { nanoid } from "nanoid";
+
+const Group = ({ group, runes, active, deleteRune }) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <>
+      <li
+        onClick={() => setExpanded(!expanded)}
+        key={group}
+        className="heading"
+      >
+        {group}
+      </li>
+      {expanded &&
+        runes.map(rune => {
+          const { id, thumb, name } = rune;
+          return (
+            <li
+              key={id}
+              onClick={() => (window.location.hash = id)}
+              className={id === active ? "active" : ""}
+            >
+              <img src={`/thumbs/${thumb}`} className="thumbnail" />
+              {name}
+              <div className="actions">
+                <Button
+                  icon="true"
+                  className="red"
+                  onClick={e => {
+                    e.preventDefault();
+                    deleteRune(id);
+                  }}
+                >
+                  <X />
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+    </>
+  );
+};
 
 export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
   let currentGroup;
 
   const sortedRunes = runes.reduce((a, b) => {
-    if (b.group !== currentGroup) {
-      currentGroup = b.group;
-      return [...a, { heading: true, group: currentGroup }, b];
+    const { group } = b;
+    if (a[group]) {
+      a[group].push(b);
+    } else {
+      a[group] = [b];
     }
-    return [...a, b];
-  }, []);
+    return a;
+  }, {});
+
+  console.log(sortedRunes);
 
   return (
     <div className="browser">
@@ -20,38 +65,15 @@ export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
         <Button onClick={newRune}>New Rune +</Button>
       </header>
       <ul>
-        {sortedRunes.map(r => {
-          if (r.heading) {
-            return (
-              <li key={r.id} className="heading">
-                {r.group}
-              </li>
-            );
-          } else {
-            return (
-              <li
-                key={r.id}
-                onClick={() => (window.location.hash = r.id)}
-                className={r.id === active ? 'active' : ''}
-              >
-                <img src={`/thumbs/${r.thumb}`} className="thumbnail" />
-                {r.name}
-                <div className="actions">
-                  <Button
-                    icon="true"
-                    className="red"
-                    onClick={e => {
-                      e.preventDefault();
-                      deleteRune(r.id);
-                    }}
-                  >
-                    <X />
-                  </Button>
-                </div>
-              </li>
-            );
-          }
-        })}
+        {Object.entries(sortedRunes).map(([k, runes]) => (
+          <Group
+            active={active}
+            key={k}
+            group={k}
+            runes={runes}
+            deleteRune={deleteRune}
+          />
+        ))}
       </ul>
     </div>
   );
