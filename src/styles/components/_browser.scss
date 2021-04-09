@@ -1,12 +1,9 @@
 .browser {
-  position: fixed;
-  top: $statusbar-height;
-  left: 0;
-  bottom: 0;
+  // left: 0;
+  // bottom: 0;
   width: $browser-width;
   background: $cream-dark;
   overflow-y: scroll;
-  border-bottom: 2px solid red;
 
   header {
     padding: $qu;

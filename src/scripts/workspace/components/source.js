@@ -21,7 +21,6 @@ export default ({ value, parseInput, handleCursorChange }) => {
         onChange={(value, editor) => parseInput(value, editor)}
         onCursorChange={(v, h) => handleCursorChange(v, h)}
       />
-      ;
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { OverlayLayer, GridLayer, RenderLayer } from './layers';
+import React, { useState } from "react";
+import { OverlayLayer, GridLayer, RenderLayer } from "./layers";
 
 function Renderer(props) {
   const { lexed, elements, rune, width, height, ratio } = props;
@@ -17,9 +17,9 @@ function Renderer(props) {
         }}
       >
         <p className="canvas-label">
-          {rune.name}{' '}
+          {rune.name}{" "}
           <span className="canvas-size">
-            ({width}x{height} {ratio.toFixed(2)})
+            ({width} x {height} {ratio.toFixed(2)})
           </span>
         </p>
         <RenderLayer

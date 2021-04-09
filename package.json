@@ -5,7 +5,7 @@
   "main": "app.min.js",
   "scripts": {
     "flow": "flow",
-    "start": "run-s  build run:client",
+    "start": "run-s build run:client",
     "run:server": "nodemon -r esm ./server/server.js -i stored -i tmp",
     "run:client": "browser-sync start -c bs-config.js",
     "prewatch": "run-s build:css copy-statics build:html",

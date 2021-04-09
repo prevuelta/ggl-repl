@@ -4,7 +4,7 @@ import Button from "./button";
 import { nanoid } from "nanoid";
 
 const Group = ({ group, runes, active, deleteRune }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   return (
     <>
       <li
@@ -28,7 +28,6 @@ const Group = ({ group, runes, active, deleteRune }) => {
               <div className="actions">
                 <Button
                   icon="true"
-                  className="red"
                   onClick={e => {
                     e.preventDefault();
                     deleteRune(id);

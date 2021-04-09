@@ -35,18 +35,20 @@ body {
   width: 100%;
   height: 100%;
   // margin-left: $u * 20;
-  position: relative;
+  // position: relative;
+  display: flex;
+  padding-top: $header-height;
 }
 
 .source-inspector,
 .renderer {
-  position: absolute;
-  top: $header-height;
-  bottom: 0;
+  // position: absolute;
+  // top: $header-height;
+  // bottom: 0;
 }
 
 .source-inspector {
-  left: $browser-width;
+  // left: $browser-width;
 
   textarea {
     outline: none;
@@ -59,7 +61,11 @@ body {
 }
 
 .renderer {
+  background: $dark;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 60%;
-  right: 0;
+  // right: 0;
   pointer-events: none;
 }

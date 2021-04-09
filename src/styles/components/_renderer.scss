@@ -1,48 +1,50 @@
 .canvas {
-    box-sizing: content-box;
-    padding: $hu;
-    // border-radius: $hu;
-    box-shadow: 3px 3px 10px $faintBlack;
-    background: white;
-    // border: 1px solid red;
+  box-sizing: content-box;
+  padding: $hu;
+  // border-radius: $hu;
+  box-shadow: 3px 3px 10px $faintBlack;
+  background: white;
+  // border: 1px solid red;
+  position: relative;
+  // left: 50%;
+  // top: 50%;
+  // transform: translate(-50%, -50%);
+
+  svg {
+    overflow: visible;
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    background: none;
+  }
 
-    svg {
-        overflow: visible;
-        position: absolute;
-        background: none;
-    }
+  .canvas-size {
+    color: $sky;
+  }
 
-    .canvas-size {
-        color: $cream-dark;
-    }
-
-    .canvas-label {
-        left: 0;
-        position: absolute;
-        bottom: 100%;
-        margin: 0 0 $hu 0;
-        font-size: 12px;
-        text-transform: uppercase;
-        color: $cream-dark;
-    }
+  .canvas-label {
+    left: 0;
+    position: absolute;
+    bottom: 100%;
+    margin: 0 0 $hu 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    // color: $cream-dark;
+    color: $cream;
+  }
 }
 
 .preview {
-    position: fixed;
-    right: $u3;
-    top: $u3;
-    width: $u10;
-    height: $u10;
-    background: white;
-    padding: $u;
+  position: fixed;
+  right: 0;
+  top: $header-height;
+  width: $u8;
+  height: $u8;
+  background: white;
+  padding: $u;
 
-    svg {
-        max-width: 100%;
-        height: auto;
-        border: 1px solid $faintBlack;
-    }
+  svg {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    border: 1px solid $faintBlack;
+  }
 }
