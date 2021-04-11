@@ -32,17 +32,20 @@ const preArgSplitReplacements = [
     parse(str, vars) {
       const matches = [...str.matchAll(this.regex)];
       matches.forEach(match => {
-        const [_, count, loopStr, toReplace] = match;
+        const [toReplace, count, loopStr] = match;
         const newStrings = [];
         for (let i = 1; i <= +count; i++) {
           const newLoopStr = loopStr.replace(/[x]/g, i);
           // console.log("After x replaces", newLoopStr);
+          const { cos, sin } = Math;
           newLoopStr = newLoopStr.replace(/{(.*?)}/g, (_, match) =>
             eval(match)
           );
           newStrings.push(newLoopStr);
         }
-        return newStrings.join(",");
+        const replacement = newStrings.join(",");
+        str = str.replace(toReplace, replacement);
+        console.log("Replacement", replacement, match);
         // str = this.replace(str, match, vars);
       });
       // console.log("What", str, vars);
@@ -51,8 +54,8 @@ const preArgSplitReplacements = [
       //   /\[(\d+):(.*?)\]/g,
       //   (_, match) => console.log("Loop interpolation", match) || eval(match)
       // );
-      console.log(str);
-      return output.join(",");
+      console.log("Str", str);
+      return str;
     },
     replace(str, matches, { loopContext }) {
       return str.replace(matches[0], loopContext.count);
