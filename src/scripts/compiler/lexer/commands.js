@@ -1,7 +1,9 @@
-const gridCommands = {
+export const gridCommands = {
   sg: {
     name: 'square-grid',
     type: 'grid',
+    title: 'Square grid',
+    args: '[xUnits] [yUnits] [cellSize] [subdivisions]',
   },
   pg: {
     name: 'prop-grid',
@@ -10,10 +12,12 @@ const gridCommands = {
   cg: {
     name: 'circle-grid',
     type: 'grid',
+    title: 'Circle grid',
   },
   tg: {
     name: 'tri-grid',
     type: 'grid',
+    name: 'Triangle grid',
   },
   gu: {
     name: 'grid-unit',
@@ -26,6 +30,8 @@ export const pathCommands = {
     name: 'close-path',
     type: 'path',
     argCount: 0,
+    title: 'Closes path',
+    args: 'No args',
   },
   p: {
     name: 'point',
@@ -68,12 +74,12 @@ const transformCommands = {
     type: 'transform',
   },
   ry: {
-    name: 'reflect',
+    name: 'reflect-y',
     data: 'y',
     type: 'transform',
   },
   rx: {
-    name: 'reflect',
+    name: 'reflect-x',
     data: 'x',
     type: 'transform',
   },
@@ -103,15 +109,18 @@ const allCommands = {
   ...pathCommands,
   ...transformCommands,
   ...shapeCommands,
-  re: {
-    name: 'repeat',
-  },
   d: {
     name: 'document',
+    args: '[width] [height] [bleed]',
+  },
+  re: {
+    name: 'repeat',
+    args: '[count]',
   },
   s: {
     name: 'style',
     type: 'style',
+    args: '[fill] [stroke] [stroke width]',
   },
 };
 

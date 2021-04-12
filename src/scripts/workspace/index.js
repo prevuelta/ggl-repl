@@ -7,7 +7,7 @@ import {
   Browser,
   Preview,
   StatusBar,
-  Dialog,
+  HelpDialog,
   Modal,
   EditRuneDialog,
 } from './components';
@@ -271,24 +271,7 @@ export default class Workspace extends Component {
             close={this.hideEditDialog}
           />
         )}
-        {showHelpDialog && (
-          <Dialog close={this.hideHelpDialog} title="Help">
-            <p>Basic usage:</p>
-            {'<command>: <args>'}
-            <table>
-              <thead>
-                <tr>
-                  <th>Command</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <td>d</td>
-                <td>Document</td>
-              </tbody>
-            </table>
-          </Dialog>
-        )}
+        {showHelpDialog && <HelpDialog close={hideHelpDialog} />}
         <StatusBar
           rune={rune}
           save={this.saveRune}

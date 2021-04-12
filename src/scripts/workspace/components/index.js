@@ -12,3 +12,4 @@ export { default as Preview } from './preview';
 export { default as Renderer } from './renderer';
 export { default as Source } from './source';
 export { default as StatusBar } from './statusBar';
+export { default as HelpDialog } from './HelpDialog';

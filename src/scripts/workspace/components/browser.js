@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { X, Cross, Pencil } from "../icons";
-import Button from "./button";
-import { nanoid } from "nanoid";
+import React, { useState } from 'react';
+import { X, Cross, Pencil } from '../icons';
+import Button from './button';
+import { nanoid } from 'nanoid';
 
 const Group = ({ group, runes, active, deleteRune }) => {
   const [expanded, setExpanded] = useState(true);
@@ -21,7 +21,7 @@ const Group = ({ group, runes, active, deleteRune }) => {
             <li
               key={id}
               onClick={() => (window.location.hash = id)}
-              className={id === active ? "active" : ""}
+              className={id === active ? 'active' : ''}
             >
               <img src={`/thumbs/${thumb}`} className="thumbnail" />
               {name}
@@ -55,8 +55,6 @@ export default ({ isGroupView, rune, newRune, active, runes, deleteRune }) => {
     }
     return a;
   }, {});
-
-  console.log(sortedRunes);
 
   return (
     <div className="browser">
