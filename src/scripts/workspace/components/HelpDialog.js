@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import {
   // Button,
@@ -10,9 +10,9 @@ import {
   Dialog,
   // Modal,
   // EditRuneDialog,
-} from '.';
+} from ".";
 
-import allCommands from '../../compiler/lexer/commands';
+import allCommands from "../../compiler/lexer/commands";
 
 const groupedCommands = Object.entries(allCommands).reduce(
   (a, [key, value]) => {
@@ -28,10 +28,10 @@ const groupedCommands = Object.entries(allCommands).reduce(
   {}
 );
 
-export default close => (
+export default ({ close }) => (
   <Dialog title="Command Reference" id="help" close={close}>
     <p>Basic usage:</p>
-    {'<command>: <args>'}
+    {"<command>: <args>"}
     <table className="help-commands">
       <thead>
         <tr>
@@ -52,7 +52,7 @@ export default close => (
                 <td>
                   {command.title ||
                     command.name
-                      .replace(/-/, ' ')
+                      .replace(/-/, " ")
                       .replace(/^./, char => char.toUpperCase())}
                 </td>
                 <td>{command.args}</td>
