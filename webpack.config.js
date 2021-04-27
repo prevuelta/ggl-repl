@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -6,6 +7,15 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: '[name].js',
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+    }),
+  ],
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    port: 7200,
   },
   module: {
     rules: [
@@ -20,10 +30,6 @@ module.exports = {
       },
     ],
   },
-  // devServer: {
-  //     contentBase: path.join(__dirname, 'dist'),
-  //     port: 7200,
-  // },
   optimization: {
     splitChunks: {
       chunks: 'all',
