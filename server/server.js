@@ -23,23 +23,23 @@ const compiler = webpack(webpackConfig);
 
 // Check thumbnails
 glob(`${projectDir}/**/*.json`, (err, files) => {
-  console.log(err, files);
   files.forEach(file => {
     const fileContents = JSON.parse(fs.readFileSync(file));
-    console.log(fileContents);
     const thumbFileName = `${fileContents.id}.png`;
     const thumbPath = `${thumbDir}/${thumbFileName}`;
 
-    try {
-      saveThumbnail(thumbPath, fileContents.svg)
-        .then(() => {
-          console.log('Thumb saved');
-        })
-        .catch(err => {
-          console.log(err2);
-        });
-    } catch (err) {
-      console.log(err);
+    if (!fs.existsSync(thumbPath)) {
+      try {
+        saveThumbnail(thumbPath, fileContents.svg)
+          .then(() => {
+            console.log('Thumb saved');
+          })
+          .catch(err => {
+            console.log(err2);
+          });
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
 });
