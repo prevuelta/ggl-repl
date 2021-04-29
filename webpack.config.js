@@ -13,10 +13,6 @@ module.exports = {
       template: './src/index.html',
     }),
   ],
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    port: 7200,
-  },
   module: {
     rules: [
       {

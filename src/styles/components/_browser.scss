@@ -26,6 +26,12 @@
   padding: 2px $hu;
   background: $sky-dark;
 
+  & .active-project {
+    color: $glow;
+    font-size: 12px;
+    margin: 0 $hu;
+  }
+
   &:not(.heading) {
     cursor: pointer;
     display: flex;
