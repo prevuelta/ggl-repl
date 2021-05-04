@@ -68,7 +68,10 @@ export default ({
         <Button onClick={newProject}>New Project +</Button>
       </header>
       <header className="flex-row">
-        <select onChange={async e => await setActiveProject(e.target.value)}>
+        <select
+          value={activeProject}
+          onChange={async e => await setActiveProject(e.target.value)}
+        >
           {Object.keys(projects).map(key => (
             <option value={key}>{key}</option>
           ))}
