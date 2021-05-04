@@ -22,26 +22,25 @@ const tmpDir = path.join(appDir, 'tmp');
 const compiler = webpack(webpackConfig);
 
 // Check thumbnails
-glob(`${projectDir}/**/*.json`, (err, files) => {
-  files.forEach(file => {
-    const fileContents = JSON.parse(fs.readFileSync(file));
-    const thumbFileName = `${fileContents.id}.png`;
-    const thumbPath = `${thumbDir}/${thumbFileName}`;
+const allFiles = glob.sync(`${projectDir}/**/*.json`);
+allFiles.forEach(file => {
+  const fileContents = JSON.parse(fs.readFileSync(file));
+  const thumbFileName = `${fileContents.id}.png`;
+  const thumbPath = `${thumbDir}/${thumbFileName}`;
 
-    if (!fs.existsSync(thumbPath)) {
-      try {
-        saveThumbnail(thumbPath, fileContents.svg)
-          .then(() => {
-            console.log('Thumb saved');
-          })
-          .catch(err => {
-            console.log(err2);
-          });
-      } catch (err) {
-        console.log(err);
-      }
+  if (!fs.existsSync(thumbPath)) {
+    try {
+      saveThumbnail(thumbPath, fileContents.svg)
+        .then(() => {
+          console.log('Thumb saved');
+        })
+        .catch(err => {
+          console.log(err2);
+        });
+    } catch (err) {
+      console.log(err);
     }
-  });
+  }
 });
 
 app.use(
@@ -70,6 +69,7 @@ app
   .get((req, res) => {
     const { id, project } = req.params;
     if (id && project) {
+      console.log(project, id);
       const filePath = path.join(dataDir, 'projects', project, `${id}.json`);
       if (fs.existsSync(filePath)) {
         if (req.query.svg) {
@@ -202,6 +202,7 @@ function getRunes(project) {
   const runes = glob.sync(`${projectDir}/${project}/*.json`).map(f => {
     return JSON.parse(fs.readFileSync(f, 'utf-8'));
   });
+  console.log(runes);
   return runes;
 }
 
@@ -238,8 +239,9 @@ app
   })
   .delete((req, res) => {});
 
-app.get('/runes', (req, res) => {
-  const runes = getRunes();
+app.get('/:project/runes', (req, res) => {
+  const { project } = req.params;
+  const runes = getRunes(project);
   runes.sort((a, b) => {
     const dateA = +new Date(a.created);
     const dateB = +new Date(b.created);

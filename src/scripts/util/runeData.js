@@ -1,6 +1,13 @@
 export default {
-  get: () => {
-    return fetch('/runes').then(res => res.json());
+  getRunes: project => {
+    return fetch(`/${project}/runes`).then(res => res.json());
+  },
+  getProjects: async () => {
+    const response = await fetch('/projects', {
+      'Content-Type': 'application/json',
+    });
+    const projects = await response.json();
+    return projects;
   },
   newProject() {
     const projectName = window

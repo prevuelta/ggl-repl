@@ -33,8 +33,10 @@ export default class Workspace extends Component {
     this.state = {
       parsed: null,
       lexed: null,
+      activeProject: null,
+      projects: {},
+      activeRune: null,
       runes: [],
-      rune: null,
       showEditGroup: true,
       message: '',
       showHelpDialog: false,
@@ -42,17 +44,18 @@ export default class Workspace extends Component {
   }
 
   async componentDidMount() {
-    const runes = await this.getRunes();
-
-    window.addEventListener('hashchange', e => {
-      this.setRune(window.location.hash.substr(1));
+    const projects = await runeData.getProjects();
+    const activeProject = Object.keys(projects)[0];
+    this.setState({
+      projects,
+      activeProject,
     });
 
-    if (window.location.hash) {
-      this.setRune(window.location.hash.substr(1));
-    } else {
-      window.location.hash = runes[0].id;
-    }
+    const runes = await this.getRunes(activeProject);
+
+    console.log(activeProject, runes);
+
+    this.setActiveRune(runes[0]);
     if (AUTOSAVE_ON) {
       this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
     }
@@ -82,7 +85,7 @@ export default class Workspace extends Component {
   };
 
   getRunes = async () => {
-    const runes = await runeData.get();
+    const runes = await runeData.getRunes(this.state.activeProject);
     return new Promise((res, rej) => {
       this.setState({ runes }, () => {
         res(runes);
@@ -95,7 +98,7 @@ export default class Workspace extends Component {
   };
 
   saveRune = async () => {
-    const { source, runes, rune } = this.state;
+    const { source, runes, rune, activeProject } = this.state;
 
     if (!rune) {
       return Promise.resolve();
@@ -126,7 +129,7 @@ export default class Workspace extends Component {
     await this.getRunes();
     if (res.status === 200) {
       const rune = this.state.runes[0];
-      window.location.hash = rune.id;
+      this.setState({ rune });
     }
   };
 
@@ -143,17 +146,21 @@ export default class Workspace extends Component {
     this.getRunes();
   };
 
-  setRune = rune => {
-    if (typeof rune === 'string') {
-      rune = this.getRune(rune);
+  setActiveRune = activeRune => {
+    console.log('Setting activeRune', activeRune);
+    if (typeof activeRune === 'string') {
+      activeRune = this.getRune(activeRune);
     }
-    if (rune) {
-      // globals.rune = rune;
-      this.setState({ rune }, () => {
-        console.log('Set rune', rune);
-        this.parseInput(rune.source);
+    if (activeRune) {
+      this.setState({ activeRune }, () => {
+        console.log('Set activeRune', activeRune);
+        this.parseInput(activeRune.source);
       });
     }
+  };
+
+  setActiveProject = project => {
+    this.setState({ activeProject: projects[project] });
   };
 
   startEditing = id => {
@@ -175,7 +182,7 @@ export default class Workspace extends Component {
     // }
     this.setState({ source });
 
-    const { rune } = this.state;
+    const { activeRune } = this.state;
     // Create token list
     //
     let lexed;
@@ -204,7 +211,7 @@ export default class Workspace extends Component {
       svgString = renderToStaticMarkup(
         <RenderLayer PathElements={parse(lexed, false).paths} />
       );
-      rune.svg = svgString;
+      activeRune.svg = svgString;
     } catch (err) {
       console.log(err);
     }
@@ -229,7 +236,7 @@ export default class Workspace extends Component {
       width,
       height,
       ratio: width / height,
-      rune,
+      activeRune,
     });
   };
 
@@ -254,62 +261,77 @@ export default class Workspace extends Component {
   };
 
   render() {
-    const { props } = this;
-    const { state } = props;
     const {
+      state,
+      deleteProject,
+      deleteRune,
+      newProject,
+      newRune,
+      setActiveRune,
+      setActiveProject,
+    } = this;
+
+    const {
+      activeProject,
+      activeRune,
       parsed,
       lexed,
       source,
       runes,
-      rune,
+      projects,
       width,
       height,
       ratio,
       message,
       showEditDialog,
       showHelpDialog,
-    } = this.state;
+    } = state;
 
     return (
       <div className="workspace">
         {showEditDialog && (
           <EditRuneDialog
-            rune={rune}
+            rune={activeRune}
             updateRune={this.finishEditing}
             close={this.hideEditDialog}
           />
         )}
         {showHelpDialog && <HelpDialog close={this.hideHelpDialog} />}
         <StatusBar
-          rune={rune}
+          activeRune={activeRune}
           save={this.saveRune}
           message={message}
           edit={this.startEditing}
           help={this.showHelpDialog}
         />
-        <Browser
-          rune={rune}
-          runes={runes}
-          newRune={this.newRune}
-          newProject={this.newProject}
-          deleteProject={this.deleteProject}
-          deleteRune={this.deleteRune}
-          active={rune && rune.id}
-        />
+        {activeProject && (
+          <Browser
+            runes={runes}
+            activeRune={activeRune}
+            projects={projects}
+            activeProject={activeProject}
+            newRune={newRune}
+            newProject={newProject}
+            setActiveRune={setActiveRune}
+            setActiveProject={setActiveProject}
+            deleteProject={deleteProject}
+            deleteRune={deleteRune}
+          />
+        )}
         <Source
           value={source}
           parseInput={this.parseInput}
           setExample={this.setExample}
           handleCursorChange={this.cursorChange}
         />
-        {parsed && rune && (
+        {parsed && activeRune && (
           <>
-            <Preview rendered={rune.svg} />
+            <Preview rendered={activeRune.svg} />
             <Renderer
               width={width}
               height={height}
               ratio={ratio}
-              rune={rune}
+              rune={activeRune}
               elements={parsed}
               lexed={lexed}
             />
