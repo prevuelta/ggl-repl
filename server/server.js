@@ -202,7 +202,6 @@ function getRunes(project) {
   const runes = glob.sync(`${projectDir}/${project}/*.json`).map(f => {
     return JSON.parse(fs.readFileSync(f, 'utf-8'));
   });
-  console.log(runes);
   return runes;
 }
 
@@ -242,6 +241,7 @@ app
 app.get('/:project/runes', (req, res) => {
   const { project } = req.params;
   const runes = getRunes(project);
+  console.log('Project', project, runes.length);
   runes.sort((a, b) => {
     const dateA = +new Date(a.created);
     const dateB = +new Date(b.created);

@@ -51,11 +51,9 @@ export default class Workspace extends Component {
       activeProject,
     });
 
-    const runes = await this.getRunes(activeProject);
+    await this.getRunes();
 
-    console.log(activeProject, runes);
-
-    this.setActiveRune(runes[0]);
+    this.setActiveRune(this.state.runes[0]);
     if (AUTOSAVE_ON) {
       this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
     }
@@ -160,7 +158,10 @@ export default class Workspace extends Component {
   };
 
   setActiveProject = project => {
-    this.setState({ activeProject: projects[project] });
+    this.setState({ activeProject: project }, async () => {
+      await this.getRunes();
+      this.setActiveRune(this.state.runes[0]);
+    });
   };
 
   startEditing = id => {
@@ -304,7 +305,7 @@ export default class Workspace extends Component {
           edit={this.startEditing}
           help={this.showHelpDialog}
         />
-        {activeProject && (
+        {activeProject && activeRune && (
           <Browser
             runes={runes}
             activeRune={activeRune}

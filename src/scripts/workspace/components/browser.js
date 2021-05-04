@@ -11,19 +11,21 @@ const Project = ({
   activeRune,
   activeProject,
 }) => {
+  console.log(runes[0]);
   return (
     <>
       <li key={project} className="heading">
         {project.replace(/^./, g => g.toUpperCase())}
         <span className="active-project">ACTIVE</span>
       </li>
-      {runes.map(rune => {
+      {runes.map((rune, i) => {
         const { id, thumb, name } = rune;
+        if (!i) console.log(rune);
         return (
           <li
             key={id}
-            onClick={() => setActiveRune(id)}
-            className={id === activeRune ? 'active' : ''}
+            onClick={() => setActiveRune(rune)}
+            className={rune.id === activeRune.id ? 'active' : ''}
           >
             <img src={`/thumbs/${thumb}`} className="thumbnail" />
             {name}
@@ -59,7 +61,6 @@ export default ({
   setActiveRune,
   deleteRune,
 }) => {
-  const projectRunes = projects[activeProject];
   return (
     <div className="browser">
       <header className="flex-row">
@@ -67,7 +68,7 @@ export default ({
         <Button onClick={newProject}>New Project +</Button>
       </header>
       <header className="flex-row">
-        <select onChange={e => console.log(e.target.value)}>
+        <select onChange={async e => await setActiveProject(e.target.value)}>
           {Object.keys(projects).map(key => (
             <option value={key}>{key}</option>
           ))}
@@ -78,7 +79,7 @@ export default ({
           activeRune={activeRune}
           activeProject={activeProject}
           project={activeProject}
-          runes={projectRunes}
+          runes={runes}
           setActiveRune={setActiveRune}
           deleteRune={deleteRune}
         />
