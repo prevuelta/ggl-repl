@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import React, { Component } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import {
   Button,
   Source,
@@ -10,16 +10,16 @@ import {
   HelpDialog,
   Modal,
   EditRuneDialog,
-} from './components';
+} from "./components";
 import {
   generateName,
   guid,
   globals,
   runeData,
   getDocumentSize,
-} from '../util';
-import { lex, parse } from '../compiler';
-import { RenderLayer } from './components/layers';
+} from "../util";
+import { lex, parse } from "../compiler";
+import { RenderLayer } from "./components/layers";
 
 const defaultHeight = 50;
 const defaultWidth = 50;
@@ -38,8 +38,9 @@ export default class Workspace extends Component {
       activeRune: null,
       runes: [],
       showEditGroup: true,
-      message: '',
+      message: "",
       showHelpDialog: false,
+      source: "",
     };
   }
 
@@ -70,7 +71,7 @@ export default class Workspace extends Component {
     // globals.rune = rune;
     const index = this.state.runes.findIndex(r => r.id === rune.id);
     if (index === -1) {
-      console.warn('Error updating rune: rune not found');
+      console.warn("Error updating rune: rune not found");
       return;
     }
     const { runes } = this.state;
@@ -96,26 +97,28 @@ export default class Workspace extends Component {
   };
 
   saveRune = async () => {
-    const { source, runes, rune, activeProject } = this.state;
+    const { source, runes, activeRune, activeProject } = this.state;
 
-    if (!rune) {
+    console.log(source);
+
+    if (!activeRune) {
       return Promise.resolve();
     }
 
-    rune.ratio = this.state.ratio;
+    activeRune.ratio = this.state.ratio;
 
     const payload = {
-      ...rune,
+      ...activeRune,
       source,
     };
-    this.setState({ message: 'Saving...' });
+    this.setState({ message: "Saving..." });
 
-    const res = await runeData.save(payload);
+    const res = await runeData.save(payload, activeProject);
     let message;
     if (res.status === 200) {
-      message = '~> Rune saved. <~';
+      message = "~> Rune saved. <~";
     } else {
-      message = '!!Problem saving Rune!!';
+      message = "!!Problem saving Rune!!";
     }
     this.setState({ message });
     await this.getRunes();
@@ -123,7 +126,7 @@ export default class Workspace extends Component {
 
   newRune = async () => {
     await this.saveRune();
-    const res = await runeData.new();
+    const res = await runeData.new(this.state.activeProject);
     await this.getRunes();
     if (res.status === 200) {
       const rune = this.state.runes[0];
@@ -132,7 +135,7 @@ export default class Workspace extends Component {
   };
 
   newProject = async () => {
-    console.log('Creating project');
+    console.log("Creating project");
     const res = await runeData.newProject();
     console.log(res);
   };
@@ -140,18 +143,18 @@ export default class Workspace extends Component {
   deleteProject = async () => {};
 
   deleteRune = async id => {
-    await runeData.delete(id);
+    await runeData.delete(id, this.state.activeProject);
     this.getRunes();
   };
 
   setActiveRune = activeRune => {
-    console.log('Setting activeRune', activeRune);
-    if (typeof activeRune === 'string') {
+    console.log("Setting activeRune", activeRune);
+    if (typeof activeRune === "string") {
       activeRune = this.getRune(activeRune);
     }
     if (activeRune) {
       this.setState({ activeRune }, () => {
-        console.log('Set activeRune', activeRune);
+        console.log("Set activeRune", activeRune);
         this.parseInput(activeRune.source);
       });
     }
@@ -177,7 +180,7 @@ export default class Workspace extends Component {
   };
 
   parseInput = source => {
-    console.log('Rendering...');
+    console.log("Rendering...");
     // if (!source && this.state.rune) {
     //     source = this.state.rune.source;
     // }
@@ -190,22 +193,22 @@ export default class Workspace extends Component {
     try {
       lexed = lex(source);
     } catch (err) {
-      console.log('Failed to lex', err);
+      console.log("Failed to lex", err);
       return;
     }
     // Create
-    console.log('Finished lexing...', lexed);
+    console.log("Finished lexing...", lexed);
     let parsed = { paths: () => null, grids: () => null };
     try {
       parsed = parse(lexed);
     } catch (err) {
-      console.log('Failed to parse', err);
+      console.log("Failed to parse", err);
       return;
     }
 
-    console.log('Finished parsing...');
+    console.log("Finished parsing...");
 
-    let svgString = '';
+    let svgString = "";
 
     try {
       // Create render tree
@@ -221,11 +224,11 @@ export default class Workspace extends Component {
 
     const size = getDocumentSize(lexed);
 
-    if (lexed.length && lexed[0].name === 'document') {
+    if (lexed.length && lexed[0].name === "document") {
       const [w, h] = lexed[0].args;
       const padding = (lexed[0].args[2] || 0) * 2;
-      width = (w === 'a' ? size.width : w) + padding;
-      height = (h === 'a' ? size.height : h) + padding;
+      width = (w === "a" ? size.width : w) + padding;
+      height = (h === "a" ? size.height : h) + padding;
     } else {
       width = size.width;
       height = size.height;

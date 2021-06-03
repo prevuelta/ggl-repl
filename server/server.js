@@ -1,23 +1,23 @@
-import express from 'express';
-import config from './config';
-import path from 'path';
-import glob from 'glob';
-import fs from 'fs-extra';
-import { guid, generateName, saveThumbnail } from './util';
-import { exec } from 'child_process';
-import cors from 'cors';
-import webpack from 'webpack';
-import webpackMiddleware from 'webpack-dev-middleware';
-import webpackConfig from '../webpack.config';
+import express from "express";
+import config from "./config";
+import path from "path";
+import glob from "glob";
+import fs from "fs-extra";
+import { guid, generateName, saveThumbnail } from "./util";
+import { exec } from "child_process";
+import cors from "cors";
+import webpack from "webpack";
+import webpackMiddleware from "webpack-dev-middleware";
+import webpackConfig from "../webpack.config";
 
 const app = express();
 const { port } = config;
 
-const appDir = path.join(__dirname, '../build');
-const dataDir = path.join(__dirname, '../data');
-const projectDir = path.join(dataDir, 'projects');
-const thumbDir = path.join(dataDir, 'thumbs');
-const tmpDir = path.join(appDir, 'tmp');
+const appDir = path.join(__dirname, "../build");
+const dataDir = path.join(__dirname, "../data");
+const projectDir = path.join(dataDir, "projects");
+const thumbDir = path.join(dataDir, "thumbs");
+const tmpDir = path.join(appDir, "tmp");
 
 const compiler = webpack(webpackConfig);
 
@@ -32,7 +32,7 @@ allFiles.forEach(file => {
     try {
       saveThumbnail(thumbPath, fileContents.svg)
         .then(() => {
-          console.log('Thumb saved');
+          console.log("Thumb saved");
         })
         .catch(err => {
           console.log(err2);
@@ -51,29 +51,29 @@ app.use(
 
 // app.use(cors);
 app.use(express.static(appDir));
-app.use('/thumbs', express.static(`${dataDir}/thumbs`));
+app.use("/thumbs", express.static(`${dataDir}/thumbs`));
 app.use(express.json());
 
 app.use((req, res, next) => {
   // res.header("Access-Control-Allow-Origin", "http://localhost:5100"); // update to match the domain you will make the request from
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header("Access-Control-Allow-Origin", "*");
   res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
   );
   next();
 });
 
 app
-  .route('/project/:project/:id?')
+  .route("/project/:project/:id?")
   .get((req, res) => {
     const { id, project } = req.params;
     if (id && project) {
       console.log(project, id);
-      const filePath = path.join(dataDir, 'projects', project, `${id}.json`);
+      const filePath = path.join(dataDir, "projects", project, `${id}.json`);
       if (fs.existsSync(filePath)) {
         if (req.query.svg) {
-          const rune = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+          const rune = JSON.parse(fs.readFileSync(filePath, "utf-8"));
           res.send(rune.svg);
         } else {
           res.sendFile(filePath);
@@ -86,25 +86,25 @@ app
     }
   })
   .post((req, res) => {
+    const { project } = req.params;
+
     const rune = req.body;
 
     const now = new Date().toJSON();
     rune.modified = now;
 
     if (!rune.created) {
-      console.log('Adding created');
+      console.log("Adding created");
       rune.created = now;
     }
 
-    const filePath = `${dataDir}/${rune.id}.json`;
+    const filePath = `${projectDir}/${project}/${rune.id}.json`;
     const thumbFileName = `${rune.id}.png`;
     const thumbPath = `${thumbDir}/${thumbFileName}`;
     rune.thumb = thumbFileName;
 
-    console.log('Writing file');
-
     fs.writeFile(filePath, JSON.stringify(rune), err => {
-      if (rune.svg !== '') {
+      if (rune.svg !== "") {
         try {
           saveThumbnail(thumbPath, rune.svg)
             .then(() => {
@@ -116,30 +116,33 @@ app
             });
         } catch (err) {
           console.log(err);
-          res.status(500).send('Failure creating thumbnail');
+          res.status(500).send("Failure creating thumbnail");
         }
       }
     });
   })
   .put((req, res) => {
     const now = new Date().toJSON();
-    const { group, source = '' } = req.body;
-    console.log('New rune', req.body);
+    const { project } = req.params;
+    const { group, source = "" } = req.body;
+
     const rune = {
       id: guid(),
       source,
-      svg: '<svg></svg>',
+      svg: "<svg></svg>",
       name: generateName(),
       group,
       modified: now,
       created: now,
       padding: 0,
     };
-    const filePath = `${dataDir}/${rune.id}.json`;
+    const filePath = `${projectDir}/${project}/${rune.id}.json`;
 
     const thumbFileName = `${rune.id}.png`;
     const thumbPath = `${thumbDir}/${thumbFileName}`;
     rune.thumb = thumbFileName;
+
+    console.log(thumbPath);
 
     fs.writeFile(filePath, JSON.stringify(rune), err => {
       if (err) {
@@ -157,13 +160,14 @@ app
     });
   })
   .delete((req, res) => {
+    const { project } = req.params;
     const { id } = req.body;
-    fs.unlink(`${dataDir}/${id}.json`, err => {
-      if (err) console.log('huh', err);
+    fs.unlink(`${projectDir}/${project}/${id}.json`, err => {
+      if (err) console.log("huh", err);
       const thumbPath = `${dataDir}/thumbs/${id}.png`;
       if (fs.existsSync(thumbPath)) {
         fs.unlink(thumbPath, err => {
-          if (err) console.log('Wat', err);
+          if (err) console.log("Wat", err);
           res.sendStatus(204);
         });
       } else {
@@ -187,7 +191,7 @@ glob(`${dataDir}/*.json`, (err, files) => {
   });
 });
 
-app.get('/preview', (req, res) => {
+app.get("/preview", (req, res) => {
   const output = `${tmpDir}/montage.png`;
   exec(`montage ${dataDir}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
     if (err) {
@@ -200,15 +204,15 @@ app.get('/preview', (req, res) => {
 
 function getRunes(project) {
   const runes = glob.sync(`${projectDir}/${project}/*.json`).map(f => {
-    return JSON.parse(fs.readFileSync(f, 'utf-8'));
+    return JSON.parse(fs.readFileSync(f, "utf-8"));
   });
   return runes;
 }
 
-app.get('/projects', (req, res) => {
+app.get("/projects", (req, res) => {
   const projects = glob
     .sync(`${projectDir}/*`)
-    .map(dir => dir.split('/').pop())
+    .map(dir => dir.split("/").pop())
     .reduce((a, b) => {
       a[b] = getRunes(b);
       return a;
@@ -217,12 +221,12 @@ app.get('/projects', (req, res) => {
 });
 
 app
-  .route('/projects/create/:projectName')
+  .route("/projects/create/:projectName")
   .put(async (req, res) => {
     const { projectName } = req.params;
     const cleanProjectName = projectName
       .toLowerCase()
-      .replace(/[^a-z0-9-_]/g, '');
+      .replace(/[^a-z0-9-_]/g, "");
     if (cleanProjectName) {
       try {
         const result = await fs.ensureDir(path.join(projectDir, projectName));
@@ -238,10 +242,10 @@ app
   })
   .delete((req, res) => {});
 
-app.get('/:project/runes', (req, res) => {
+app.get("/:project/runes", (req, res) => {
   const { project } = req.params;
   const runes = getRunes(project);
-  console.log('Project', project, runes.length);
+  console.log("Project", project, runes.length);
   runes.sort((a, b) => {
     const dateA = +new Date(a.created);
     const dateB = +new Date(b.created);

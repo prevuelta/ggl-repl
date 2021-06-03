@@ -3,42 +3,43 @@ export default {
     return fetch(`/${project}/runes`).then(res => res.json());
   },
   getProjects: async () => {
-    const response = await fetch('/projects', {
-      'Content-Type': 'application/json',
+    const response = await fetch("/projects", {
+      "Content-Type": "application/json",
     });
     const projects = await response.json();
     return projects;
   },
   newProject() {
     const projectName = window
-      .prompt('Create a new project')
+      .prompt("Create a new project")
       .toLowerCase()
-      .replace(/[^a-z0-9-_]/g, '');
+      .replace(/[^a-z0-9-_]/g, "");
     if (projectName) {
       return fetch(`/projects/create/${projectName}`, {
-        method: 'put',
+        method: "put",
       });
     }
   },
-  new: () => {
-    return fetch('/rune', {
-      method: 'put',
+  new: project => {
+    console.log("Creating rune");
+    return fetch(`/project/${project}`, {
+      method: "put",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        group: 'ungrouped',
-        source: 'd:a a 0\n  sg:4 4 40 1',
+        group: "ungrouped",
+        source: "d:a a 0\n  sg:4 4 40 1",
       }),
     });
   },
-  delete: id => {
-    const confirm = window.confirm('Are you sure to delete?');
+  delete: (id, project) => {
+    const confirm = window.confirm("Are you sure to delete?");
     if (confirm) {
-      return fetch('/rune', {
-        method: 'delete',
+      return fetch(`/project/${project}`, {
+        method: "delete",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ id }),
       });
@@ -46,11 +47,11 @@ export default {
       return Promise.reject();
     }
   },
-  save: payload => {
-    return fetch('/rune', {
-      method: 'post',
+  save: (payload, project) => {
+    return fetch(`/project/${project}`, {
+      method: "post",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
     });
