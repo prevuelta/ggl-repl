@@ -54,7 +54,12 @@ export default class Workspace extends Component {
 
     await this.getRunes();
 
-    this.setActiveRune(this.state.runes[0]);
+    const activeRuneId = localStorage.getItem("activeRune");
+    const activeRune =
+      this.state.runes.find((rune) => rune.id === activeRuneId) ||
+      this.state.runes[0];
+
+    this.setActiveRune(activeRune);
     if (AUTOSAVE_ON) {
       this.timer = setTimeout(() => this.autosave(), AUTOSAVE_TIMEOUT);
     }
@@ -67,9 +72,9 @@ export default class Workspace extends Component {
     this.setState({ message: `Autosaved at ${new Date()}` });
   };
 
-  updateRune = rune => {
+  updateRune = (rune) => {
     // globals.rune = rune;
-    const index = this.state.runes.findIndex(r => r.id === rune.id);
+    const index = this.state.runes.findIndex((r) => r.id === rune.id);
     if (index === -1) {
       console.warn("Error updating rune: rune not found");
       return;
@@ -77,7 +82,7 @@ export default class Workspace extends Component {
     const { runes } = this.state;
     return new Promise((res, rej) => {
       this.setState(
-        { rune, runes: runes.map(r => (r.id === rune.id ? rune : r)) },
+        { rune, runes: runes.map((r) => (r.id === rune.id ? rune : r)) },
         res
       );
     });
@@ -92,8 +97,8 @@ export default class Workspace extends Component {
     });
   };
 
-  getRune = id => {
-    return this.state.runes.find(r => r.id === id);
+  getRune = (id) => {
+    return this.state.runes.find((r) => r.id === id);
   };
 
   saveRune = async () => {
@@ -142,13 +147,13 @@ export default class Workspace extends Component {
 
   deleteProject = async () => {};
 
-  deleteRune = async id => {
+  deleteRune = async (id) => {
     await runeData.delete(id, this.state.activeProject);
     this.getRunes();
   };
 
-  setActiveRune = activeRune => {
-    console.log("Setting activeRune", activeRune);
+  setActiveRune = (activeRune) => {
+    localStorage.setItem("activeRune", activeRune.id);
     if (typeof activeRune === "string") {
       activeRune = this.getRune(activeRune);
     }
@@ -160,18 +165,18 @@ export default class Workspace extends Component {
     }
   };
 
-  setActiveProject = project => {
+  setActiveProject = (project) => {
     this.setState({ activeProject: project }, async () => {
       await this.getRunes();
       this.setActiveRune(this.state.runes[0]);
     });
   };
 
-  startEditing = id => {
+  startEditing = (id) => {
     this.setState({ showEditDialog: true });
   };
 
-  finishEditing = rune => {
+  finishEditing = (rune) => {
     console.log(this.state.runes, rune);
     this.updateRune(rune).then(() => {
       this.hideEditDialog();
@@ -179,7 +184,7 @@ export default class Workspace extends Component {
     });
   };
 
-  parseInput = source => {
+  parseInput = (source) => {
     console.log("Rendering...");
     // if (!source && this.state.rune) {
     //     source = this.state.rune.source;
@@ -244,11 +249,11 @@ export default class Workspace extends Component {
     });
   };
 
-  cursorChange = selection => {
+  cursorChange = (selection) => {
     // console.log('Cursor change', selection.lead.row, selection);
   };
 
-  setExample = source => {
+  setExample = (source) => {
     this.parseInput(source);
   };
 
