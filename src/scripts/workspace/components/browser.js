@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Cross, Pencil } from '../icons';
-import Button from './button';
-import { nanoid } from 'nanoid';
+import React, { useState, useEffect } from "react";
+import { X, Cross, Pencil } from "../icons";
+import Button from "./button";
+import { nanoid } from "nanoid";
 
 const Project = ({
   project,
@@ -11,11 +11,10 @@ const Project = ({
   activeRune,
   activeProject,
 }) => {
-  console.log(runes[0]);
   return (
     <>
       <li key={project} className="heading">
-        {project.replace(/^./, g => g.toUpperCase())}
+        {project.replace(/^./, (g) => g.toUpperCase())}
         <span className="active-project">ACTIVE</span>
       </li>
       {runes.map((rune, i) => {
@@ -25,14 +24,14 @@ const Project = ({
           <li
             key={id}
             onClick={() => setActiveRune(rune)}
-            className={rune.id === activeRune.id ? 'active' : ''}
+            className={rune.id === activeRune.id ? "active" : ""}
           >
             <img src={`/thumbs/${thumb}`} className="thumbnail" />
             {name}
             <div className="actions">
               <Button
                 icon="true"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   deleteRune(id);
                 }}
@@ -70,9 +69,9 @@ export default ({
       <header className="flex-row">
         <select
           value={activeProject}
-          onChange={async e => await setActiveProject(e.target.value)}
+          onChange={async (e) => await setActiveProject(e.target.value)}
         >
-          {Object.keys(projects).map(key => (
+          {Object.keys(projects).map((key) => (
             <option value={key}>{key}</option>
           ))}
         </select>

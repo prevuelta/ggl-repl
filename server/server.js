@@ -24,7 +24,7 @@ const compiler = webpack(webpackConfig);
 // Check thumbnails
 const allFiles = glob.sync(`${projectDir}/**/*.json`);
 console.log("Rebuilding thumbnails");
-allFiles.forEach(file => {
+allFiles.forEach((file) => {
   const fileContents = JSON.parse(fs.readFileSync(file));
   const thumbFileName = `${fileContents.id}.png`;
   const thumbPath = `${thumbDir}/${thumbFileName}`;
@@ -35,7 +35,7 @@ allFiles.forEach(file => {
         .then(() => {
           console.log("Thumb saved");
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     } catch (err) {
@@ -104,14 +104,14 @@ app
     const thumbPath = `${thumbDir}/${thumbFileName}`;
     rune.thumb = thumbFileName;
 
-    fs.writeFile(filePath, JSON.stringify(rune), err => {
+    fs.writeFile(filePath, JSON.stringify(rune), (err) => {
       if (rune.svg !== "") {
         try {
           saveThumbnail(thumbPath, rune.svg)
             .then(() => {
               res.sendStatus(200);
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err2);
               res.sendStatus(500);
             });
@@ -143,9 +143,10 @@ app
     const thumbPath = `${thumbDir}/${thumbFileName}`;
     rune.thumb = thumbFileName;
 
+    console.log("Creating rune", project);
     console.log(thumbPath);
 
-    fs.writeFile(filePath, JSON.stringify(rune), err => {
+    fs.writeFile(filePath, JSON.stringify(rune), (err) => {
       if (err) {
         console.log(err);
         res.sendStatus(500);
@@ -154,7 +155,7 @@ app
         .then(() => {
           res.sendStatus(200);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           res.sendStatus(500);
         });
@@ -163,11 +164,11 @@ app
   .delete((req, res) => {
     const { project } = req.params;
     const { id } = req.body;
-    fs.unlink(`${projectDir}/${project}/${id}.json`, err => {
+    fs.unlink(`${projectDir}/${project}/${id}.json`, (err) => {
       if (err) console.log("huh", err);
       const thumbPath = `${dataDir}/thumbs/${id}.png`;
       if (fs.existsSync(thumbPath)) {
-        fs.unlink(thumbPath, err => {
+        fs.unlink(thumbPath, (err) => {
           if (err) console.log("Wat", err);
           res.sendStatus(204);
         });
@@ -189,7 +190,7 @@ app.get("/preview", (req, res) => {
 });
 
 function getRunes(project) {
-  const runes = glob.sync(`${projectDir}/${project}/*.json`).map(f => {
+  const runes = glob.sync(`${projectDir}/${project}/*.json`).map((f) => {
     return JSON.parse(fs.readFileSync(f, "utf-8"));
   });
   return runes;
@@ -198,7 +199,7 @@ function getRunes(project) {
 app.get("/projects", (req, res) => {
   const projects = glob
     .sync(`${projectDir}/*`)
-    .map(dir => dir.split("/").pop())
+    .map((dir) => dir.split("/").pop())
     .reduce((a, b) => {
       a[b] = getRunes(b);
       return a;

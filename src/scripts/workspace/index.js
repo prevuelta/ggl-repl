@@ -177,7 +177,6 @@ export default class Workspace extends Component {
   };
 
   finishEditing = (rune) => {
-    console.log(this.state.runes, rune);
     this.updateRune(rune).then(() => {
       this.hideEditDialog();
       this.saveRune();
@@ -185,7 +184,6 @@ export default class Workspace extends Component {
   };
 
   parseInput = (source) => {
-    console.log("Rendering...");
     // if (!source && this.state.rune) {
     //     source = this.state.rune.source;
     // }
