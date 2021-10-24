@@ -6,7 +6,7 @@
   "scripts": {
     "flow": "flow",
     "start": "run-s build run:client",
-    "run:server": "nodemon -r esm ./server/server.js -i stored -i tmp",
+    "run:server": "nodemon -r esm ./server/server.js -i data",
     "run:client": "browser-sync start -c bs-config.js",
     "predev": "run-s build:css copy-statics",
     "dev": "run-p dev:css run:server",
@@ -61,7 +61,7 @@
     "react-ace": "^8.0.0",
     "react-dom": "^16.11.0",
     "react-draggable": "^4.1.0",
-    "sharp": "^0.28.1",
+    "sharp": "^0.29.2",
     "string.prototype.matchall": "^4.0.0",
     "svg2img": "^0.7.2",
     "svgo": "^1.3.2",

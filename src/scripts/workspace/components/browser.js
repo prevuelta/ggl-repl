@@ -64,8 +64,8 @@ export default ({
   return (
     <div className="browser">
       <header className="flex-row">
-        <Button onClick={newRune}>New Rune +</Button>
-        <Button onClick={newProject}>New Project +</Button>
+        <Button onClick={newRune}>New Graphic</Button>
+        <Button onClick={newProject}>New Project</Button>
       </header>
       <header className="flex-row">
         <select

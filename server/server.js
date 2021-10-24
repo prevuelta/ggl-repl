@@ -23,6 +23,7 @@ const compiler = webpack(webpackConfig);
 
 // Check thumbnails
 const allFiles = glob.sync(`${projectDir}/**/*.json`);
+console.log("Rebuilding thumbnails");
 allFiles.forEach(file => {
   const fileContents = JSON.parse(fs.readFileSync(file));
   const thumbFileName = `${fileContents.id}.png`;
@@ -35,7 +36,7 @@ allFiles.forEach(file => {
           console.log("Thumb saved");
         })
         .catch(err => {
-          console.log(err2);
+          console.log(err);
         });
     } catch (err) {
       console.log(err);
@@ -175,21 +176,6 @@ app
       }
     });
   });
-
-// const output = `${tmpDir}/montage.png`;
-// exec(`montage ${dataDir}/thumbs/*.png ${output}`, (err, stdout, stderr) => {
-//   console.log('Montage generated');
-// });
-glob(`${dataDir}/*.json`, (err, files) => {
-  files.forEach(file => {
-    const frag = path.parse(file);
-    const thumbPath = `${dataDir}/thumbs/${frag.name}.png`;
-    if (!fs.existsSync(thumbPath)) {
-      const rune = JSON.parse(fs.readFileSync(file));
-      saveThumbnail(thumbPath, rune.svg);
-    }
-  });
-});
 
 app.get("/preview", (req, res) => {
   const output = `${tmpDir}/montage.png`;

@@ -26,6 +26,7 @@ export default props => {
               r={ringRadius}
               stroke={COLORS.BLUE}
               fill="none"
+              strokeWidth="1"
             />
             {segmentArr.map(s => (
               <Cross x={s[0]} y={s[1]} color={COLORS.BLUE} />
