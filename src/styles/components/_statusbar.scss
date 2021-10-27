@@ -1,25 +1,30 @@
 .statusbar {
-    background: $cream-dark;
-    padding: 2px;
-    height: auto;
-    font-size: 12px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    color: $cream;
-    display: flex;
-    align-items: center;
-    left: 0;
-    height: $statusbar-height;
+  background: $cream-dark;
+  padding: $qu;
+  height: auto;
+  font-size: 12px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  color: $cream;
+  display: flex;
+  align-items: center;
+  left: 0;
+  height: $statusbar-height;
 
-    > * {
-        margin-right: $qu;
-    }
+  > * {
+    margin-right: $qu;
+  }
+
+  .title {
+    margin-left: $u;
+    margin-right: auto;
+  }
 }
 
 .notifications {
-    margin: 0 0 0 $u;
-    li {
-        color: $glow;
-    }
+  margin: 0 0 0 $u;
+  li {
+    color: $glow;
+  }
 }

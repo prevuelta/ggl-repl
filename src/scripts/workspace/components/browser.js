@@ -19,7 +19,7 @@ const Project = ({
       </li>
       {runes.map((rune, i) => {
         const { id, thumb, name } = rune;
-        if (!i) console.log(rune);
+        // if (!i) console.log(rune);
         return (
           <li
             key={id}

@@ -104,8 +104,6 @@ export default class Workspace extends Component {
   saveRune = async () => {
     const { source, runes, activeRune, activeProject } = this.state;
 
-    console.log(source);
-
     if (!activeRune) {
       return Promise.resolve();
     }

@@ -1,5 +1,11 @@
 import commands, { tokenNames } from "./commands";
-import { commentRegEx, emptyLineRegEx, pathTypesRegEx } from "./regex";
+import {
+  commentRegEx,
+  emptyLineRegEx,
+  pathTypesRegEx,
+  circleUnitRegex,
+} from "./regex";
+import { circleUnit } from "./replacements";
 
 const {
   SQUARE_GRID,
@@ -25,18 +31,19 @@ const TWO_PI = PI * 2;
 
 const chars = "[0-9a-z*/+-.{}]";
 
+const namedGridContext = {};
+
 const preArgSplitReplacements = [
   {
     name: "Inline loop interpolation",
-    regex: `\\[(\\d+):(.*?)\\]`,
+    regex: `([0-9]+)\\[(.*?)\\]`,
     parse(str, vars) {
       const matches = [...str.matchAll(this.regex)];
       matches.forEach((match) => {
         const [toReplace, count, loopStr] = match;
         const newStrings = [];
-        for (let i = 1; i <= +count; i++) {
+        for (let i = 0; i < +count; i++) {
           const newLoopStr = loopStr.replace(/[x]/g, i);
-          // console.log("After x replaces", newLoopStr);
           const { cos, sin, tan, log, atan, asin, acos, random } = Math;
           newLoopStr = newLoopStr.replace(/{(.*?)}/g, (_, match) =>
             // Fix this
@@ -46,8 +53,6 @@ const preArgSplitReplacements = [
         }
         const replacement = newStrings.join(",");
         str = str.replace(toReplace, replacement);
-        console.log("Replacement", replacement, match);
-        // str = this.replace(str, match, vars);
       });
       // console.log("What", str, vars);
       // str = str.replace(/[x]/g, vars.loopContext.count);
@@ -58,8 +63,9 @@ const preArgSplitReplacements = [
       console.log("Str", str);
       return str;
     },
-    replace(str, matches, { loopContext }) {
-      return str.replace(matches[0], loopContext.count);
+    replace(str, matches) {
+      console.log("Inline loop", str, matches);
+      // return str.replace(matches[0], loopContext.count);
     },
   },
 ];
@@ -112,30 +118,19 @@ const pairArgReplacements = [
     },
   },
   {
-    name: "Circle unit",
-    regex: /([0-9]+)r([0-9]+)/,
-    replace(str, matches, { circleGridContext }) {
-      console.log(str, matches);
-      const {
-        radius,
-        rings,
-        segments,
-        offset,
-        positionX,
-        positionY,
-      } = circleGridContext;
-      const r = +matches[1];
-      const s = +matches[2];
-      const sInterval = TWO_PI / segments;
-      const rInterval = radius / rings;
-      const theta = sInterval * s + offset;
-      const newRadius = rInterval * r;
-      const x = Math.cos(theta) * newRadius + radius + positionX;
-      const y = Math.sin(theta) * newRadius + radius + positionY;
-      const newStr = str.replace(matches[0], `${x.toFixed(4)} ${y.toFixed(4)}`);
-      console.log("Output", newStr);
-      return newStr;
+    name: "Named grid context",
+    regex: /#([a-z]+)\[(.+?)\]/,
+    replace(str, matches) {
+      const [_, id, gridUnit] = matches;
+      return circleUnit(gridUnit, gridUnit.match(circleUnitRegex), {
+        circleGridContext: namedGridContext[id],
+      });
     },
+  },
+  {
+    name: "Circle unit",
+    regex: circleUnitRegex,
+    replace: circleUnit,
   },
   {
     name: "Single axis",
@@ -313,6 +308,8 @@ export default function(string) {
         return;
       }
 
+      console.log("LINE", line);
+
       const commandRegEx = /^([a-z]{1,2})[:|=]/;
 
       if (!commandRegEx.test(line)) {
@@ -419,6 +416,8 @@ export default function(string) {
           }
 
           if (name === CIRCLE_GRID) {
+            console.log("CIRCLE GRID", tokenArgs, idMatches);
+
             if (!tokenArgs.length) return;
 
             const [
@@ -430,7 +429,7 @@ export default function(string) {
               positionY = 0,
             ] = tokenArgs[0];
 
-            circleGridContext = {
+            const gridContext = {
               width: radius * 2,
               height: radius * 2,
               radius,
@@ -440,6 +439,12 @@ export default function(string) {
               positionX,
               positionY,
             };
+
+            circleGridContext = gridContext;
+
+            if (idMatches) {
+              namedGridContext[idMatches[1]] = gridContext;
+            }
           }
           if (name === SQUARE_GRID || name === TRI_GRID) {
             if (!tokenArgs.length) return;

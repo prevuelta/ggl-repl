@@ -1,6 +1,7 @@
 .browser {
   // left: 0;
   // bottom: 0;
+  flex: 0 0 $browser-width;
   width: $browser-width;
   background: $cream-dark;
   overflow-y: scroll;
