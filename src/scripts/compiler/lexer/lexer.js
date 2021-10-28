@@ -267,6 +267,7 @@ function argReducerFactory(vars) {
 }
 
 // TODO: Break token replacement into replace, compute
+let loopTokens = [];
 
 export default function(string) {
   let squareGridContext = {
@@ -288,11 +289,12 @@ export default function(string) {
   let exitLoopDepth;
   let loopLimit;
 
-  lines
+  const filteredLines = lines
     .filter(
       (line) => !(commentRegEx.test(line.trim()) || emptyLineRegEx.test(line))
-    )
-    .map((line) => {
+    );
+    filteredLines.map((line, index) => {
+      const isLastLine = index === filteredLines.length - 1;
       const depth = (line.match(/ {2}/g) || []).length;
       line = line.trim().replace(/\r|\n/, "");
 
@@ -307,8 +309,6 @@ export default function(string) {
         });
         return;
       }
-
-      console.log("LINE", line);
 
       const commandRegEx = /^([a-z]{1,2})[:|=]/;
 
@@ -325,35 +325,51 @@ export default function(string) {
 
       if (command === "re") {
         isRepeating = true;
+        // TODO: use regex for this
         loopLimit = +line.split(":")[1].split(" ")[0];
         exitLoopDepth = depth;
         tokens.push({
           name: "repeat",
+          limit: loopLimit,
           depth,
         });
-        return;
-      } else {
-        if (isRepeating && depth <= exitLoopDepth) {
-          isRepeating = false;
-        }
-      }
-
-      if (isRepeating) {
         loopContext = {
           count: 0,
           increment: 1,
           limit: loopLimit,
           ref: "x",
         };
+        return;
+      } else {
+        if ((isRepeating && depth <= exitLoopDepth) ) {
+          // add loop tokens
+          console.log("Loop tokens", loopTokens);
+          isRepeating = false;
+        }
+      }
+
+      if (isRepeating) {
         for (let i = 0; i < loopContext.limit; i++) {
-          processLine();
+          console.log(i);
+          const lineTokens = processLine();
+          if (loopTokens[i]) {
+            loopTokens[i].push(...lineTokens);
+          } else {
+            loopTokens[i] = [lineTokens];
+          }
           loopContext.count += loopContext.increment;
         }
       } else {
-        processLine();
+        const lineTokens = processLine();
+        tokens.push(...lineTokens);
       }
 
-      function processLine() {
+      if (isLastLine) {
+        console.log("Sort out repeating");
+      }
+
+      function processLine ()  {
+        const lineTokens = [];
         let id;
         if (idMatches) {
           id = idMatches[1];
@@ -361,7 +377,7 @@ export default function(string) {
         }
 
         if (pathTypesRegEx.test(command)) {
-          tokens.push({
+           lineTokens.push({
             name: "path",
             depth,
             id,
@@ -373,13 +389,12 @@ export default function(string) {
           new RegExp(`^|[, ](?=[${Object.keys(commands).join("")}]:)`)
         );
 
-        commandLines.forEach((command) => {
-          console.log("Command line", command);
+        return commandLines.reduce((commandTokens, command) => {
           let [_, ref, argStr] = command.trim().split(/^(.{1,2}):/);
 
           if (!commands[ref]) {
             console.warn(`Command not recognised - ${ref}`);
-            return;
+            return commandTokens;
           }
 
           const commandRef = commands[ref];
@@ -416,9 +431,7 @@ export default function(string) {
           }
 
           if (name === CIRCLE_GRID) {
-            console.log("CIRCLE GRID", tokenArgs, idMatches);
-
-            if (!tokenArgs.length) return;
+            if (!tokenArgs.length) return commandTokens;
 
             const [
               radius,
@@ -447,7 +460,7 @@ export default function(string) {
             }
           }
           if (name === SQUARE_GRID || name === TRI_GRID) {
-            if (!tokenArgs.length) return;
+            if (!tokenArgs.length) return commandTokens;
             const [
               xUnits,
               yUnits,
@@ -471,21 +484,11 @@ export default function(string) {
           }
 
           if (name === CLOSE_PATH) {
-            tokens = [
-              ...tokens,
-              {
-                name,
-                depth,
-                id,
-              },
-            ];
-
-            return;
+            commandTokens.push({name, depth, id });
+            return commandTokens;
           }
 
-          tokens = [
-            ...tokens,
-            ...tokenArgs
+          const tokes =  tokenArgs
               .filter((args) => !argCount || args.length >= argCount)
               .map((args) => ({
                 name,
@@ -493,9 +496,11 @@ export default function(string) {
                 args,
                 depth,
                 id,
-              })),
-          ];
-        });
+              }));
+          commandTokens.push(...tokes);
+          return commandTokens;
+        }, lineTokens);
+
       }
     });
 
