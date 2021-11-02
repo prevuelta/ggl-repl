@@ -19,6 +19,8 @@ const clamp = function(val, min, max) {
   return Math.min(Math.max(val, min), max);
 };
 
+
+
 const commandTypes = Object.keys(commands).reduce((a, b) => {
   a[b] = commands[b].type;
   return a;
@@ -30,6 +32,10 @@ const QUARTER_PI = PI / 4;
 const TWO_PI = PI * 2;
 
 const chars = "[0-9a-z*/+-.{}]";
+
+const refRegEx = /^#(.+?)\s?$/;
+
+const commandRegEx = /^([a-z]{1,2})[:|=]/;
 
 const namedGridContext = {};
 
@@ -101,7 +107,6 @@ const pairArgReplacements = [
     name: "Loop interpolation",
     regex: "{(.*?)}",
     parse(str, vars) {
-      console.log("Loop interpolation", str);
       str = str.replace(/[x]/g, vars.loopContext.count);
       str = str.replace(
         /{(.*?)}/g,
@@ -295,22 +300,9 @@ export default function(string) {
     );
     filteredLines.map((line, index) => {
       const isLastLine = index === filteredLines.length - 1;
+
       const depth = (line.match(/ {2}/g) || []).length;
       line = line.trim().replace(/\r|\n/, "");
-
-      const refRegEx = /^#(.+?)\s?$/;
-
-      if (refRegEx.test(line)) {
-        const matches = refRegEx.exec(line);
-        tokens.push({
-          name: "$ref",
-          depth,
-          id: matches[1],
-        });
-        return;
-      }
-
-      const commandRegEx = /^([a-z]{1,2})[:|=]/;
 
       if (!commandRegEx.test(line)) {
         return;
@@ -350,12 +342,12 @@ export default function(string) {
 
       if (isRepeating) {
         for (let i = 0; i < loopContext.limit; i++) {
-          console.log(i);
           const lineTokens = processLine();
+          console.log(lineTokens);
           if (loopTokens[i]) {
             loopTokens[i].push(...lineTokens);
           } else {
-            loopTokens[i] = [lineTokens];
+            loopTokens[i] = lineTokens;
           }
           loopContext.count += loopContext.increment;
         }
@@ -364,12 +356,20 @@ export default function(string) {
         tokens.push(...lineTokens);
       }
 
-      if (isLastLine) {
-        console.log("Sort out repeating");
-      }
 
       function processLine ()  {
         const lineTokens = [];
+
+        if (refRegEx.test(line)) {
+          const matches = refRegEx.exec(line);
+          lineTokens.push({
+            name: "$ref",
+            depth,
+            id: matches[1],
+          });
+          return lineTokens;
+        }
+
         let id;
         if (idMatches) {
           id = idMatches[1];
@@ -503,6 +503,10 @@ export default function(string) {
 
       }
     });
+
+  if (isRepeating) {
+    console.log("REPEAINT", loopTokens);
+  }
 
   return tokens;
 }
