@@ -19,8 +19,6 @@ const clamp = function(val, min, max) {
   return Math.min(Math.max(val, min), max);
 };
 
-
-
 const commandTypes = Object.keys(commands).reduce((a, b) => {
   a[b] = commands[b].type;
   return a;
@@ -110,7 +108,7 @@ const pairArgReplacements = [
       str = str.replace(/[x]/g, vars.loopContext.count);
       str = str.replace(
         /{(.*?)}/g,
-        (_, match) => console.log("Loop interpolation", match) || eval(match)
+        (_, match) => eval(match)
       );
       const matches = [...str.matchAll(this.regex)];
       matches.forEach((match) => {
@@ -304,13 +302,13 @@ export default function(string) {
       const depth = (line.match(/ {2}/g) || []).length;
       line = line.trim().replace(/\r|\n/, "");
 
-      if (!commandRegEx.test(line)) {
-        return;
-      }
+      // if (!commandRegEx.test(line)) {
+      //   return;
+      // }
 
       const lineMatches = line.match(commandRegEx);
 
-      const command = lineMatches[1];
+      const command = lineMatches?.length && lineMatches[1];
 
       // const type = commandTypes[typeRef];
       const idMatches = /=(.+?)(?=:)/.exec(line);
@@ -335,15 +333,17 @@ export default function(string) {
       } else {
         if ((isRepeating && depth <= exitLoopDepth) ) {
           // add loop tokens
-          console.log("Loop tokens", loopTokens);
           isRepeating = false;
+          loopTokens.forEach(loopToken => {
+            tokens.push(...loopToken);
+          });
+          loopTokens = [];
         }
       }
 
       if (isRepeating) {
         for (let i = 0; i < loopContext.limit; i++) {
           const lineTokens = processLine();
-          console.log(lineTokens);
           if (loopTokens[i]) {
             loopTokens[i].push(...lineTokens);
           } else {
@@ -351,6 +351,7 @@ export default function(string) {
           }
           loopContext.count += loopContext.increment;
         }
+        loopContext.count = 0;
       } else {
         const lineTokens = processLine();
         tokens.push(...lineTokens);
@@ -505,7 +506,10 @@ export default function(string) {
     });
 
   if (isRepeating) {
-    console.log("REPEAINT", loopTokens);
+    loopTokens.forEach(loopToken => {
+      tokens.push(...loopToken);
+    });
+    loopTokens = [];
   }
 
   return tokens;
